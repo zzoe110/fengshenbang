@@ -7,6 +7,17 @@
 // 5. 登录限流
 // ============================================
 
+// ============================================
+// 硬编码凭据（仅开发者可修改）
+// 账号: admin | 密码: zouyinde@1314
+// PBKDF2-SHA256, 100000 iterations
+// ============================================
+const HARDCODED_CREDENTIALS = {
+  username: 'admin',
+  hash: 'fy96EZ5WXWbIDs/o4fwhQ6wqMeceGg5sXbLEi5qwqxE=',
+  salt: 'BeQiHJtCIiX+bsQcIJQ53A=='
+};
+
 const Security = {
 
   // ============================================
@@ -198,39 +209,12 @@ const Security = {
   },
 
   // ============================================
-  // 初始化默认账号（首次运行时生成哈希）
+  // 初始化（纯前端版：仅设置加密密钥）
+  // 密码验证直接使用 HARDCODED_CREDENTIALS
   // ============================================
-  async initDefaultCredentials() {
-    const stored = localStorage.getItem('fsb_credentials');
-    if (stored) return; // 已初始化
-
-    const defaultUser = 'admin';
-    const defaultPass = 'admin' + Math.random().toString(36).slice(-6) + '!';
-
-    const { hash, salt } = await this.hashPassword(defaultPass);
-    localStorage.setItem('fsb_credentials', JSON.stringify({
-      username: defaultUser,
-      hash,
-      salt,
-      createdAt: new Date().toISOString()
-    }));
-
-    // 把随机密码打印到控制台（仅首次）
-    console.log('%c🔐 烽审榜 CMS 首次初始化', 'color:#d4af6a;font-size:14px;font-weight:bold;');
-    console.log('%c账号: ' + defaultUser, 'color:#b8924a;font-size:13px;');
-    console.log('%c密码: ' + defaultPass, 'color:#b8924a;font-size:13px;font-weight:bold;');
-    console.log('%c⚠️ 请立即登录后修改默认密码！', 'color:#f44336;font-size:12px;');
-    console.log('%c（此密码仅显示一次，刷新后无法查看）', 'color:#707070;font-size:11px;');
-
-    // 提示用户
-    const tip = document.createElement('div');
-    tip.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid #d4af6a;color:#e8c896;padding:1rem 1.5rem;border-radius:8px;z-index:99999;font-family:monospace;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,0.5);max-width:90%;';
-    tip.innerHTML = `<div style="font-weight:bold;margin-bottom:0.5rem;">🔐 安全初始化</div>
-      <div>账号: <strong style="color:#fff;">${defaultUser}</strong></div>
-      <div>密码: <strong style="color:#fff;">${defaultPass}</strong></div>
-      <div style="color:#f44336;margin-top:0.5rem;font-size:11px;">⚠️ 请立即保存并修改！</div>`;
-    document.body.appendChild(tip);
-    setTimeout(() => tip.remove(), 15000);
+  async initCredentials() {
+    // 仅初始化加密密钥（如果需要）
+    await this.getOrCreateMasterKey();
   }
 };
 

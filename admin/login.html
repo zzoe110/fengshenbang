@@ -20,6 +20,7 @@
         <h1 class="login-title">烽审榜 <span class="gold">CMS</span></h1>
         <p class="login-subtitle">管理工作室网站内容</p>
       </div>
+
       <form class="login-form" id="loginForm" autocomplete="off">
         <div class="form-group">
           <label class="form-label">账号</label>
@@ -31,9 +32,6 @@
         </div>
         <div class="form-error" id="loginError"></div>
         <button type="submit" class="btn btn-primary login-btn" id="loginBtn">登 录</button>
-        <p class="login-hint" id="loginHint">
-          🔐 首次访问将自动生成安全密码，请在控制台查看
-        </p>
       </form>
     </div>
   </div>
@@ -42,9 +40,10 @@
   <script src="../assets/js/security.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
-      // 初始化默认凭据（首次访问）
-      await Security.initDefaultCredentials();
+      // 初始化加密密钥
+      await Security.initCredentials();
 
+      // 绑定登录表单
       document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         await handleLogin();
@@ -69,15 +68,13 @@
       btn.textContent = '验证中...';
 
       try {
-        const credentials = JSON.parse(localStorage.getItem('fsb_credentials') || '{}');
-
         // 验证账号
-        if (u !== credentials.username) {
+        if (u !== HARDCODED_CREDENTIALS.username) {
           throw new Error('账号或密码错误');
         }
 
         // 验证密码（PBKDF2）
-        const valid = await Security.verifyPassword(p, credentials.hash, credentials.salt);
+        const valid = await Security.verifyPassword(p, HARDCODED_CREDENTIALS.hash, HARDCODED_CREDENTIALS.salt);
 
         if (valid) {
           Security.recordLoginAttempt(true);
@@ -86,17 +83,13 @@
           sessionStorage.setItem('fsb_admin_logged_in', '1');
           sessionStorage.setItem('fsb_admin_user', u);
           sessionStorage.setItem('fsb_admin_login_time', Date.now().toString());
-
-          // 30分钟无操作自动登出
           sessionStorage.setItem('fsb_session_expire',
             (Date.now() + 30 * 60 * 1000).toString());
 
           err.style.color = '#4caf50';
           err.textContent = '✓ 登录成功，正在跳转...';
 
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 500);
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
         } else {
           throw new Error('账号或密码错误');
         }
