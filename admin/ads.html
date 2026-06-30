@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告位管理 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html" class="active">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html">⚙️ 站点设置</a>
+        <a href="audit.html">🛡️ 安全审计</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">广告位管理</h1>
+        <p class="page-desc">编辑「主营业务」页底部的广告位内容。所有字段均可自定义。</p>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">📢 广告位内容</h2>
+        <p class="editor-panel-desc">这个广告位会显示在业务页底部，吸引用户联系/转化。</p>
+
+        <div class="form-group">
+          <label class="form-label">广告标题</label>
+          <input type="text" class="form-input" id="ad_title" placeholder="🔥 限时活动">
+        </div>
+        <div class="form-group">
+          <label class="form-label">广告描述</label>
+          <textarea class="form-textarea" id="ad_desc" style="min-height:80px;"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">按钮文字</label>
+            <input type="text" class="form-input" id="ad_btn" placeholder="立即咨询 →">
+          </div>
+          <div class="form-group">
+            <label class="form-label">按钮链接</label>
+            <input type="text" class="form-input" id="ad_link" placeholder="mailto:contact@fengshenbang.com">
+          </div>
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn btn-danger" id="clearBtn">清空广告位</button>
+          <button class="btn btn-primary" id="saveBtn">保存</button>
+        </div>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">👀 实时预览</h2>
+        <p class="editor-panel-desc">保存后会在前台看到效果。</p>
+        <div class="ad-slot" id="preview" style="position:relative;border:2px dashed #b8924a;border-radius:12px;padding:3rem;text-align:center;background:rgba(184,146,74,0.05);">
+          <div class="ad-tag" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#b8924a,#e8c896);color:#0a0a0a;padding:0.25rem 1.25rem;border-radius:9999px;font-size:0.75rem;font-weight:700;">广告位</div>
+          <h3 id="prev_title" style="font-size:1.875rem;font-weight:800;color:#fff;margin-bottom:0.75rem;">广告标题</h3>
+          <p id="prev_desc" style="color:#a0a0a0;margin-bottom:1.5rem;">广告描述</p>
+          <a id="prev_btn" href="#" class="btn btn-outline" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1.5rem;border:1px solid #b8924a;border-radius:9999px;color:#e8c896;text-decoration:none;">按钮</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+      loadAd();
+      document.getElementById('saveBtn').addEventListener('click', saveAd);
+      document.getElementById('clearBtn').addEventListener('click', clearAd);
+
+      ['ad_title', 'ad_desc', 'ad_btn', 'ad_link'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePreview);
+      });
+    });
+
+    function loadAd() {
+      const ad = DataStore.getAd();
+      if (ad) {
+        document.getElementById('ad_title').value = ad.title || '';
+        document.getElementById('ad_desc').value = ad.desc || '';
+        document.getElementById('ad_btn').value = ad.btn || '';
+        document.getElementById('ad_link').value = ad.link || '';
+      } else {
+        document.getElementById('ad_title').value = '🔥 限时活动';
+        document.getElementById('ad_desc').value = '前10名咨询客户可享受8折优惠，立即预约！';
+        document.getElementById('ad_btn').value = '立即咨询 →';
+        document.getElementById('ad_link').value = 'mailto:contact@fengshenbang.com';
+      }
+      updatePreview();
+    }
+
+    function updatePreview() {
+      document.getElementById('prev_title').textContent = document.getElementById('ad_title').value || '广告标题';
+      document.getElementById('prev_desc').textContent = document.getElementById('ad_desc').value || '广告描述';
+      const btnText = document.getElementById('ad_btn').value || '按钮';
+      const btnLink = document.getElementById('ad_link').value || '#';
+      const btn = document.getElementById('prev_btn');
+      btn.textContent = btnText;
+      btn.href = btnLink;
+    }
+
+    function saveAd() {
+      const data = {
+        title: document.getElementById('ad_title').value.trim(),
+        desc: document.getElementById('ad_desc').value.trim(),
+        btn: document.getElementById('ad_btn').value.trim(),
+        link: document.getElementById('ad_link').value.trim()
+      };
+      DataStore.saveAd(data);
+      showToast('已保存', 'success');
+    }
+
+    function clearAd() {
+      if (!confirm('确定清空广告位？')) return;
+      localStorage.removeItem('fsb_ad_slot');
+      document.getElementById('ad_title').value = '';
+      document.getElementById('ad_desc').value = '';
+      document.getElementById('ad_btn').value = '';
+      document.getElementById('ad_link').value = '';
+      updatePreview();
+      showToast('已清空', 'success');
+    }
+  </script>
+
+  <style>
+    .ad-slot { position: relative; }
+  </style>
+</body>
+</html>

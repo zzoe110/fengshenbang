@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仪表盘 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="active">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html">⚙️ 站点设置</a>
+        <a href="audit.html">🛡️ 安全审计</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">仪表盘</h1>
+        <p class="page-desc">欢迎回来，程序烽！这是你的网站运营概览。</p>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(184,146,74,0.15);color:#b8924a;">🎯</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statServices">0</div>
+            <div class="stat-card-label">主营业务</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(212,175,106,0.15);color:#d4af6a;">📝</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statBlogs">0</div>
+            <div class="stat-card-label">博客文章</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(232,200,150,0.15);color:#e8c896;">🏆</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statCases">0</div>
+            <div class="stat-card-label">客户案例</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(76,175,80,0.15);color:#4caf50;">📈</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statAds">0</div>
+            <div class="stat-card-label">广告位</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快捷操作 -->
+      <div class="quick-actions">
+        <h2 class="section-title-mini">快捷操作</h2>
+        <div class="action-grid">
+          <a href="blog.html" class="action-card">
+            <span class="action-icon">📝</span>
+            <span class="action-text">发布博客</span>
+          </a>
+          <a href="cases.html" class="action-card">
+            <span class="action-icon">🏆</span>
+            <span class="action-text">新增案例</span>
+          </a>
+          <a href="services.html" class="action-card">
+            <span class="action-icon">🎯</span>
+            <span class="action-text">编辑业务</span>
+          </a>
+          <a href="seo.html" class="action-card">
+            <span class="action-icon">🔍</span>
+            <span class="action-text">SEO设置</span>
+          </a>
+          <a href="settings.html" class="action-card">
+            <span class="action-icon">⚙️</span>
+            <span class="action-text">站点配置</span>
+          </a>
+          <a href="../index.html" target="_blank" class="action-card">
+            <span class="action-icon">🌐</span>
+            <span class="action-text">访问前台</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 系统信息 -->
+      <div class="system-info">
+        <h2 class="section-title-mini">系统信息</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">站点名称</span>
+            <span class="info-value" id="infoSiteName">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">站点域名</span>
+            <span class="info-value" id="infoSiteUrl">未设置（请在站点设置中配置）</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">数据存储</span>
+            <span class="info-value">浏览器本地存储（演示版）</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署状态</span>
+            <span class="info-value">本地预览模式</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+      // 加载统计数据
+      document.getElementById('statServices').textContent = DataStore.getServices().length || 0;
+      document.getElementById('statBlogs').textContent = DataStore.getBlog().length || 0;
+      document.getElementById('statCases').textContent = DataStore.getCases().length || 0;
+      document.getElementById('statAds').textContent = localStorage.getItem('fsb_ad_slot') ? 1 : 0;
+
+      // 加载站点信息
+      const siteCfg = getSiteConfig();
+      document.getElementById('infoSiteName').textContent = siteCfg.siteName || '烽审榜';
+      document.getElementById('infoSiteUrl').textContent = siteCfg.siteUrl || '未设置（请在站点设置中配置）';
+  </script>
+</body>
+</html>

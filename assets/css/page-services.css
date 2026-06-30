@@ -1,0 +1,213 @@
+/* 业务详情页样式 */
+
+.page-hero {
+  position: relative;
+  padding: calc(72px + 5rem) 0 4rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(184, 146, 74, 0.1) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.page-hero-title {
+  font-size: var(--fs-6xl);
+  font-weight: 900;
+  color: var(--color-text-primary);
+  margin: 1rem 0 1.5rem;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.page-hero-desc {
+  font-size: var(--fs-lg);
+  color: var(--color-text-tertiary);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}
+
+/* 业务详情大卡片 */
+.service-detail {
+  margin-bottom: 3rem;
+  padding: 3rem;
+  background: var(--color-bg-secondary);
+  background-image: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-detail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient-gold);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.6s ease;
+}
+
+.service-detail:hover::before {
+  transform: scaleY(1);
+}
+
+.service-detail:hover {
+  border-color: var(--color-gold-primary);
+  transform: translateX(8px);
+}
+
+.service-detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.service-detail-icon {
+  font-size: 4rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 16px var(--color-gold-glow));
+}
+
+.service-detail-info {
+  flex: 1;
+}
+
+.service-detail-title {
+  font-size: var(--fs-4xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.service-detail-subtitle {
+  font-family: var(--font-en);
+  font-size: var(--fs-base);
+  color: var(--color-gold-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.service-detail-summary {
+  font-size: var(--fs-lg);
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.service-detail-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.service-detail-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(184, 146, 74, 0.05);
+  border: 1px solid rgba(184, 146, 74, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.service-detail-feature::before {
+  content: '✓';
+  color: var(--color-gold-secondary);
+  font-weight: 800;
+  font-size: var(--fs-base);
+}
+
+.service-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.service-detail-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 广告位 */
+.ad-slot {
+  position: relative;
+  padding: 3rem;
+  background: var(--gradient-card);
+  border: 2px dashed var(--color-gold-primary);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.ad-tag {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-gold);
+  color: var(--color-bg-primary);
+  padding: 0.25rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.ad-title {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.ad-desc {
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-base);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .service-detail {
+    padding: 1.5rem;
+  }
+
+  .service-detail-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .service-detail-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .ad-slot {
+    padding: 2rem 1.5rem;
+  }
+}

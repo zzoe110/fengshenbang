@@ -1,0 +1,98 @@
+/* ============================================
+   烽审榜设计系统 - CSS 变量
+   黑金·商务权威版
+   ============================================ */
+
+:root {
+  /* 主色系 - 黑 */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #2a2a2a;
+  --color-border: #3a3a3a;
+
+  /* 强调色 - 金 */
+  --color-gold-primary: #b8924a;
+  --color-gold-secondary: #d4af6a;
+  --color-gold-highlight: #e8c896;
+  --color-gold-glow: rgba(212, 175, 106, 0.3);
+
+  /* 文字色 */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-text-tertiary: #a0a0a0;
+  --color-text-muted: #707070;
+
+  /* 功能色 */
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-error: #f44336;
+  --color-info: #d4af6a;
+
+  /* 渐变 */
+  --gradient-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  --gradient-gold: linear-gradient(135deg, #b8924a 0%, #e8c896 50%, #b8924a 100%);
+  --gradient-card: linear-gradient(145deg, rgba(184, 146, 74, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 4px 20px rgba(212, 175, 106, 0.2);
+
+  /* 字体 */
+  --font-zh: 'PingFang SC', 'Microsoft YaHei', '阿里巴巴普惠体', sans-serif;
+  --font-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-deco: '演示夏行楷', 'STKaiti', 'KaiTi', serif;
+
+  /* 字号 */
+  --fs-xs: 0.75rem;    /* 12px */
+  --fs-sm: 0.875rem;   /* 14px */
+  --fs-base: 1rem;     /* 16px */
+  --fs-lg: 1.125rem;   /* 18px */
+  --fs-xl: 1.25rem;    /* 20px */
+  --fs-2xl: 1.5rem;    /* 24px */
+  --fs-3xl: 1.875rem;  /* 30px */
+  --fs-4xl: 2.25rem;   /* 36px */
+  --fs-5xl: 3rem;      /* 48px */
+  --fs-6xl: 3.75rem;   /* 60px */
+
+  /* 间距 */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* 过渡 */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* 容器 */
+  --container-max: 1200px;
+  --container-padding: 2rem;
+
+  /* z-index */
+  --z-base: 1;
+  --z-header: 100;
+  --z-modal: 1000;
+  --z-tooltip: 2000;
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 1rem;
+    --fs-5xl: 2.25rem;
+    --fs-6xl: 2.5rem;
+  }
+}

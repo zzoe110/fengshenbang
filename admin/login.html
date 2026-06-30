@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台登录 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
+
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="login-page">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="login-logo">
+        <h1 class="login-title">烽审榜 <span class="gold">CMS</span></h1>
+        <p class="login-subtitle">管理工作室网站内容</p>
+      </div>
+      <form class="login-form" id="loginForm" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label">账号</label>
+          <input type="text" class="form-input" id="username" placeholder="请输入账号" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">密码</label>
+          <input type="password" class="form-input" id="password" placeholder="请输入密码" required autocomplete="current-password">
+        </div>
+        <div class="form-error" id="loginError"></div>
+        <button type="submit" class="btn btn-primary login-btn" id="loginBtn">登 录</button>
+        <p class="login-hint" id="loginHint">
+          🔐 首次访问将自动生成安全密码，请在控制台查看
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      // 初始化默认凭据（首次访问）
+      await Security.initDefaultCredentials();
+
+      document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await handleLogin();
+      });
+    });
+
+    async function handleLogin() {
+      // 检查是否被锁定
+      const lockout = Security.checkLoginLockout();
+      if (lockout.locked) {
+        document.getElementById('loginError').textContent =
+          `⛔ 登录已被锁定，请 ${lockout.remain} 分钟后重试`;
+        return;
+      }
+
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      const err = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      btn.disabled = true;
+      btn.textContent = '验证中...';
+
+      try {
+        const credentials = JSON.parse(localStorage.getItem('fsb_credentials') || '{}');
+
+        // 验证账号
+        if (u !== credentials.username) {
+          throw new Error('账号或密码错误');
+        }
+
+        // 验证密码（PBKDF2）
+        const valid = await Security.verifyPassword(p, credentials.hash, credentials.salt);
+
+        if (valid) {
+          Security.recordLoginAttempt(true);
+          Security.log('LOGIN_SUCCESS', { username: u });
+
+          sessionStorage.setItem('fsb_admin_logged_in', '1');
+          sessionStorage.setItem('fsb_admin_user', u);
+          sessionStorage.setItem('fsb_admin_login_time', Date.now().toString());
+
+          // 30分钟无操作自动登出
+          sessionStorage.setItem('fsb_session_expire',
+            (Date.now() + 30 * 60 * 1000).toString());
+
+          err.style.color = '#4caf50';
+          err.textContent = '✓ 登录成功，正在跳转...';
+
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 500);
+        } else {
+          throw new Error('账号或密码错误');
+        }
+      } catch (e) {
+        Security.recordLoginAttempt(false);
+        Security.log('LOGIN_FAILED', { username: u, reason: e.message });
+
+        const newState = Security.checkLoginLockout();
+        if (newState.locked) {
+          err.textContent = `⛔ 登录失败次数过多，已锁定 ${Security.LOCKOUT_MINUTES} 分钟`;
+        } else {
+          const left = Security.MAX_ATTEMPTS - newState.attempts;
+          err.textContent = `账号或密码错误（还剩 ${left} 次尝试机会）`;
+        }
+
+        btn.disabled = false;
+        btn.textContent = '登 录';
+      }
+    }
+  </script>
+</body>
+</html>

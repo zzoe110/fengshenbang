@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客文章 - 烽审榜 | 技术与业务洞察</title>
+  <meta name="description" content="烽审榜博客，分享AI技术、企业品牌运营、口腔GEO优化、传统企业转型等领域的实战经验与思考。">
+  <meta name="keywords" content="AI技术博客,企业运营,口腔GEO,品牌运营,数字化转型">
+  <meta name="author" content="烽审榜">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="博客文章 - 烽审榜">
+
+  <link rel="canonical" href="/blog.html">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="assets/css/page-blog.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">烽审榜</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="services.html">主营业务</a>
+        <a href="blog.html" class="active">博客文章</a>
+        <a href="cases.html">客户案例</a>
+        <a href="admin/login.html" class="nav-cta">后台登录</a>
+      </nav>
+      <button class="menu-toggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 页面标题 -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="hero-tag fade-in">BLOG INSIGHTS</div>
+      <h1 class="page-hero-title fade-in fade-in-delay-1">
+        洞察 <span style="background:var(--gradient-gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">技术与业务</span>
+      </h1>
+      <p class="page-hero-desc fade-in fade-in-delay-2">
+        记录思考，分享实战。技术与商业的双向思考。
+      </p>
+    </div>
+  </section>
+
+  <!-- 分类筛选 -->
+  <section class="filter-section">
+    <div class="container">
+      <div class="filter-bar fade-in">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="tech">技术</button>
+        <button class="filter-btn" data-filter="business">业务</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 文章列表 -->
+  <section class="section">
+    <div class="container">
+      <div class="blog-grid" id="blogGrid">
+        <!-- JS 动态加载 -->
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/images/logo.png" alt="烽审榜">
+          <p class="footer-tagline">兴义市烽审榜技术咨询服务行<br>专业企业品牌运营 · 口腔GEO优化 · AI落地赋能</p>
+        </div>
+        <div class="footer-col">
+          <h4>导航</h4>
+          <a href="index.html">首页</a>
+          <a href="services.html">主营业务</a>
+          <a href="blog.html">博客文章</a>
+          <a href="cases.html">客户案例</a>
+        </div>
+        <div class="footer-col">
+          <h4>服务</h4>
+          <a href="services.html#brand-operations">企业品牌运营</a>
+          <a href="services.html#dental-operations">口腔运营</a>
+          <a href="services.html#dental-geo">口腔GEO</a>
+        </div>
+        <div class="footer-col">
+          <h4>联系</h4>
+          <a href="mailto:contact@fengshenbang.com">邮箱咨询</a>
+          <a href="admin/login.html">后台登录</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/page-blog.js"></script>
+</body>
+</html>

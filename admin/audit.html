@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全审计 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
+
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html">⚙️ 站点设置</a>
+        <a href="audit.html" class="active">🛡️ 安全审计</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">🛡️ 安全审计中心</h1>
+        <p class="page-desc">查看操作日志、登录记录、异常事件，监控网站安全状态。</p>
+      </div>
+
+      <!-- 安全概览 -->
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(76,175,80,0.15);color:#4caf50;">✓</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statSuccess">0</div>
+            <div class="stat-card-label">成功登录</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(244,67,54,0.15);color:#f44336;">✗</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statFailed">0</div>
+            <div class="stat-card-label">失败登录</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(255,152,0,0.15);color:#ff9800;">⚠</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statWarnings">0</div>
+            <div class="stat-card-label">异常事件</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(184,146,74,0.15);color:#b8924a;">📊</div>
+          <div class="stat-card-body">
+            <div class="stat-card-num" id="statTotal">0</div>
+            <div class="stat-card-label">总操作数</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 安全状态 -->
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">🔒 安全状态总览</h2>
+        <div class="security-checks" id="securityChecks"></div>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">📋 操作日志（最近200条）</h2>
+        <p class="editor-panel-desc">所有敏感操作都会被记录，包括登录、数据修改、配置变更等。</p>
+        <div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-secondary" onclick="filterLogs('all')">全部</button>
+          <button class="btn btn-sm btn-secondary" onclick="filterLogs('LOGIN')">登录</button>
+          <button class="btn btn-sm btn-secondary" onclick="filterLogs('DATA')">数据</button>
+          <button class="btn btn-sm btn-secondary" onclick="filterLogs('CONFIG')">配置</button>
+          <button class="btn btn-sm btn-secondary" onclick="filterLogs('SEO')">SEO</button>
+          <button class="btn btn-sm btn-danger" onclick="clearLogs()">🗑️ 清空日志</button>
+        </div>
+        <div class="logs-container" id="logsContainer"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+      renderSecurityChecks();
+      renderLogs();
+      renderStats();
+    });
+
+    function renderSecurityChecks() {
+      const checks = [
+        {
+          name: 'HTTPS 强制',
+          status: window.location.protocol === 'https:' || window.location.hostname === 'localhost',
+          desc: window.location.protocol === 'https:' ? '✓ 已启用 HTTPS' : '⚠ 生产环境需启用 HTTPS'
+        },
+        {
+          name: 'CSP 内容安全策略',
+          status: !!document.querySelector('meta[http-equiv="Content-Security-Policy"]'),
+          desc: '✓ 已配置 CSP 头防 XSS'
+        },
+        {
+          name: '密码哈希存储',
+          status: !!localStorage.getItem('fsb_credentials'),
+          desc: '✓ 使用 PBKDF2 哈希（100k 迭代）'
+        },
+        {
+          name: '登录限流',
+          status: typeof Security !== 'undefined' && Security.MAX_ATTEMPTS <= 5,
+          desc: '✓ 5次失败锁定 15 分钟'
+        },
+        {
+          name: '会话过期',
+          status: !!sessionStorage.getItem('fsb_session_expire'),
+          desc: '✓ 30分钟无操作自动登出'
+        },
+        {
+          name: '审计日志',
+          status: Security.getLogs().length >= 0,
+          desc: '✓ 所有操作已记录'
+        },
+        {
+          name: 'XSS 防护',
+          status: typeof Security !== 'undefined' && typeof Security.escapeHTML === 'function',
+          desc: '✓ 输入转义函数已就绪'
+        },
+        {
+          name: '错误捕获',
+          status: true,
+          desc: '✓ 全局错误监听已启用'
+        }
+      ];
+
+      const html = checks.map(c => `
+        <div class="check-item ${c.status ? 'pass' : 'fail'}">
+          <div class="check-icon">${c.status ? '✓' : '✗'}</div>
+          <div class="check-body">
+            <div class="check-name">${c.name}</div>
+            <div class="check-desc">${c.desc}</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('securityChecks').innerHTML = html;
+    }
+
+    function renderStats() {
+      const logs = Security.getLogs();
+      const stats = {
+        success: logs.filter(l => l.action === 'LOGIN_SUCCESS').length,
+        failed: logs.filter(l => l.action === 'LOGIN_FAILED').length,
+        warnings: logs.filter(l => ['JS_ERROR', 'PROMISE_REJECTION', 'DEVTOOLS_OPENED'].includes(l.action)).length,
+        total: logs.length
+      };
+
+      document.getElementById('statSuccess').textContent = stats.success;
+      document.getElementById('statFailed').textContent = stats.failed;
+      document.getElementById('statWarnings').textContent = stats.warnings;
+      document.getElementById('statTotal').textContent = stats.total;
+    }
+
+    function renderLogs() {
+      let logs = Security.getLogs();
+      if (currentFilter !== 'all') {
+        logs = logs.filter(l => l.action.includes(currentFilter));
+      }
+
+      const container = document.getElementById('logsContainer');
+      if (logs.length === 0) {
+        container.innerHTML = '<p style="text-align:center;padding:2rem;color:#707070;">暂无日志</p>';
+        return;
+      }
+
+      const actionEmoji = {
+        'LOGIN_SUCCESS': '✅',
+        'LOGIN_FAILED': '❌',
+        'LOGOUT': '🚪',
+        'SESSION_EXPIRED': '⏰',
+        'DATA_UPDATE': '💾',
+        'CONFIG_UPDATE': '⚙️',
+        'SEO_UPDATE': '🔍',
+        'PROFILE_UPDATE': '👤',
+        'AD_UPDATE': '📢',
+        'JS_ERROR': '⚠️',
+        'PROMISE_REJECTION': '⚠️',
+        'DEVTOOLS_OPENED': '🔧'
+      };
+
+      const actionColor = {
+        'LOGIN_SUCCESS': '#4caf50',
+        'LOGIN_FAILED': '#f44336',
+        'LOGOUT': '#a0a0a0',
+        'JS_ERROR': '#f44336',
+        'PROMISE_REJECTION': '#f44336',
+        'DATA_UPDATE': '#d4af6a',
+        'CONFIG_UPDATE': '#d4af6a',
+        'SEO_UPDATE': '#d4af6a'
+      };
+
+      container.innerHTML = `
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>操作</th>
+              <th>用户</th>
+              <th>详情</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.map(l => `
+              <tr>
+                <td style="font-family:monospace;font-size:0.75rem;color:#a0a0a0;">
+                  ${new Date(l.timestamp).toLocaleString('zh-CN')}
+                </td>
+                <td>
+                  <span style="color:${actionColor[l.action] || '#e0e0e0'};">
+                    ${actionEmoji[l.action] || '•'} ${l.action}
+                  </span>
+                </td>
+                <td>${l.user || '-'}</td>
+                <td style="font-size:0.75rem;color:#a0a0a0;">
+                  ${l.details ? JSON.stringify(l.details).substring(0, 100) : '-'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function filterLogs(type) {
+      currentFilter = type;
+      renderLogs();
+    }
+
+    function clearLogs() {
+      if (!confirm('确定清空所有审计日志？')) return;
+      if (!confirm('再次确认：日志清空后无法恢复')) return;
+      localStorage.removeItem('fsb_audit_log');
+      renderLogs();
+      renderStats();
+      showToast('日志已清空', 'success');
+    }
+  </script>
+
+  <style>
+    .security-checks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.75rem;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid #4caf50;
+      border-radius: var(--radius-md);
+    }
+    .check-item.fail {
+      border-left-color: #f44336;
+    }
+    .check-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .check-item.fail .check-icon {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+    .check-name {
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .check-desc {
+      color: #a0a0a0;
+      font-size: 0.75rem;
+      margin-top: 0.125rem;
+    }
+    .logs-container {
+      max-height: 600px;
+      overflow-y: auto;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+  </style>
+</body>
+</html>

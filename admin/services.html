@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主营业务管理 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html" class="active">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html">⚙️ 站点设置</a>
+        <a href="audit.html">🛡️ 安全审计</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">主营业务管理</h1>
+        <p class="page-desc">管理首页和业务页展示的主营业务版块，支持 SEO 独立配置。</p>
+      </div>
+
+      <div class="list-toolbar">
+        <div class="list-search">
+          <input type="text" id="searchInput" placeholder="搜索业务...">
+        </div>
+        <button class="btn btn-primary" id="addBtn">+ 新增业务</button>
+      </div>
+
+      <table class="list-table">
+        <thead>
+          <tr>
+            <th>图标</th>
+            <th>标题</th>
+            <th>副标题</th>
+            <th>案例数</th>
+            <th>发布日期</th>
+            <th>SEO</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="servicesTbody"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- 编辑模态框 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal" style="max-width:720px;">
+      <h2 class="modal-title" id="modalTitle">编辑业务</h2>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="basic">基本信息</button>
+        <button class="tab" data-tab="seo">SEO 设置</button>
+      </div>
+
+      <div class="tab-content active" data-tab="basic">
+        <div class="form-group">
+          <label class="form-label">业务 ID（英文字母，唯一标识）</label>
+          <input type="text" class="form-input" id="f_id" placeholder="例如：brand-operations">
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题（中文）</label>
+          <input type="text" class="form-input" id="f_title" placeholder="例如：企业品牌运营">
+        </div>
+        <div class="form-group">
+          <label class="form-label">副标题（英文）</label>
+          <input type="text" class="form-input" id="f_subtitle" placeholder="例如：Brand Operations">
+        </div>
+        <div class="form-group">
+          <label class="form-label">图标（Emoji 或图片URL）</label>
+          <input type="text" class="form-input" id="f_icon" placeholder="例如：🏛️">
+        </div>
+        <div class="form-group">
+          <label class="form-label">简介</label>
+          <textarea class="form-textarea" id="f_summary" placeholder="业务简介..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">核心特性（每行一个）</label>
+          <textarea class="form-textarea" id="f_features" placeholder="品牌战略定位&#10;VI视觉系统设计&#10;新媒体矩阵运营"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">案例数</label>
+            <input type="number" class="form-input" id="f_caseCount" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">发布日期</label>
+            <input type="date" class="form-input" id="f_publishDate">
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="seo">
+        <div class="form-group">
+          <label class="form-label">SEO 标题（Title）</label>
+          <input type="text" class="form-input" id="f_seo_title" placeholder="搜索引擎结果中的标题，建议 10-60 字符">
+          <p class="form-hint">字符数: <span id="seoTitleLen">0</span> / 60</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">SEO 描述（Description）</label>
+          <textarea class="form-textarea" id="f_seo_description" placeholder="搜索引擎结果中的描述，建议 50-160 字符" style="min-height:80px;"></textarea>
+          <p class="form-hint">字符数: <span id="seoDescLen">0</span> / 160</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">SEO 关键词（Keywords，逗号分隔）</label>
+          <input type="text" class="form-input" id="f_seo_keywords" placeholder="关键词1,关键词2,关键词3">
+        </div>
+        <div class="form-group">
+          <label class="form-label">OG 分享图（URL）</label>
+          <input type="text" class="form-input" id="f_seo_ogImage" placeholder="社交分享时的图片URL">
+        </div>
+        <div class="seo-badge" id="seoScoreBadge">SEO 评分: 0</div>
+      </div>
+
+      <div class="editor-actions">
+        <button class="btn btn-secondary" id="cancelBtn">取消</button>
+        <button class="btn btn-primary" id="saveBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="admin.js"></script>
+  <script src="admin-services.js"></script>
+</body>
+</html>

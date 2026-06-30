@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>站点设置 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html" class="active">⚙️ 站点设置</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">站点设置</h1>
+        <p class="page-desc">配置站点基础信息：域名、Logo、联系方式等。💡 域名设置后全站URL将自动替换。</p>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">🌐 站点基础</h2>
+        <p class="editor-panel-desc">核心信息，全站都会用到。</p>
+
+        <div class="form-group">
+          <label class="form-label">站点名称</label>
+          <input type="text" class="form-input" id="siteName" placeholder="烽审榜">
+        </div>
+        <div class="form-group">
+          <label class="form-label">站点全称</label>
+          <input type="text" class="form-input" id="siteFullName" placeholder="兴义市烽审榜技术咨询服务行">
+        </div>
+        <div class="form-group">
+          <label class="form-label">⚡ 站点完整 URL（关键）</label>
+          <input type="text" class="form-input" id="siteUrl" placeholder="https://www.fengshenbang.com">
+          <p class="form-hint">⚠️ 留空时使用当前访问地址。设置后全站 og:url、canonical、分享图等都会用这个域名。</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo URL</label>
+          <input type="text" class="form-input" id="logo" placeholder="assets/images/logo.png">
+        </div>
+        <div class="form-group">
+          <label class="form-label">站点描述（meta description）</label>
+          <textarea class="form-textarea" id="description" style="min-height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">关键词（meta keywords）</label>
+          <input type="text" class="form-input" id="keywords">
+        </div>
+        <div class="form-group">
+          <label class="form-label">作者</label>
+          <input type="text" class="form-input" id="author">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ICP 备案号</label>
+          <input type="text" class="form-input" id="icp" placeholder="如：黔ICP备123456号">
+        </div>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">📞 联系方式</h2>
+        <p class="form-row form-row-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">邮箱</label>
+            <input type="email" class="form-input" id="contact_email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">电话</label>
+            <input type="text" class="form-input" id="contact_phone">
+          </div>
+          <div class="form-group">
+            <label class="form-label">地址</label>
+            <input type="text" class="form-input" id="contact_address">
+          </div>
+        </p>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">🌐 社交媒体</h2>
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label class="form-label">微信号</label>
+            <input type="text" class="form-input" id="social_wechat">
+          </div>
+          <div class="form-group">
+            <label class="form-label">微博</label>
+            <input type="text" class="form-input" id="social_weibo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">抖音</label>
+            <input type="text" class="form-input" id="social_douyin">
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-panel">
+        <h2 class="editor-panel-title">💾 数据管理</h2>
+        <p class="editor-panel-desc">导出/导入所有数据，方便迁移和备份。</p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary" id="exportBtn">📤 导出全部数据</button>
+          <button class="btn btn-secondary" id="importBtn">📥 导入数据</button>
+          <input type="file" id="importFile" accept=".json" style="display:none;">
+          <button class="btn btn-danger" id="resetBtn">🗑️ 重置全部</button>
+        </div>
+      </div>
+
+      <div class="editor-actions">
+        <button class="btn btn-primary" id="saveBtn">保存所有设置</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+      loadConfig();
+      document.getElementById('saveBtn').addEventListener('click', saveConfig);
+      document.getElementById('exportBtn').addEventListener('click', exportData);
+      document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+      document.getElementById('importFile').addEventListener('change', importData);
+      document.getElementById('resetBtn').addEventListener('click', resetAll);
+    });
+
+    function loadConfig() {
+      const cfg = getSiteConfig();
+      const def = {
+        siteName: '烽审榜',
+        siteFullName: '兴义市烽审榜技术咨询服务行',
+        siteUrl: '',
+        logo: 'assets/images/logo.png',
+        description: '',
+        keywords: '',
+        author: '烽审榜',
+        icp: '',
+        contact: { email: '', phone: '', address: '' },
+        social: { wechat: '', weibo: '', douyin: '' }
+      };
+      const merged = { ...def, ...cfg };
+      Object.keys(def).forEach(k => {
+        if (k !== 'contact' && k !== 'social') {
+          const el = document.getElementById(k);
+          if (el) el.value = merged[k] || '';
+        }
+      });
+      if (merged.contact) {
+        document.getElementById('contact_email').value = merged.contact.email || '';
+        document.getElementById('contact_phone').value = merged.contact.phone || '';
+        document.getElementById('contact_address').value = merged.contact.address || '';
+      }
+      if (merged.social) {
+        document.getElementById('social_wechat').value = merged.social.wechat || '';
+        document.getElementById('social_weibo').value = merged.social.weibo || '';
+        document.getElementById('social_douyin').value = merged.social.douyin || '';
+      }
+    }
+
+    function saveConfig() {
+      const data = {
+        siteName: document.getElementById('siteName').value.trim(),
+        siteFullName: document.getElementById('siteFullName').value.trim(),
+        siteUrl: document.getElementById('siteUrl').value.trim(),
+        logo: document.getElementById('logo').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        keywords: document.getElementById('keywords').value.trim(),
+        author: document.getElementById('author').value.trim(),
+        icp: document.getElementById('icp').value.trim(),
+        contact: {
+          email: document.getElementById('contact_email').value.trim(),
+          phone: document.getElementById('contact_phone').value.trim(),
+          address: document.getElementById('contact_address').value.trim()
+        },
+        social: {
+          wechat: document.getElementById('social_wechat').value.trim(),
+          weibo: document.getElementById('social_weibo').value.trim(),
+          douyin: document.getElementById('social_douyin').value.trim()
+        }
+      };
+      saveSiteConfig(data);
+    }
+
+    function exportData() {
+      const data = {
+        config: getSiteConfig(),
+        profile: DataStore.getProfile(),
+        services: DataStore.getServices(),
+        blog: DataStore.getBlog(),
+        cases: DataStore.getCases(),
+        ad: DataStore.getAd(),
+        seo: DataStore.getAllSEO(),
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fengshenbang-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('已导出', 'success');
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.config) localStorage.setItem('fsb_site_config', JSON.stringify(data.config));
+          if (data.profile) DataStore.saveProfile(data.profile);
+          if (data.services) DataStore.saveServices(data.services);
+          if (data.blog) DataStore.saveBlog(data.blog);
+          if (data.cases) DataStore.saveCases(data.cases);
+          if (data.ad) DataStore.saveAd(data.ad);
+          if (data.seo) localStorage.setItem('fsb_seo', JSON.stringify(data.seo));
+          showToast('导入成功，刷新页面查看', 'success');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+          showToast('导入失败：' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (!confirm('⚠️ 确定要清空所有数据吗？此操作不可恢复！')) return;
+      if (!confirm('再次确认：所有配置、内容、SEO 数据都将清空！')) return;
+      ['fsb_site_config', 'fsb_profile', 'fsb_services', 'fsb_blog', 'fsb_cases', 'fsb_ad_slot', 'fsb_seo'].forEach(k => localStorage.removeItem(k));
+      showToast('已重置', 'success');
+      setTimeout(() => location.reload(), 800);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章详情 - 烽审榜</title>
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="/blog-detail.html">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <style>
+    .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
+    .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+    .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
+    .article-back:hover { color: var(--color-gold-highlight); }
+    .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
+    .article-category.tech { background: rgba(76,175,80,0.15); color: #4caf50; }
+    .article-category.business { background: rgba(33,150,243,0.15); color: #2196f3; }
+    .article-title { font-size: var(--fs-3xl); font-weight: 800; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 1rem; }
+    .article-meta { display: flex; gap: 1.5rem; color: var(--color-text-tertiary); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .article-meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .article-tag { padding: 0.2rem 0.6rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 4px; font-size: var(--fs-xs); color: var(--color-text-tertiary); }
+    .article-content { font-size: var(--fs-base); line-height: 1.8; color: var(--color-text-secondary); }
+    .article-content p { margin-bottom: 1.25rem; }
+    .article-content h2 { font-size: var(--fs-2xl); margin: 2rem 0 1rem; color: var(--color-text-primary); }
+    .article-content h3 { font-size: var(--fs-lg); margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
+    .article-content ul, .article-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+    .article-content li { margin-bottom: 0.5rem; }
+    .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
+    .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .article-empty { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
+    .article-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .article-loading { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">烽审榜</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="services.html">主营业务</a>
+        <a href="blog.html" class="active">博客文章</a>
+        <a href="cases.html">客户案例</a>
+        <a href="admin/login.html" class="nav-cta">后台登录</a>
+      </nav>
+      <button class="menu-toggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="article-container" id="articleMain">
+    <a href="blog.html" class="article-back">← 返回博客列表</a>
+    <div class="article-loading" id="loadingState">加载中...</div>
+    <div class="article-empty" id="emptyState" style="display:none;">
+      <div class="article-empty-icon">📄</div>
+      <p>文章不存在或已被删除</p>
+      <a href="blog.html" class="btn btn-primary" style="display:inline-flex;margin-top:1rem;">返回博客</a>
+    </div>
+    <article id="articleContent" style="display:none;">
+      <div class="article-header">
+        <span class="article-category" id="artCategory"></span>
+        <h1 class="article-title" id="artTitle"></h1>
+        <div class="article-meta">
+          <span>✍️ <span id="artAuthor"></span></span>
+          <span>📅 <span id="artDate"></span></span>
+          <span>⏱ <span id="artReadTime"></span> 分钟</span>
+        </div>
+        <div class="article-tags" id="artTags"></div>
+      </div>
+      <div class="article-content" id="artContent"></div>
+    </article>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/images/logo.png" alt="烽审榜">
+          <p class="footer-tagline">
+            兴义市烽审榜技术咨询服务行<br>
+            专业企业品牌运营 · 口腔GEO优化 · AI落地赋能
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>导航</h4>
+          <a href="index.html">首页</a>
+          <a href="services.html">主营业务</a>
+          <a href="blog.html">博客文章</a>
+          <a href="cases.html">客户案例</a>
+        </div>
+        <div class="footer-col">
+          <h4>服务</h4>
+          <a href="services.html#brand-operations">企业品牌运营</a>
+          <a href="services.html#dental-operations">口腔运营</a>
+          <a href="services.html#dental-geo">口腔GEO</a>
+          <a href="services.html#ai-empowerment">AI落地赋能</a>
+        </div>
+        <div class="footer-col">
+          <h4>联系</h4>
+          <a href="mailto:contact@fengshenbang.com">邮箱咨询</a>
+          <a href="admin/login.html">后台登录</a>
+          <a href="index.html#about">关于我们</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      loadArticle();
+    });
+
+    function loadArticle() {
+      const loading = document.getElementById('loadingState');
+      const empty = document.getElementById('emptyState');
+      const content = document.getElementById('articleContent');
+
+      // 从 URL 获取文章 ID
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+
+      if (!id) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      // 查找文章（优先从 localStorage 读取，其次从内置数据）
+      let article = null;
+      try {
+        const saved = localStorage.getItem('fsb_blog');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const blogs = parsed.data || parsed;
+          if (Array.isArray(blogs)) {
+            article = blogs.find(b => b.id === id);
+          }
+        }
+      } catch (e) { /* ignore */ }
+
+      // 如果 localStorage 没有，从内置数据找
+      if (!article && window.FSB_DATA) {
+        article = window.FSB_DATA.blog.find(b => b.id === id);
+      }
+
+      if (!article) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      // 渲染文章
+      loading.style.display = 'none';
+      content.style.display = 'block';
+
+      // 分类标签
+      const catEl = document.getElementById('artCategory');
+      catEl.textContent = article.category === 'tech' ? '💻 技术' : '📈 业务';
+      catEl.className = 'article-category ' + (article.category || 'tech');
+
+      document.getElementById('artTitle').textContent = article.title;
+      document.getElementById('artAuthor').textContent = article.author || '烽审榜';
+      document.getElementById('artDate').textContent = article.publishDate || '';
+      document.getElementById('artReadTime').textContent = article.readTime || 5;
+
+      // 标签
+      const tagsEl = document.getElementById('artTags');
+      if (article.tags && article.tags.length > 0) {
+        tagsEl.innerHTML = article.tags.map(t => `<span class="article-tag">#${t}</span>`).join('');
+      }
+
+      // 正文内容（支持 HTML）
+      const contentEl = document.getElementById('artContent');
+      if (article.content && article.content !== '完整内容（后台编辑）') {
+        contentEl.innerHTML = article.content;
+      } else {
+        contentEl.innerHTML = `<p style="color:var(--color-text-tertiary);padding:2rem 0;text-align:center;">完整内容请登录后台编辑发布。</p>`;
+      }
+
+      // 更新页面标题和 SEO
+      document.title = article.title + ' - 烽审榜';
+      const descMeta = document.querySelector('meta[name="description"]');
+      if (descMeta && article.summary) descMeta.content = article.summary;
+    }
+  </script>
+</body>
+</html>
