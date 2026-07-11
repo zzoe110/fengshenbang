@@ -126,12 +126,13 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/api.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       loadArticle();
     });
 
-    function loadArticle() {
+    async function loadArticle() {
       const loading = document.getElementById('loadingState');
       const empty = document.getElementById('emptyState');
       const content = document.getElementById('articleContent');
@@ -146,20 +147,30 @@
         return;
       }
 
-      // 查找文章（优先从 localStorage 读取，其次从内置数据）
+      // 查找文章（优先从 API 数据库读取，其次 localStorage，最后内置数据）
       let article = null;
       try {
-        const saved = localStorage.getItem('fsb_blog');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          const blogs = parsed.data || parsed;
-          if (Array.isArray(blogs)) {
-            article = blogs.find(b => b.id === id);
-          }
+        const blogs = await API.getBlog();
+        if (Array.isArray(blogs)) {
+          article = blogs.find(b => b.id === id);
         }
       } catch (e) { /* ignore */ }
 
-      // 如果 localStorage 没有，从内置数据找
+      // 兜底：localStorage
+      if (!article) {
+        try {
+          const saved = localStorage.getItem('fsb_blog');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            const blogs = parsed.data || parsed;
+            if (Array.isArray(blogs)) {
+              article = blogs.find(b => b.id === id);
+            }
+          }
+        } catch (e2) { /* ignore */ }
+      }
+
+      // 兜底：内置数据
       if (!article && window.FSB_DATA) {
         article = window.FSB_DATA.blog.find(b => b.id === id);
       }

@@ -6,11 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
   bindFilter();
 });
 
-function renderBlog() {
+async function renderBlog() {
   const grid = document.getElementById('blogGrid');
-  if (!grid || !window.FSB_DATA) return;
+  if (!grid) return;
 
-  let blogs = window.FSB_DATA.blog;
+  let blogs;
+  try {
+    blogs = await API.getBlog();
+  } catch (e) {
+    console.warn('API 获取博客失败，使用内置数据', e);
+    blogs = (window.FSB_DATA && window.FSB_DATA.blog) || [];
+  }
   if (currentFilter !== 'all') {
     blogs = blogs.filter(b => b.category === currentFilter);
   }

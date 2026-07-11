@@ -128,6 +128,7 @@
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/api.js"></script>
   <script src="admin.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -137,8 +138,8 @@
       document.getElementById('saveBtn').addEventListener('click', saveProfile);
     });
 
-    function loadProfile() {
-      const p = DataStore.getProfile();
+    async function loadProfile() {
+      const p = await DataStore.fetchProfile();
       document.getElementById('p_name').value = p.name || '';
       document.getElementById('p_title').value = p.title || '';
       document.getElementById('p_avatar').value = p.avatar || '🔥';
@@ -172,7 +173,7 @@
       }
     }
 
-    function saveProfile() {
+    async function saveProfile() {
       const desc1 = document.getElementById('p_desc1').value.trim();
       const desc2 = document.getElementById('p_desc2').value.trim();
       const desc = [desc1, desc2].filter(Boolean).join('\n\n');
@@ -195,7 +196,7 @@
         ]
       };
 
-      DataStore.saveProfile(data);
+      await DataStore.saveProfile(data);
       showToast('已保存', 'success');
     }
   </script>
