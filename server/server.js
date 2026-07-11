@@ -23,6 +23,10 @@ loadEnv();
 
 const pool = require('./db');
 const SEED = require('./seed-data');
+const CLEAN = require('./clean-rules');
+
+// 工具页访问密码（数据清洗工具的门禁，仅存于服务端，前端零硬编码）
+const TOOL_PASSWORD = process.env.TOOL_ACCESS_CODE || '1688';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -171,6 +175,39 @@ async function q(sql, params) {
     if (conn) conn.release();
   }
 }
+
+// ============================================
+// 路由：数据清洗工具（服务端执行，前端零逻辑）
+// ============================================
+// 校验工具门禁密码，返回短时 token（2小时），避免明文密码反复传输
+app.post('/api/clean/auth', (req, res) => {
+  const { password } = req.body || {};
+  if (!password || password !== TOOL_PASSWORD) {
+    return res.status(401).json({ error: '密码错误' });
+  }
+  const token = signJWT({ sub: 'tool', iat: Date.now(), exp: Date.now() + 2 * 3600 * 1000 });
+  res.json({ ok: true, token });
+});
+
+// 执行清洗：支持 { password } 或 { token } 鉴权；raw 可为 JSON 字符串或已解析对象
+app.post('/api/clean/:type', (req, res) => {
+  const { type } = req.params;
+  const body = req.body || {};
+  let authed = false;
+  if (body.token) {
+    const p = verifyJWT(body.token);
+    if (p && p.sub === 'tool') authed = true;
+  }
+  if (!authed && body.password && body.password === TOOL_PASSWORD) authed = true;
+  if (!authed) return res.status(401).json({ error: '未授权：密码错误或已失效，请重新输入' });
+
+  try {
+    const result = CLEAN.clean(type, body.raw);
+    res.json(result);
+  } catch (e) {
+    res.status(e.status || 400).json({ error: e.message });
+  }
+});
 
 // ============================================
 // 路由：健康检查
