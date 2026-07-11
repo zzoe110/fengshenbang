@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>烽审榜 · 数据清洗工具</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f6fa;
+  color: #2d3436;
+  padding: 40px 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.header p { color: #636e72; font-size: 14px; }
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  padding: 24px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.12); }
+.card-icon {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.card-icon.blue { background: #dfe6e9; color: #0984e3; }
+.card-icon.purple { background: #f0e6ff; color: #6c5ce7; }
+.card-body h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.card-body p { font-size: 13px; color: #636e72; line-height: 1.5; }
+.footer { text-align: center; margin-top: 40px; font-size: 13px; color: #b2bec3; }
+.footer a { color: #0984e3; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🛠️ 烽审榜 · 数据清洗工具</h1>
+  <p>从京州口腔系统导出JSON，一键清洗为可粘贴的Excel表格</p>
+</div>
+
+<a href="DianShangBu.html" class="card">
+  <div class="card-icon blue">🦷</div>
+  <div class="card-body">
+    <h3>电商部 · 数据清洗</h3>
+    <p>JSON → 23列表格（工作簿1格式），按电商部日报表模板清洗，直接粘贴到Excel</p>
+  </div>
+</a>
+
+<a href="DianHuaKeFu.html" class="card">
+  <div class="card-icon purple">📞</div>
+  <div class="card-body">
+    <h3>网电客服 · 数据清洗</h3>
+    <p>JSON → 25列表格（工作簿2格式），按网电客服部模板清洗，直接粘贴到Excel</p>
+  </div>
+</a>
+
+<div class="footer">
+  <a href="../index.html">← 返回烽审榜首页</a> &nbsp;|&nbsp; 密码: 1688
+</div>
+</body>
+</html>

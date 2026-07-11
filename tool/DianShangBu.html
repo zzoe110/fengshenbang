@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>京州口腔 · 澯烽数据清洗工具 — 电商日报表格式</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f6fa;
+  color: #2d3436;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h1 small {
+  font-size: 13px;
+  font-weight: 400;
+  color: #636e72;
+}
+.subtitle {
+  color: #636e72;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.card-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.row {
+  display: flex;
+  gap: 16px;
+}
+.col {
+  flex: 1;
+  min-width: 0;
+}
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #555;
+}
+textarea {
+  width: 100%;
+  min-height: 360px;
+  padding: 12px;
+  font-size: 13px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  border: 1px solid #dcdde1;
+  border-radius: 6px;
+  resize: vertical;
+  outline: none;
+  transition: border-color .2s;
+}
+textarea:focus { border-color: #0984e3; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn:hover { opacity: .85; }
+.btn-primary { background: #0984e3; color: #fff; }
+.btn-success { background: #00b894; color: #fff; }
+.btn-warning { background: #fdcb6e; color: #2d3436; }
+.btn-danger { background: #d63031; color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.status {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: none;
+}
+.status.success { display: block; background: #dfe6e9; color: #00b894; }
+.status.error { display: block; background: #ffeaa7; color: #d63031; }
+.status.info { display: block; background: #dfe6e9; color: #0984e3; }
+
+/* 输出表格 */
+.output-wrap {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+thead th {
+  background: #0984e3;
+  color: #fff;
+  padding: 8px 6px;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+tbody td {
+  padding: 6px;
+  border-bottom: 1px solid #eee;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+tbody tr:hover { background: #f0f8ff; }
+tbody tr:nth-child(even) { background: #fafafa; }
+tbody tr:nth-child(even):hover { background: #f0f8ff; }
+
+/* TSV 输出区 */
+.output-tsv-wrap {
+  margin-top: 10px;
+}
+.output-tsv-wrap textarea {
+  min-height: 200px;
+  font-size: 12px;
+}
+.meta-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+  color: #636e72;
+}
+.copy-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00b894;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 999;
+}
+.copy-toast.show { opacity: 1; }
+
+/* 示例数据按钮 */
+.example-btn {
+  font-size: 12px;
+  color: #0984e3;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  margin-left: 8px;
+}
+.example-btn:hover { color: #0652DD; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .row { flex-direction: column; }
+  body { padding: 12px; }
+}
+
+/* ============ 密码锁 ============ */
+#passwordOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.password-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+}
+.password-box .icon { font-size: 48px; margin-bottom: 12px; }
+.password-box h2 { font-size: 20px; margin-bottom: 6px; color: #2d3436; }
+.password-box p { font-size: 13px; color: #636e72; margin-bottom: 20px; }
+.password-box input {
+  width: 100%; padding: 12px 16px; font-size: 16px;
+  border: 2px solid #dcdde1; border-radius: 8px;
+  outline: none; text-align: center; letter-spacing: 8px;
+  transition: border-color .2s; box-sizing: border-box;
+}
+.password-box input:focus { border-color: #667eea; }
+.password-box .pwd-error {
+  color: #d63031; font-size: 13px; margin-top: 8px; display: none;
+}
+.password-box .pwd-submit {
+  width: 100%; margin-top: 14px; padding: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: opacity .2s;
+}
+.password-box .pwd-submit:hover { opacity: .85; }
+.password-box .hint {
+  font-size: 11px; color: #b2bec3; margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 密码验证 ============ -->
+<div id="passwordOverlay">
+  <div class="password-box">
+    <div class="icon">🔐</div>
+    <h2>京州口腔 · 数据清洗工具</h2>
+    <p>请输入访问密码后使用</p>
+    <input type="password" id="pwdInput" maxlength="10" placeholder="请输入密码" autofocus>
+    <div class="pwd-error" id="pwdError">❌ 密码错误，请重试</div>
+    <button class="pwd-submit" onclick="checkPassword()">验证</button>
+    <div class="hint">联系管理员获取密码</div>
+  </div>
+</div>
+
+<!-- ============ 工具内容 ============ -->
+<div id="appContent" style="display:none">
+
+<h1>🦷 京州口腔 · 澯烽数据清洗工具 <small>JSON → 可粘贴表格（电商日报表格式）</small></h1>
+<p class="subtitle">从京州口腔系统JSON提取预约数据，按「电商部日报表模板7.10」23列要求清洗，直接粘贴到Excel</p>
+
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <h2>📥 粘贴原始数据</h2>
+        <span class="example-btn" onclick="loadExample()">加载示例数据</span>
+      </div>
+      <textarea id="inputJson" placeholder='将类似 "澯烽.txt" 的JSON内容粘贴到这里...'></textarea>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn btn-primary" onclick="parseData()">🔍 解析 &amp; 清洗</button>
+        <button class="btn btn-warning btn-sm" onclick="document.getElementById('inputJson').value='';document.getElementById('outputPanel').style.display='none';">清空</button>
+      </div>
+      <div id="parseStatus" class="status"></div>
+    </div>
+  </div>
+</div>
+
+<div id="outputPanel" style="display:none">
+  <div class="card">
+    <div class="card-header">
+      <h2>📊 清洗结果 (<span id="rowCount">0</span> 条记录)</h2>
+      <div class="actions">
+        <button class="btn btn-success btn-sm" onclick="copyTSV()">📋 复制为制表符分隔文本</button>
+        <span style="font-size:12px;color:#636e72;margin-left:4px">（可直接粘贴到 Excel）</span>
+      </div>
+    </div>
+    <div class="meta-bar">
+      <span>表头：<strong>23列</strong>（与"电商部日报表模板7.10"一致）</span>
+      <span>空缺字段将留空</span>
+    </div>
+    <div class="output-wrap" id="tablePreview"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 可粘贴文本（制表符分隔）</h2>
+      <div class="actions">
+        <button class="btn btn-success btn-sm" onclick="copyTSV()">📋 复制</button>
+        <span style="font-size:12px;color:#636e72">选中后 Ctrl+C / Cmd+C 到 Excel 任意位置粘贴即可</span>
+      </div>
+    </div>
+    <div class="output-tsv-wrap">
+      <textarea id="tsvOutput" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<div id="copyToast" class="copy-toast">✅ 已复制到剪贴板</div>
+
+<script>
+// ============ 密码验证（密码: 1688） ============
+(function() {
+  if (sessionStorage.getItem('jzkq_unlocked') === 'true') {
+    document.getElementById('passwordOverlay').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+  } else {
+    document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkPassword();
+    });
+    document.getElementById('pwdInput').focus();
+  }
+})();
+function checkPassword() {
+  const input = document.getElementById('pwdInput');
+  const err = document.getElementById('pwdError');
+  if (input.value === '1688') {
+    err.style.display = 'none';
+    document.getElementById('passwordOverlay').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+    sessionStorage.setItem('jzkq_unlocked', 'true');
+  } else {
+    err.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+// ============ 诊所名称简写映射 ============
+const CLINIC_MAP = {
+  '黔西南州京州口腔医院有限责任公司1': '神奇总院',
+  '黔西南州京州口腔医院有限责任公司': '神奇总院',
+  '兴义市京州天森口腔门诊部有限公司': '天森',
+  '兴义市京州口腔门诊部有限公司': '兴义分院',
+  '兴义市京州盘江口腔门诊部有限责任公司': '盘江',
+  '兴义市京州生态城口腔门诊部有限公司': '生态城',
+  '兴义市京州梦乐城口腔门诊部有限公司': '梦乐城',
+  '六盘水钟山区新京州口腔门诊部有限公司': '凉都',
+  '六盘水钟山区铭杨京州口腔门诊部有限公司': '铭杨',
+  '六盘水钟山区爱民京州口腔门诊部有限公司': '六盘水爱民',
+  '六盘水钟山区明湖京州口腔门诊部有限公司': '明湖',
+  '六盘水钟山区国贸京州口腔门诊部有限公司': '六盘水国贸',
+  '毕节京州口腔门诊部有限公司': '毕节',
+  '毕节市京州招商口腔门诊部有限公司': '毕节招商',
+  '毕节市京州爱民口腔门诊部有限公司': '毕节爱民',
+  '凯里市京州惠民口腔门诊部有限公司': '凯里惠民',
+  '凯里市京州口腔门诊部有限公司': '凯里分院',
+  '凯里市京州大十字口腔门诊有限公司': '凯里大十字',
+  '凯里市京州未来城口腔门诊部有限公司': '凯里未来城',
+  '遵义市京州国贸口腔门诊部有限公司': '遵义国贸',
+  '北京惠欣京州口腔门诊部有限公司': '北京惠欣',
+  '兴仁京州口腔门诊部有限公司': '兴仁',
+  '威宁京州口腔诊所有限公司': '威宁',
+  '贞丰县京州口腔门诊部有限责任公司': '贞丰',
+  '瓮安京州口腔门诊部有限公司': '瓮安',
+  '镇雄京州口腔门诊部有限公司': '镇雄',
+};
+
+function shortenClinic(fullName) {
+  if (!fullName) return '';
+  return CLINIC_MAP[fullName] || fullName;
+}
+
+// ============ 初复诊映射 ============
+function mapCheckInType(type) {
+  if (!type) return '';
+  if (type === '初诊') return '初';
+  if (type === '复诊') return '复';
+  return type;
+}
+
+// ============ 格式化日期 ============
+function formatDate(datetimeStr) {
+  if (!datetimeStr) return '';
+  return datetimeStr.substring(0, 10);
+}
+
+// ============ 电商部日报表模板7.10 的23列映射 ============
+/*
+  1:最后沟通日期  2:网电客服  3:初复诊  4:病例id  5:姓名  6:年龄
+  7:电话  8:三级来源  9:创建预约日期  10:预约日期  11:预约项目
+  12:到诊日期  13:主诉  14:潜在需求  15:应收  16:欠费  17:实收
+  18:收费门店  19:接诊医生  20:方案价  21:未成交原因  22:未按时到院原因  23:备注
+
+  与工作簿1.xlsx的区别：
+  - 删除"性别"列 → 电话~预约日期左移一位
+  - 新增"预约项目"列(第11列，取transactionNames)
+  - "主诉"独立为第13列(JSON无对应字段，留空)
+  - 后3列名称简化(去掉括号备注)
+*/
+function extractRows(items) {
+  if (!items || !items.length) return [];
+  return items.map(item => [
+    /* 1 最后沟通日期 */ formatDate(item.recordCreatedTime),
+    /* 2 网电客服     */ item.onlineConsultantName || '',
+    /* 3 初复诊       */ mapCheckInType(item.checkInType),
+    /* 4 病例id       */ item.patientId !== undefined && item.patientId !== null ? String(item.patientId) : '',
+    /* 5 姓名         */ item.patientName || '',
+    /* 6 年龄         */ item.age !== undefined && item.age !== null ? String(item.age) : '',
+    /* 7 电话         */ item.mobile || '',
+    /* 8 三级来源     */ item.patientRefereeName || '',
+    /* 9 创建预约日期 */ formatDate(item.recordCreatedTime),
+    /*10 预约日期     */ formatDate(item.startTime),
+    /*11 预约项目     */ item.transactionNames || '',
+    /*12 到诊日期     */ formatDate(item.checkInTime),
+    /*13 主诉         */ '',  // JSON无主诉字段，留空
+    /*14 潜在需求     */ '',
+    /*15 应收         */ '',
+    /*16 欠费         */ '',
+    /*17 实收         */ '',
+    /*18 收费门店     */ shortenClinic(item.officeName),
+    /*19 接诊医生     */ item.doctorName || '',
+    /*20 方案价       */ '',
+    /*21 未成交原因   */ '',
+    /*22 未按时到院原因 */ '',
+    /*23 备注         */ item.notes || '',
+  ]);
+}
+
+// ============ 渲染表格 ============
+const HEADERS = [
+  '最后沟通日期','网电客服','初复诊','病例id','姓名','年龄',
+  '电话','三级来源','创建预约日期','预约日期','预约项目',
+  '到诊日期','主诉','潜在需求','应收','欠费',
+  '实收','收费门店','接诊医生','方案价','未成交原因','未按时到院原因','备注'
+];
+
+function renderPreview(rows) {
+  const wrap = document.getElementById('tablePreview');
+  if (!rows.length) {
+    wrap.innerHTML = '<p style="color:#636e72;padding:20px;text-align:center">没有提取到数据</p>';
+    return;
+  }
+  let html = '<table><thead><tr>';
+  HEADERS.forEach(h => { html += `<th>${h}</th>`; });
+  html += '</tr></thead><tbody>';
+  rows.forEach(row => {
+    html += '<tr>';
+    row.forEach(cell => {
+      const val = cell || '';
+      html += `<td title="${val.replace(/"/g,'&quot;')}">${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// ============ 生成 TSV ============
+function generateTSV(rows) {
+  // 用户固定表格已有表头，仅输出数据行
+  const dataLines = rows.map(row => row.join('\t'));
+  return dataLines.join('\n');
+}
+
+// ============ 主入口：解析 ============
+function parseData() {
+  const raw = document.getElementById('inputJson').value.trim();
+  const status = document.getElementById('parseStatus');
+  const panel = document.getElementById('outputPanel');
+
+  if (!raw) {
+    status.className = 'status error';
+    status.textContent = '⚠️ 请先粘贴JSON数据';
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    status.className = 'status error';
+    status.textContent = `❌ JSON 解析失败：${e.message}`;
+    return;
+  }
+
+  // 支持两种结构：{items:[...]} 或 直接数组 [...]
+  let items = parsed.items || parsed;
+  if (!Array.isArray(items)) {
+    status.className = 'status error';
+    status.textContent = '❌ 未找到可解析的记录数组（期望 items 字段或直接数组）';
+    return;
+  }
+
+  const rows = extractRows(items);
+  document.getElementById('rowCount').textContent = rows.length;
+
+  renderPreview(rows);
+  document.getElementById('tsvOutput').value = generateTSV(rows);
+
+  panel.style.display = 'block';
+  status.className = 'status success';
+  status.textContent = `✅ 成功清洗 ${rows.length} 条记录，共 23 列（电商日报表格式）`;
+}
+
+// ============ 复制 TSV ============
+function copyTSV() {
+  const tsv = document.getElementById('tsvOutput');
+  tsv.select();
+  tsv.setSelectionRange(0, 999999);
+  try {
+    document.execCommand('copy');
+    showToast('✅ 已复制到剪贴板，可直接粘贴到 Excel');
+  } catch (e) {
+    // fallback
+    navigator.clipboard.writeText(tsv.value).then(() => {
+      showToast('✅ 已复制到剪贴板');
+    }).catch(() => {
+      alert('复制失败，请手动选中文本后 Ctrl+C / Cmd+C');
+    });
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('copyToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ============ 加载示例数据 ============
+function loadExample() {
+  // 从 澯烽.txt 中提取前3条记录作为示例（精简版·电商日报表格式）
+  const example = {
+    "pageIndex": 1,
+    "pageSize": 10,
+    "pageCount": 24,
+    "totalCount": 240,
+    "items": [
+      {
+        "patientId": 1230216,
+        "patientName": "淦吉林",
+        "mobile": "15329291321",
+        "privateId": "SQZY22042426454",
+        "officeName": "黔西南州京州口腔医院有限责任公司1",
+        "startTime": "2026-07-11T09:30:00",
+        "endTime": "2026-07-11T09:45:00",
+        "doctorName": "陈美娟_GE1029",
+        "transactionNames": "常规检查",
+        "checkInType": "复诊",
+        "onlineConsultantName": "丰坤凤",
+        "patientRefereeName": "抖音信息流",
+        "recordCreatedTime": "2022-05-26T14:50:09",
+        "notes": "",
+        "age": 30
+      },
+      {
+        "patientId": 1094775,
+        "patientName": "刘光钦",
+        "mobile": "18185992354",
+        "privateId": "SQZY21092222831",
+        "officeName": "黔西南州京州口腔医院有限责任公司1",
+        "startTime": "2026-07-12T09:00:00",
+        "endTime": "2026-07-12T09:30:00",
+        "doctorName": "梁国民GE1003",
+        "transactionNames": "种植维护",
+        "checkInType": "长期维护",
+        "onlineConsultantName": "丰坤凤",
+        "patientRefereeName": "微信",
+        "recordCreatedTime": "2023-02-15T15:44:55",
+        "notes": "",
+        "age": 42
+      },
+      {
+        "patientId": 1619648,
+        "patientName": "王克",
+        "mobile": "15086045902",
+        "privateId": "MLC240313001",
+        "officeName": "兴义市京州天森口腔门诊部有限公司",
+        "startTime": "2026-07-08T09:00:00",
+        "endTime": "2026-07-08T09:30:00",
+        "doctorName": "陈露露_GE1036",
+        "transactionNames": "常规检查",
+        "checkInType": "复诊",
+        "onlineConsultantName": "丰坤凤",
+        "patientRefereeName": "400电话",
+        "recordCreatedTime": "2024-03-21T09:22:38",
+        "notes": "7.8电话联系/修复体掉了/已经在外院做了\n不再预约",
+        "age": 32,
+        "isCancelled": true,
+        "isFailed": true
+      }
+    ]
+  };
+  document.getElementById('inputJson').value = JSON.stringify(example, null, 2);
+  parseData();
+}
+</script>
+
+</div>  <!-- appContent -->
+
+</body>
+</html>
