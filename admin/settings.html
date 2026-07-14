@@ -134,7 +134,6 @@
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/data.js"></script>
-  <script src="../assets/js/api.js"></script>
   <script src="admin.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -148,8 +147,8 @@
       document.getElementById('resetBtn').addEventListener('click', resetAll);
     });
 
-    async function loadConfig() {
-      const cfg = await DataStore.fetchSiteConfig();
+    function loadConfig() {
+      const cfg = getSiteConfig();
       const def = {
         siteName: '烽审榜',
         siteFullName: '兴义市烽审榜技术咨询服务行',
@@ -181,7 +180,7 @@
       }
     }
 
-    async function saveConfig() {
+    function saveConfig() {
       const data = {
         siteName: document.getElementById('siteName').value.trim(),
         siteFullName: document.getElementById('siteFullName').value.trim(),
@@ -202,18 +201,18 @@
           douyin: document.getElementById('social_douyin').value.trim()
         }
       };
-      await DataStore.saveSiteConfig(data);
+      saveSiteConfig(data);
     }
 
-    async function exportData() {
+    function exportData() {
       const data = {
-        config: await DataStore.fetchSiteConfig(),
-        profile: await DataStore.fetchProfile(),
-        services: await DataStore.getServices(),
-        blog: await DataStore.getBlog(),
-        cases: await DataStore.getCases(),
-        ad: await DataStore.fetchAd(),
-        seo: await DataStore.getAllSEO(),
+        config: getSiteConfig(),
+        profile: DataStore.getProfile(),
+        services: DataStore.getServices(),
+        blog: DataStore.getBlog(),
+        cases: DataStore.getCases(),
+        ad: DataStore.getAd(),
+        seo: DataStore.getAllSEO(),
         exportDate: new Date().toISOString(),
         version: '1.0'
       };
@@ -227,20 +226,20 @@
       showToast('已导出', 'success');
     }
 
-    async function importData(e) {
+    function importData(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = async (ev) => {
+      reader.onload = (ev) => {
         try {
           const data = JSON.parse(ev.target.result);
-          if (data.config) await DataStore.saveSiteConfig(data.config);
-          if (data.profile) await DataStore.saveProfile(data.profile);
-          if (data.services) await DataStore.saveServices(data.services);
-          if (data.blog) await DataStore.saveBlog(data.blog);
-          if (data.cases) await DataStore.saveCases(data.cases);
-          if (data.ad) await DataStore.saveAd(data.ad);
-          if (data.seo) { for (const k in data.seo) { await DataStore.saveSEO(k, data.seo[k]); } }
+          if (data.config) localStorage.setItem('fsb_site_config', JSON.stringify(data.config));
+          if (data.profile) DataStore.saveProfile(data.profile);
+          if (data.services) DataStore.saveServices(data.services);
+          if (data.blog) DataStore.saveBlog(data.blog);
+          if (data.cases) DataStore.saveCases(data.cases);
+          if (data.ad) DataStore.saveAd(data.ad);
+          if (data.seo) localStorage.setItem('fsb_seo', JSON.stringify(data.seo));
           showToast('导入成功，刷新页面查看', 'success');
           setTimeout(() => location.reload(), 1000);
         } catch (err) {
@@ -250,20 +249,11 @@
       reader.readAsText(file);
     }
 
-    async function resetAll() {
+    function resetAll() {
       if (!confirm('⚠️ 确定要清空所有数据吗？此操作不可恢复！')) return;
       if (!confirm('再次确认：所有配置、内容、SEO 数据都将清空！')) return;
-      try {
-        await API.saveMeta('site_config', {});
-        await API.saveMeta('profile', {});
-        await API.saveMeta('ad', null);
-        const seo = await DataStore.getAllSEO();
-        const token = sessionStorage.getItem('fsb_admin_token');
-        for (const k in seo) {
-          await fetch('/api/meta/' + encodeURIComponent(k), { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
-        }
-      } catch (e) { console.warn(e); }
-      showToast('已重置', '成功');
+      ['fsb_site_config', 'fsb_profile', 'fsb_services', 'fsb_blog', 'fsb_cases', 'fsb_ad_slot', 'fsb_seo'].forEach(k => localStorage.removeItem(k));
+      showToast('已重置', 'success');
       setTimeout(() => location.reload(), 800);
     }
   </script>

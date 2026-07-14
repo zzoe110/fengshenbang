@@ -38,9 +38,11 @@
 
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/security.js"></script>
-  <script src="../assets/js/api.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
+      // 初始化加密密钥
+      await Security.initCredentials();
+
       // 绑定登录表单
       document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -49,32 +51,62 @@
     });
 
     async function handleLogin() {
-      const err = document.getElementById('loginError');
-      const btn = document.getElementById('loginBtn');
+      // 检查是否被锁定
+      const lockout = Security.checkLoginLockout();
+      if (lockout.locked) {
+        document.getElementById('loginError').textContent =
+          `⛔ 登录已被锁定，请 ${lockout.remain} 分钟后重试`;
+        return;
+      }
+
       const u = document.getElementById('username').value.trim();
       const p = document.getElementById('password').value;
+      const err = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
 
-      err.style.color = '';
-      err.textContent = '';
       btn.disabled = true;
       btn.textContent = '验证中...';
 
       try {
-        const res = await API.login(u, p);
-        if (res && res.token) {
-          sessionStorage.setItem('fsb_admin_token', res.token);
-          sessionStorage.setItem('fsb_admin_user', res.user || u);
+        // 验证账号
+        if (u !== HARDCODED_CREDENTIALS.username) {
+          throw new Error('账号或密码错误');
+        }
+
+        // 验证密码（PBKDF2）
+        const valid = await Security.verifyPassword(p, HARDCODED_CREDENTIALS.hash, HARDCODED_CREDENTIALS.salt);
+
+        if (valid) {
+          Security.recordLoginAttempt(true);
+          Security.log('LOGIN_SUCCESS', { username: u });
+
+          sessionStorage.setItem('fsb_admin_logged_in', '1');
+          sessionStorage.setItem('fsb_admin_user', u);
+          sessionStorage.setItem('fsb_admin_login_time', Date.now().toString());
+          sessionStorage.setItem('fsb_session_expire',
+            (Date.now() + 30 * 60 * 1000).toString());
+
           err.style.color = '#4caf50';
           err.textContent = '✓ 登录成功，正在跳转...';
+
           setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
         } else {
-          throw new Error('登录失败，请重试');
+          throw new Error('账号或密码错误');
         }
       } catch (e) {
+        Security.recordLoginAttempt(false);
+        Security.log('LOGIN_FAILED', { username: u, reason: e.message });
+
+        const newState = Security.checkLoginLockout();
+        if (newState.locked) {
+          err.textContent = `⛔ 登录失败次数过多，已锁定 ${Security.LOCKOUT_MINUTES} 分钟`;
+        } else {
+          const left = Security.MAX_ATTEMPTS - newState.attempts;
+          err.textContent = `账号或密码错误（还剩 ${left} 次尝试机会）`;
+        }
+
         btn.disabled = false;
         btn.textContent = '登 录';
-        err.style.color = '#ff6b6b';
-        err.textContent = (e && e.message) ? e.message : '账号或密码错误';
       }
     }
   </script>

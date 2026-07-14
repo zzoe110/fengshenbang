@@ -1,36 +1,38 @@
-// 后台通用脚本 - API 驱动版
+// 后台通用脚本 - 加固版
 
 // ============================================
-// 1. 登录检查 + 会话过期（基于 JWT）
+// 1. 登录检查 + 会话过期
 // ============================================
 function checkAuth() {
-  const token = sessionStorage.getItem('fsb_admin_token');
-  if (!token) {
+  if (sessionStorage.getItem('fsb_admin_logged_in') !== '1') {
     window.location.href = 'login.html';
     return;
   }
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    if (payload.exp && payload.exp < Date.now()) {
-      throw new Error('expired');
-    }
-  } catch (e) {
+
+  // 检查会话是否过期
+  const expire = parseInt(sessionStorage.getItem('fsb_session_expire') || '0');
+  if (Date.now() > expire) {
+    Security.log('SESSION_EXPIRED');
     sessionStorage.clear();
     alert('⏰ 会话已过期，请重新登录');
     window.location.href = 'login.html';
   }
+
+  // 每次操作刷新过期时间
+  sessionStorage.setItem('fsb_session_expire', (Date.now() + 30 * 60 * 1000).toString());
 }
 
 // ============================================
 // 2. 退出登录
 // ============================================
 function logout() {
+  Security.log('LOGOUT');
   sessionStorage.clear();
   window.location.href = 'login.html';
 }
 
 // ============================================
-// 3. Toast 提示
+// 3. Toast 提示（XSS 安全版）
 // ============================================
 function showToast(message, type = 'success') {
   let toast = document.querySelector('.toast');
@@ -40,130 +42,208 @@ function showToast(message, type = 'success') {
     document.body.appendChild(toast);
   }
   toast.className = `toast ${type}`;
-  toast.textContent = message;
+  toast.textContent = message; // textContent 自动 XSS 安全
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
 // ============================================
-// 4. 数据层（全部走后端 API，实时读写数据库）
+// 4. 安全的数据存储（加密 + 审计）
 // ============================================
-const DEFAULT_PROFILE = {
-  name: '程序烽',
-  title: '企业战略顾问 · AI落地专家',
-  desc: '兴义市烽审榜技术咨询服务行创始人。深耕企业品牌运营、口腔行业、AI落地三大领域，服务过传统制造、连锁口腔、消费品、跨境内容等数十个行业客户。',
-  stats: [
-    { num: 6, label: '业务领域' },
-    { num: 150, label: '服务客户' },
-    { num: 100, label: '交付达成%' }
-  ]
-};
-
 const DataStore = {
-  // ---- 博客 ----
-  async getBlog() {
-    try {
-      return await API.getBlog();
-    } catch (e) {
-      console.warn('API 获取博客失败，使用内置数据', e);
-      return window.FSB_DATA?.blog || [];
-    }
-  },
-  async saveBlog(data) {
-    await API.saveBlog(data);
-  },
+  KEY_SERVICES: 'fsb_services',
+  KEY_BLOG: 'fsb_blog',
+  KEY_CASES: 'fsb_cases',
+  KEY_PROFILE: 'fsb_profile',
+  KEY_AD: 'fsb_ad_slot',
+  KEY_SEO: 'fsb_seo',
 
-  // ---- 案例 ----
-  async getCases() {
-    try {
-      return await API.getCases();
-    } catch (e) {
-      console.warn('API 获取案例失败，使用内置数据', e);
-      return window.FSB_DATA?.cases || [];
-    }
-  },
-  async saveCases(data) {
-    await API.saveCases(data);
-  },
-
-  // ---- 业务 ----
+  // 同步版本（保持兼容性）
   async getServices() {
-    try {
-      return await API.getServices();
-    } catch (e) {
-      console.warn('API 获取业务失败，使用内置数据', e);
-      return window.FSB_DATA?.services || [];
-    }
+    return this.getDecrypted(this.KEY_SERVICES, 'services');
   },
+
   async saveServices(data) {
-    await API.saveServices(data);
+    return this.saveEncrypted(this.KEY_SERVICES, data);
   },
 
-  // ---- SEO（按 key 存于 meta 表）----
-  async getSEO(key) {
-    return await API.getMeta(key);
-  },
-  async saveSEO(key, data) {
-    await API.saveMeta(key, data);
-  },
-  async getAllSEO() {
-    try {
-      return await API.getAllMeta() || {};
-    } catch (e) {
-      return {};
-    }
+  // 加密版（推荐）
+  async getBlog() {
+    return this.getDecrypted(this.KEY_BLOG, 'blog');
   },
 
-  // ---- 个人简介 ----
+  async saveBlog(data) {
+    return this.saveEncrypted(this.KEY_BLOG, data);
+  },
+
+  async getCases() {
+    return this.getDecrypted(this.KEY_CASES, 'cases');
+  },
+
+  async saveCases(data) {
+    return this.saveEncrypted(this.KEY_CASES, data);
+  },
+
   getProfile() {
-    // 同步接口保持兼容；实际值来自 API，由调用方 await
-    return DEFAULT_PROFILE;
-  },
-  async fetchProfile() {
     try {
-      return (await API.getMeta('profile')) || DEFAULT_PROFILE;
-    } catch (e) {
-      return DEFAULT_PROFILE;
-    }
-  },
-  async saveProfile(data) {
-    await API.saveMeta('profile', data);
+      const saved = localStorage.getItem(this.KEY_PROFILE);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.data || parsed; // 兼容加密/明文两种格式
+      }
+    } catch {}
+    return {
+      name: '程序烽',
+      title: '企业战略顾问 · AI落地专家',
+      desc: '兴义市烽审榜技术咨询服务行创始人。深耕企业品牌运营、口腔行业、AI落地三大领域，服务过传统制造、连锁口腔、消费品、跨境内容等数十个行业客户。',
+      stats: [
+        { num: 6, label: '业务领域' },
+        { num: 150, label: '服务客户' },
+        { num: 100, label: '交付达成%' }
+      ]
+    };
   },
 
-  // ---- 广告位 ----
+  saveProfile(data) {
+    localStorage.setItem(this.KEY_PROFILE, JSON.stringify({ data, updatedAt: Date.now() }));
+    Security.log('PROFILE_UPDATE');
+  },
+
   getAd() {
+    try {
+      const saved = localStorage.getItem(this.KEY_AD);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.data || parsed;
+      }
+    } catch {
+      return null;
+    }
     return null;
   },
-  async fetchAd() {
+
+  saveAd(data) {
+    localStorage.setItem(this.KEY_AD, JSON.stringify({ data, updatedAt: Date.now() }));
+    Security.log('AD_UPDATE');
+  },
+
+  getSEO(key) {
     try {
-      return await API.getMeta('ad');
-    } catch (e) {
+      const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
+      const entry = all[key];
+      return entry?.data || entry || null;
+    } catch {
       return null;
     }
   },
-  async saveAd(data) {
-    await API.saveMeta('ad', data);
+
+  saveSEO(key, data) {
+    try {
+      const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
+      all[key] = { data, updatedAt: Date.now() };
+      localStorage.setItem(this.KEY_SEO, JSON.stringify(all));
+      Security.log('SEO_UPDATE', { key });
+    } catch (e) {
+      console.error('保存SEO失败', e);
+    }
   },
 
-  // ---- 站点配置 ----
-  getSiteConfig() {
-    return {};
-  },
-  async fetchSiteConfig() {
+  getAllSEO() {
     try {
-      return (await API.getMeta('site_config')) || {};
-    } catch (e) {
+      const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
+      const result = {};
+      Object.keys(all).forEach(k => {
+        result[k] = all[k]?.data || all[k];
+      });
+      return result;
+    } catch {
       return {};
     }
   },
-  async saveSiteConfig(cfg) {
-    await API.saveMeta('site_config', cfg);
-    showToast('站点配置已保存', 'success');
+
+  // ============================================
+  // 内部方法：兼容旧数据 + 加密选项
+  // ============================================
+  _getSync(key, fallbackName) {
+    try {
+      const saved = localStorage.getItem(key);
+      if (!saved) return window.FSB_DATA?.[fallbackName] || [];
+      const parsed = JSON.parse(saved);
+      return parsed.data || parsed; // 优先取 data 字段
+    } catch {
+      return window.FSB_DATA?.[fallbackName] || [];
+    }
+  },
+
+  _saveSync(key, data) {
+    const payload = {
+      data,
+      updatedAt: Date.now(),
+      updatedBy: sessionStorage.getItem('fsb_admin_user') || 'system'
+    };
+    localStorage.setItem(key, JSON.stringify(payload));
+    Security.log('DATA_UPDATE', { key, count: Array.isArray(data) ? data.length : 1 });
+  },
+
+  // ============================================
+  // 加密版存储（AES-GCM）
+  // ============================================
+  async saveEncrypted(key, data) {
+    const payload = {
+      data,
+      updatedAt: Date.now(),
+      updatedBy: sessionStorage.getItem('fsb_admin_user') || 'system'
+    };
+    const encrypted = await Security.encryptData(payload);
+    localStorage.setItem(key, JSON.stringify(encrypted));
+    Security.log('DATA_ENCRYPTED', { key, count: Array.isArray(data) ? data.length : 1 });
+  },
+
+  async getDecrypted(key, fallbackName) {
+    try {
+      const saved = localStorage.getItem(key);
+      if (!saved) return window.FSB_DATA?.[fallbackName] || [];
+      const parsed = JSON.parse(saved);
+      // 检测是否是加密格式
+      if (parsed && parsed.iv && parsed.ct) {
+        const decrypted = await Security.decryptData(parsed);
+        return decrypted?.data || decrypted || [];
+      }
+      // 兼容未加密的旧数据
+      return parsed.data || parsed || [];
+    } catch {
+      return window.FSB_DATA?.[fallbackName] || [];
+    }
   }
 };
 
 // ============================================
-// 5. SEO 评分函数
+// 5. 加载站点配置
+// ============================================
+function getSiteConfig() {
+  try {
+    const saved = localStorage.getItem('fsb_site_config');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.data || parsed;
+    }
+  } catch {}
+  return {};
+}
+
+function saveSiteConfig(cfg) {
+  const payload = {
+    data: cfg,
+    updatedAt: Date.now(),
+    updatedBy: sessionStorage.getItem('fsb_admin_user') || 'system'
+  };
+  localStorage.setItem('fsb_site_config', JSON.stringify(payload));
+  Security.log('CONFIG_UPDATE');
+  showToast('站点配置已保存', 'success');
+}
+
+// ============================================
+// 6. SEO 评分函数
 // ============================================
 function calculateSEOScore(seo) {
   let score = 0;
@@ -177,19 +257,38 @@ function calculateSEOScore(seo) {
 }
 
 // ============================================
-// 6. 安全渲染：防止 XSS
+// 7. 安全渲染：防止 XSS
 // ============================================
 function safeSetHTML(element, html) {
-  const clean = (window.Security && Security.sanitizeHTML) ? Security.sanitizeHTML(html) : html;
-  element.textContent = clean;
+  // 白名单过滤（仅允许简单标签）
+  const clean = Security.sanitizeHTML(html);
+  element.textContent = clean; // 双重保险：用 textContent
 }
 
 // ============================================
-// 7. 检测异常行为（仅记录，不再写 localStorage）
+// 8. 检测异常行为
 // ============================================
 window.addEventListener('error', function (e) {
-  console.error('[error]', e.message);
+  Security.log('JS_ERROR', {
+    message: e.message,
+    filename: e.filename,
+    line: e.lineno
+  });
 });
+
 window.addEventListener('unhandledrejection', function (e) {
-  console.error('[promise]', String(e.reason).substring(0, 200));
+  Security.log('PROMISE_REJECTION', {
+    reason: String(e.reason).substring(0, 200)
+  });
 });
+
+// 检测开发者工具开启（生产环境可选）
+// if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+//   setInterval(() => {
+//     const threshold = 160;
+//     if (window.outerHeight - window.innerHeight > threshold ||
+//         window.outerWidth - window.innerWidth > threshold) {
+//       Security.log('DEVTOOLS_OPENED');
+//     }
+//   }, 3000);
+// }

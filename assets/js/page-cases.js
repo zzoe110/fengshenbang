@@ -3,18 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCases();
 });
 
-async function renderCases() {
+function renderCases() {
   const grid = document.getElementById('casesGrid');
-  if (!grid) return;
+  if (!grid || !window.FSB_DATA) return;
 
-  let cases;
-  try {
-    cases = await API.getCases();
-  } catch (e) {
-    console.warn('API 获取案例失败，使用内置数据', e);
-    cases = (window.FSB_DATA && window.FSB_DATA.cases) || [];
-  }
-  cases = [...cases];
+  let cases = [...window.FSB_DATA.cases];
   cases.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
   grid.innerHTML = cases.map((c, i) => `

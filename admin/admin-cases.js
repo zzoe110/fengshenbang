@@ -38,7 +38,7 @@ async function loadData() {
   renderTable();
 }
 
-async function renderTable() {
+function renderTable() {
   const keyword = document.getElementById('searchInput').value.toLowerCase();
   const filtered = cases.filter(c =>
     c.title.toLowerCase().includes(keyword) ||
@@ -52,12 +52,8 @@ async function renderTable() {
     return;
   }
 
-  await Promise.all(filtered.map(async c => {
-    c.__seo = await DataStore.getSEO('case_' + c.id);
-  }));
-
   tbody.innerHTML = filtered.map(c => {
-    const seo = c.__seo;
+    const seo = DataStore.getSEO('case_' + c.id);
     const score = calculateSEOScore(seo);
     const seoBadge = score >= 80 ? 'success' : score >= 50 ? 'warning' : 'error';
     const seoText = score >= 80 ? `${score} 优` : score >= 50 ? `${score} 良` : score > 0 ? `${score} 差` : '未设置';

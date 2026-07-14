@@ -85,7 +85,6 @@
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/data.js"></script>
-  <script src="../assets/js/api.js"></script>
   <script src="admin.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -100,8 +99,8 @@
       });
     });
 
-    async function loadAd() {
-      const ad = await DataStore.fetchAd();
+    function loadAd() {
+      const ad = DataStore.getAd();
       if (ad) {
         document.getElementById('ad_title').value = ad.title || '';
         document.getElementById('ad_desc').value = ad.desc || '';
@@ -126,20 +125,20 @@
       btn.href = btnLink;
     }
 
-    async function saveAd() {
+    function saveAd() {
       const data = {
         title: document.getElementById('ad_title').value.trim(),
         desc: document.getElementById('ad_desc').value.trim(),
         btn: document.getElementById('ad_btn').value.trim(),
         link: document.getElementById('ad_link').value.trim()
       };
-      await DataStore.saveAd(data);
+      DataStore.saveAd(data);
       showToast('已保存', 'success');
     }
 
-    async function clearAd() {
+    function clearAd() {
       if (!confirm('确定清空广告位？')) return;
-      await DataStore.saveAd(null);
+      localStorage.removeItem('fsb_ad_slot');
       document.getElementById('ad_title').value = '';
       document.getElementById('ad_desc').value = '';
       document.getElementById('ad_btn').value = '';
