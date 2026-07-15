@@ -58,30 +58,49 @@ const DataStore = {
   KEY_AD: 'fsb_ad_slot',
   KEY_SEO: 'fsb_seo',
 
-  // 同步版本（保持兼容性）
+  // 本次会话内刚保存的数据，立即生效（不等 GitHub 重新部署）
+  _localCache: {},
+
+  // 业务：优先读静态 JSON（全站统一数据源），失败回退本地
   async getServices() {
-    return this.getDecrypted(this.KEY_SERVICES, 'services');
+    if (this._localCache.services) return this._localCache.services;
+    try { return await API.getRemote('services'); }
+    catch (e) { return this.getDecrypted(this.KEY_SERVICES, 'services'); }
   },
 
   async saveServices(data) {
-    return this.saveEncrypted(this.KEY_SERVICES, data);
+    await API.saveData('services', data);
+    this._localCache.services = data;          // 本会话立即生效
+    this._saveSync(this.KEY_SERVICES, data);   // 本地兜底缓存
+    if (window.FSB_DATA) window.FSB_DATA.services = data;
   },
 
-  // 加密版（推荐）
+  // 博客
   async getBlog() {
-    return this.getDecrypted(this.KEY_BLOG, 'blog');
+    if (this._localCache.blog) return this._localCache.blog;
+    try { return await API.getRemote('blog'); }
+    catch (e) { return this.getDecrypted(this.KEY_BLOG, 'blog'); }
   },
 
   async saveBlog(data) {
-    return this.saveEncrypted(this.KEY_BLOG, data);
+    await API.saveData('blog', data);
+    this._localCache.blog = data;
+    this._saveSync(this.KEY_BLOG, data);
+    if (window.FSB_DATA) window.FSB_DATA.blog = data;
   },
 
+  // 案例
   async getCases() {
-    return this.getDecrypted(this.KEY_CASES, 'cases');
+    if (this._localCache.cases) return this._localCache.cases;
+    try { return await API.getRemote('cases'); }
+    catch (e) { return this.getDecrypted(this.KEY_CASES, 'cases'); }
   },
 
   async saveCases(data) {
-    return this.saveEncrypted(this.KEY_CASES, data);
+    await API.saveData('cases', data);
+    this._localCache.cases = data;
+    this._saveSync(this.KEY_CASES, data);
+    if (window.FSB_DATA) window.FSB_DATA.cases = data;
   },
 
   getProfile() {

@@ -38,6 +38,7 @@
 
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/api.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
       // 初始化加密密钥
@@ -51,7 +52,7 @@
     });
 
     async function handleLogin() {
-      // 检查是否被锁定
+      // 检查是否被锁定（客户端限流，防暴力破解）
       const lockout = Security.checkLoginLockout();
       if (lockout.locked) {
         document.getElementById('loginError').textContent =
@@ -64,34 +65,40 @@
       const err = document.getElementById('loginError');
       const btn = document.getElementById('loginBtn');
 
+      if (!u || !p) {
+        err.textContent = '请输入账号和密码';
+        return;
+      }
+
       btn.disabled = true;
       btn.textContent = '验证中...';
 
       try {
-        // 验证账号
-        if (u !== HARDCODED_CREDENTIALS.username) {
-          throw new Error('账号或密码错误');
-        }
+        // 服务端校验（密码在 EdgeOne 环境变量 ADMIN_PWD 中，不暴露给前端）
+        const r = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
 
-        // 验证密码（PBKDF2）
-        const valid = await Security.verifyPassword(p, HARDCODED_CREDENTIALS.hash, HARDCODED_CREDENTIALS.salt);
-
-        if (valid) {
+        if (r.ok) {
+          const j = await r.json();
           Security.recordLoginAttempt(true);
           Security.log('LOGIN_SUCCESS', { username: u });
 
           sessionStorage.setItem('fsb_admin_logged_in', '1');
-          sessionStorage.setItem('fsb_admin_user', u);
-          sessionStorage.setItem('fsb_admin_login_time', Date.now().toString());
+          sessionStorage.setItem('fsb_admin_user', j.username || u);
+          sessionStorage.setItem('fsb_admin_token', j.token);
           sessionStorage.setItem('fsb_session_expire',
             (Date.now() + 30 * 60 * 1000).toString());
 
           err.style.color = '#4caf50';
           err.textContent = '✓ 登录成功，正在跳转...';
-
           setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
         } else {
-          throw new Error('账号或密码错误');
+          let msg = '账号或密码错误';
+          try { const j = await r.json(); if (j && j.error) msg = j.error; } catch (e) {}
+          throw new Error(msg);
         }
       } catch (e) {
         Security.recordLoginAttempt(false);
@@ -102,7 +109,7 @@
           err.textContent = `⛔ 登录失败次数过多，已锁定 ${Security.LOCKOUT_MINUTES} 分钟`;
         } else {
           const left = Security.MAX_ATTEMPTS - newState.attempts;
-          err.textContent = `账号或密码错误（还剩 ${left} 次尝试机会）`;
+          err.textContent = `${e.message}（还剩 ${left} 次尝试机会）`;
         }
 
         btn.disabled = false;

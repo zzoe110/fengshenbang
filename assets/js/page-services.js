@@ -4,11 +4,19 @@ document.addEventListener('DOMContentLoaded', function () {
   loadAdSlot();
 });
 
-function renderServicesDetail() {
+async function renderServicesDetail() {
   const list = document.getElementById('servicesList');
-  if (!list || !window.FSB_DATA) return;
+  if (!list) return;
 
-  const services = window.FSB_DATA.services;
+  let services = null;
+  try {
+    const res = await fetch('/data/services.json', { cache: 'no-store' });
+    const data = await res.json();
+    services = data.services;
+  } catch (e) {
+    services = window.FSB_DATA?.services;
+  }
+  if (!services) return;
   list.innerHTML = services.map((svc, i) => `
     <article class="service-detail fade-in fade-in-delay-${(i % 6) + 1}" id="${svc.id}">
       <div class="service-detail-header">

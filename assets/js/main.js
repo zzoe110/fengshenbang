@@ -97,14 +97,15 @@ async function loadServices() {
   if (!grid) return;
 
   try {
-    // 优先从 data.js 注入的数据加载
-    let services = window.FSB_DATA?.services;
-
-    // 兜底：fetch JSON
-    if (!services) {
-      const res = await fetch('data/services.json');
+    // 优先从静态 JSON 加载（后台保存后约 1-2 分钟全站更新）
+    let services = null;
+    try {
+      const res = await fetch('/data/services.json', { cache: 'no-store' });
       const data = await res.json();
       services = data.services;
+    } catch (e) {
+      // 兜底：使用 data.js 内置数据
+      services = window.FSB_DATA?.services;
     }
 
     // 按发布日期倒序，取最新

@@ -3,6 +3,7 @@ node_modules/
 
 # 环境变量 / 密钥（绝不提交）
 server/.env
+.dev.vars
 
 # 系统 / 缓存
 .DS_Store

@@ -1,0 +1,23 @@
+# ============================================
+# EdgeOne Pages Functions 环境变量模板
+# 用法：
+#   1. 复制本文件为 .dev.vars（仅供本地调试，已被 .gitignore 忽略，切勿提交）
+#   2. 生产环境在 EdgeOne 控制台 → 项目 → 环境变量 中配置同样的值
+# ============================================
+
+# 后台登录密码（与之前一致；也可改成你自己的新密码）
+ADMIN_PWD=zouyinde@1314
+
+# Token 签名密钥：请改成一段随机长字符串（例如终端执行 openssl rand -hex 32）
+JWT_SECRET=请改成一段随机长字符串例如opensslrandhex32的结果
+
+# GitHub 仓库信息（用于把数据写回仓库、触发重新部署）
+# 仓库地址形如 https://github.com/<owner>/<repo>
+GITHUB_REPO=zzoe110/fengshenbang
+GITHUB_BRANCH=main
+
+# GitHub 个人访问令牌（PAT，需有该仓库的 contents 写权限）
+# 生成地址：GitHub → Settings → Developer settings → Personal access tokens
+# 作用范围勾选 repo（或细化为该仓库的 contents:write）
+# 注意：只配置在 EdgeOne 环境变量 / 本地 .dev.vars，绝不写进代码或提交到仓库
+GITHUB_TOKEN=ghp_此处填你的GitHub个人访问令牌

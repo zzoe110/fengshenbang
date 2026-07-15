@@ -6,11 +6,20 @@ document.addEventListener('DOMContentLoaded', function () {
   bindFilter();
 });
 
-function renderBlog() {
+async function renderBlog() {
   const grid = document.getElementById('blogGrid');
-  if (!grid || !window.FSB_DATA) return;
+  if (!grid) return;
 
-  let blogs = window.FSB_DATA.blog;
+  let blogs = null;
+  try {
+    const res = await fetch('/data/blog.json', { cache: 'no-store' });
+    const data = await res.json();
+    blogs = data.blog;
+  } catch (e) {
+    blogs = window.FSB_DATA?.blog;
+  }
+  if (!blogs) return;
+
   if (currentFilter !== 'all') {
     blogs = blogs.filter(b => b.category === currentFilter);
   }

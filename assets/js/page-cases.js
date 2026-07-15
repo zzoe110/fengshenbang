@@ -3,11 +3,21 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCases();
 });
 
-function renderCases() {
+async function renderCases() {
   const grid = document.getElementById('casesGrid');
-  if (!grid || !window.FSB_DATA) return;
+  if (!grid) return;
 
-  let cases = [...window.FSB_DATA.cases];
+  let cases = null;
+  try {
+    const res = await fetch('/data/cases.json', { cache: 'no-store' });
+    const data = await res.json();
+    cases = data.cases;
+  } catch (e) {
+    cases = window.FSB_DATA?.cases;
+  }
+  if (!cases) return;
+
+  cases = [...cases];
   cases.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
   grid.innerHTML = cases.map((c, i) => `

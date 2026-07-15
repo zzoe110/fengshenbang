@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "id": "case-dental-guizhou",
+      "title": "贵州某连锁口腔GEO优化案例：3个月AI搜索曝光提升400%",
+      "serviceId": "dental-geo",
+      "client": "贵州XX口腔连锁",
+      "industry": "口腔医疗",
+      "summary": "通过GEO内容矩阵+AI搜索优化，3个月实现DeepSeek、豆包、文心一言搜索结果首页占位。",
+      "metrics": [
+        { "label": "AI搜索曝光", "value": "+400%" },
+        { "label": "到店咨询", "value": "+180%" },
+        { "label": "成交转化", "value": "+95%" }
+      ],
+      "publishDate": "2026-06-29"
+    },
+    {
+      "id": "case-brand-tea",
+      "title": "传统茶企品牌焕新：从区域品牌到全国连锁",
+      "serviceId": "brand-operations",
+      "client": "黔西南XX茶业",
+      "industry": "传统食品",
+      "summary": "品牌定位重塑+新媒体矩阵运营，6个月新开23家加盟店。",
+      "metrics": [
+        { "label": "新增加盟店", "value": "23家" },
+        { "label": "品牌搜索量", "value": "+520%" },
+        { "label": "客单价", "value": "+65%" }
+      ],
+      "publishDate": "2026-06-26"
+    },
+    {
+      "id": "case-ai-manufacturing",
+      "title": "制造企业AI落地：质检效率提升300%",
+      "serviceId": "ai-empowerment",
+      "client": "广东XX电子制造",
+      "industry": "智能制造",
+      "summary": "定制AI质检系统+员工培训，3个月实现质检自动化。",
+      "metrics": [
+        { "label": "质检效率", "value": "+300%" },
+        { "label": "人力成本", "value": "-60%" },
+        { "label": "漏检率", "value": "-85%" }
+      ],
+      "publishDate": "2026-06-22"
+    }
+  ]
+}
