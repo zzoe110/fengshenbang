@@ -130,13 +130,39 @@ export async function githubWrite(env, filePath, contentStr) {
   return putRes.json();
 }
 
-// 兼容两种 Pages Functions 调用约定：
-//   - 单参数 context 风格（CF/EdgeOne 推荐）：onRequest(context) -> context.request / context.env
-//   - 双参数风格：onRequest(request, context) -> context.env
-export function resolveContext(request, context) {
-  if (request && request.request) {
-    // 单参数 context 风格
-    return { request: request.request, env: request.env || {} };
+// 兼容多种 Pages Functions 调用约定，尽可能拿到 request 与 env：
+//   - 单参数 context 风格（Cloudflare/EdgeOne 推荐）：onRequest(context) -> context.request / context.env
+//   - 双参数风格：onRequest(request, envOrContext)，第二参可能是 env 对象本身，也可能是 { env }
+//   - Node Cloud Functions：环境变量在全局 process.env
+export function resolveContext(arg1, arg2) {
+  let request = null;
+  let env = {};
+
+  if (arg1 && typeof arg1 === 'object') {
+    if (arg1.request) {
+      // 单参数 context 风格（或第一参本身就是 context）
+      request = arg1.request;
+      env = arg1.env || {};
+    } else if (typeof Request !== 'undefined' && arg1 instanceof Request) {
+      // 第一参是 Request（双参数情况）
+      request = arg1;
+    } else {
+      // 兜底：第一参既不是 context 也不是 Request
+      request = arg1;
+    }
+  } else if (typeof Request !== 'undefined' && arg1 instanceof Request) {
+    request = arg1;
   }
-  return { request, env: (context && context.env) || {} };
+
+  // 双参数：第二参可能是 env 对象本身，或包含 { env } 的 context
+  if (arg2 && typeof arg2 === 'object') {
+    env = (arg2.env && typeof arg2.env === 'object') ? arg2.env : arg2;
+  }
+
+  // 兜底：Node 运行时全局 process.env（某些 Cloud Functions 环境）
+  if (typeof process !== 'undefined' && process.env && Object.keys(process.env).length) {
+    env = Object.assign({}, process.env, env);
+  }
+
+  return { request, env };
 }

@@ -9,10 +9,16 @@ export async function onRequestPost(request, context) {
   try {
     const body = await req.json().catch(() => ({}));
     const username = (body.username || '').toString();
-    const password = (body.password || '').toString();
+    const password = (body.password || '').toString().trim();
 
-    const adminPwd = env.ADMIN_PWD || '';
-    if (!adminPwd || !safeEqual(password, adminPwd)) {
+    const adminPwd = (env.ADMIN_PWD || '').trim();
+    if (!adminPwd) {
+      // 明确区分：服务端根本没拿到密码配置
+      return jsonResponse({
+        error: '服务端未配置 ADMIN_PWD 环境变量（请到 EdgeOne 控制台检查运行时环境变量：是否配到生产环境、KEY 名是否大写 ADMIN_PWD）'
+      }, 500);
+    }
+    if (!safeEqual(password, adminPwd)) {
       return jsonResponse({ error: '账号或密码错误' }, 401);
     }
 
