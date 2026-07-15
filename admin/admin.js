@@ -180,6 +180,37 @@ const DataStore = {
     }
   },
 
+  // 站点配置：读 /data/config.json（经 API），失败回退本地 + 默认值
+  async getConfig() {
+    try {
+      const data = await API.getRemote('config');
+      if (data && typeof data === 'object') {
+        this._localCache = this._localCache || {};
+        this._localCache.config = data;
+        try { localStorage.setItem('fsb_site_config', JSON.stringify({ data, updatedAt: Date.now() })); } catch (e) {}
+        return data;
+      }
+    } catch (e) { /* 回退本地 */ }
+    try {
+      const saved = localStorage.getItem('fsb_site_config');
+      if (saved) return JSON.parse(saved).data || JSON.parse(saved);
+    } catch (e) {}
+    return { ...DEFAULT_CONFIG };
+  },
+
+  // 保存站点配置：写回 GitHub（经 /api/save），本地兜底
+  async saveConfig(cfg) {
+    try {
+      await API.saveData('config', cfg);
+    } catch (e) {
+      console.error('保存站点配置失败', e);
+    }
+    this._localCache = this._localCache || {};
+    this._localCache.config = cfg;
+    try { localStorage.setItem('fsb_site_config', JSON.stringify({ data: cfg, updatedAt: Date.now() })); } catch (e) {}
+    if (window.SITE_CONFIG) Object.assign(window.SITE_CONFIG, cfg);
+  },
+
   // ============================================
   // 内部方法：兼容旧数据 + 加密选项
   // ============================================

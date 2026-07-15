@@ -134,18 +134,21 @@
       });
     });
 
-    function loadSEO() {
-      PAGES.forEach(page => {
+    async function loadSEO() {
+      // 首页 SEO 来自 config.json（后台可改、前台生效）
+      const cfg = await DataStore.getConfig();
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      setVal('home_title', cfg.homeTitle);
+      setVal('home_desc', cfg.homeDescription);
+      setVal('home_keywords', cfg.homeKeywords);
+      setVal('home_ogImage', cfg.homeOgImage);
+      // 其他页仍走本地 SEO 存储
+      ['services', 'blog', 'cases'].forEach(page => {
         const seo = DataStore.getSEO('page_' + page) || {};
-        const titleEl = document.getElementById(`${page}_title`);
-        const descEl = document.getElementById(`${page}_desc`);
-        const kwEl = document.getElementById(`${page}_keywords`);
-        const ogEl = document.getElementById(`${page}_ogImage`);
-
-        if (titleEl) titleEl.value = seo.title || '';
-        if (descEl) descEl.value = seo.description || '';
-        if (kwEl) kwEl.value = seo.keywords || '';
-        if (ogEl) ogEl.value = seo.ogImage || '';
+        setVal(`${page}_title`, seo.title);
+        setVal(`${page}_desc`, seo.description);
+        setVal(`${page}_keywords`, seo.keywords);
+        setVal(`${page}_ogImage`, seo.ogImage);
       });
       updateCharCount();
     }
@@ -159,8 +162,16 @@
       if (dl) dl.textContent = d.length;
     }
 
-    function saveAll() {
-      PAGES.forEach(page => {
+    async function saveAll() {
+      // 首页 SEO 写回 config.json（触发重新部署，前台约1-2分钟生效）
+      const cfg = await DataStore.getConfig();
+      cfg.homeTitle = (document.getElementById('home_title') || {}).value?.trim() || '';
+      cfg.homeDescription = (document.getElementById('home_desc') || {}).value?.trim() || '';
+      cfg.homeKeywords = (document.getElementById('home_keywords') || {}).value?.trim() || '';
+      cfg.homeOgImage = (document.getElementById('home_ogImage') || {}).value?.trim() || '';
+      await DataStore.saveConfig(cfg);
+      // 其他页仍存本地 SEO
+      ['services', 'blog', 'cases'].forEach(page => {
         const data = {
           title: (document.getElementById(`${page}_title`) || {}).value?.trim() || '',
           description: (document.getElementById(`${page}_desc`) || {}).value?.trim() || '',

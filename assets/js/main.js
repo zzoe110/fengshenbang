@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // 4. 加载业务数据
   // ============================================
   loadServices();
+  loadSiteMeta();
 
   // ============================================
   // 5. 平滑滚动到锚点
@@ -88,6 +89,60 @@ document.addEventListener('DOMContentLoaded', function () {
   // ============================================
   animateNumbers();
 });
+
+// ============================================
+// 动态注入站点 meta + JSON-LD（后台 config.json 可改，无需改代码）
+// ============================================
+async function loadSiteMeta() {
+  let cfg = null;
+  try {
+    const res = await fetch('/data/config.json', { cache: 'no-store' });
+    if (res.ok) cfg = await res.json();
+  } catch (e) { /* 使用兜底默认值 */ }
+
+  if (cfg && typeof cfg === 'object') {
+    try { Object.assign(SITE_CONFIG, cfg); } catch (e) {}
+  }
+
+  const home = {
+    title: SITE_CONFIG.homeTitle || (SITE_CONFIG.siteName + ' - ' + SITE_CONFIG.siteFullName),
+    description: SITE_CONFIG.homeDescription || SITE_CONFIG.description,
+    keywords: SITE_CONFIG.homeKeywords || SITE_CONFIG.keywords,
+    ogTitle: SITE_CONFIG.homeTitle || (SITE_CONFIG.siteName + ' - ' + SITE_CONFIG.siteFullName),
+    ogDescription: SITE_CONFIG.homeDescription || SITE_CONFIG.description,
+    ogImage: SITE_CONFIG.homeOgImage || SITE_CONFIG.logo
+  };
+  updateSEO(home);
+  injectJSONLD();
+}
+
+// 动态生成 Organization 结构化数据（GEO 核心载体：业务实体词典硬编码，文本字段来自 config）
+function injectJSONLD() {
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    'name': SITE_CONFIG.siteFullName || SITE_CONFIG.siteName,
+    'alternateName': SITE_CONFIG.siteName,
+    'url': '/',
+    'logo': SITE_CONFIG.logo,
+    'description': SITE_CONFIG.homeDescription || SITE_CONFIG.description,
+    'slogan': '从品牌到AI，助力企业破局增长',
+    'foundingLocation': { '@type': 'Place', 'name': (SITE_CONFIG.contact && SITE_CONFIG.contact.address) || '贵州省兴义市' },
+    'areaServed': [
+      { '@type': 'AdministrativeArea', 'name': '贵州省' },
+      { '@type': 'AdministrativeArea', 'name': '兴义市' },
+      { '@type': 'Country', 'name': '中国' }
+    ],
+    'address': { '@type': 'PostalAddress', 'addressRegion': '贵州省', 'addressLocality': '兴义市', 'addressCountry': 'CN' },
+    'knowsAbout': [
+      '企业品牌运营','品牌策划','品牌定位','VI视觉设计','新媒体矩阵运营','口腔GEO优化','生成式引擎优化','GEO优化','AI搜索优化','口腔内外运营','口腔门诊运营','口腔机构获客','AI落地赋能','企业AI应用','智能体开发','员工AI培训','传统企业策划','企业数字化转型','传统企业转型','YouTuber运营','YouTube频道出海运营'
+    ]
+  };
+  const s = document.createElement('script');
+  s.type = 'application/ld+json';
+  s.textContent = JSON.stringify(ld);
+  document.head.appendChild(s);
+}
 
 // ============================================
 // 加载业务数据
