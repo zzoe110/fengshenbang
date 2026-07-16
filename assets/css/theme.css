@@ -87,6 +87,50 @@
   line-height: 0;
 }
 
+/* ============================================
+   头部导航内挂载容器：跟随 flex 布局，固定在导航栏右侧，不悬浮
+   ============================================ */
+.theme-toggle-mount--header {
+  position: static;
+  display: flex;
+  align-items: center;
+  line-height: 0;
+  margin-left: 0.75rem;
+}
+
+.theme-toggle-mount--header .fsb-theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-width: 1.5px;
+}
+
+.theme-toggle-mount--header .fsb-theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   后台侧边栏内挂载容器：推到侧边栏标题右侧，不悬浮
+   ============================================ */
+.theme-toggle-mount--sidebar {
+  position: static;
+  display: flex;
+  align-items: center;
+  line-height: 0;
+  margin-left: auto;
+}
+
+.theme-toggle-mount--sidebar .fsb-theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-width: 1.25px;
+}
+
+.theme-toggle-mount--sidebar .fsb-theme-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* 减少动效偏好 */
 @media (prefers-reduced-motion: reduce) {
   .fsb-theme-toggle {
