@@ -40,6 +40,8 @@
     .article-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
     .article-loading { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
   </style>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <script src="assets/js/theme.js"></script>
 </head>
 <body>
   <!-- 顶部导航 -->
@@ -131,7 +133,7 @@
       loadArticle();
     });
 
-    function loadArticle() {
+    async function loadArticle() {
       const loading = document.getElementById('loadingState');
       const empty = document.getElementById('emptyState');
       const content = document.getElementById('articleContent');
@@ -146,20 +148,16 @@
         return;
       }
 
-      // 查找文章（优先从 localStorage 读取，其次从内置数据）
+      // 查找文章：优先从静态 JSON（后台保存后约 1-2 分钟更新），其次内置数据
       let article = null;
       try {
-        const saved = localStorage.getItem('fsb_blog');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          const blogs = parsed.data || parsed;
-          if (Array.isArray(blogs)) {
-            article = blogs.find(b => b.id === id);
-          }
+        const res = await fetch('/data/blog.json', { cache: 'no-store' });
+        const data = await res.json();
+        if (Array.isArray(data.blog)) {
+          article = data.blog.find(b => b.id === id);
         }
       } catch (e) { /* ignore */ }
 
-      // 如果 localStorage 没有，从内置数据找
       if (!article && window.FSB_DATA) {
         article = window.FSB_DATA.blog.find(b => b.id === id);
       }

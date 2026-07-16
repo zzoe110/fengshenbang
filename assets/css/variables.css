@@ -96,3 +96,45 @@
     --fs-6xl: 2.5rem;
   }
 }
+
+/* ============================================
+   日间主题（Light）覆盖
+   保留黑金品牌「金」强调色，背景转浅、文字转深
+   通过 <html data-theme="light"> 启用，前后台共用
+   ============================================ */
+[data-theme="light"] {
+  /* 主色系 - 浅 */
+  --color-bg-primary: #f6f7f9;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #eef1f5;
+  --color-border: #e2e6ec;
+
+  /* 强调色 - 金（浅背景上略加深，保证对比度） */
+  --color-gold-primary: #9c7426;
+  --color-gold-secondary: #b8863a;
+  --color-gold-highlight: #7a531a;
+  --color-gold-glow: rgba(156, 116, 38, 0.18);
+
+  /* 文字色（深） */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #3a3a3a;
+  --color-text-tertiary: #5f5f5f;
+  --color-text-muted: #939393;
+
+  /* 功能色（保持，error/warning 略调深以适配浅底） */
+  --color-success: #2e9e4b;
+  --color-warning: #d98300;
+  --color-error: #d8392b;
+  --color-info: #b8863a;
+
+  /* 渐变 */
+  --gradient-bg: linear-gradient(135deg, #ffffff 0%, #eef1f5 100%);
+  --gradient-gold: linear-gradient(135deg, #b8863a 0%, #e8c896 50%, #b8863a 100%);
+  --gradient-card: linear-gradient(145deg, rgba(156, 116, 38, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+
+  /* 阴影（浅背景上更轻） */
+  --shadow-sm: 0 2px 8px rgba(20, 20, 30, 0.08);
+  --shadow-md: 0 4px 16px rgba(20, 20, 30, 0.10);
+  --shadow-lg: 0 8px 32px rgba(20, 20, 30, 0.12);
+  --shadow-gold: 0 4px 20px rgba(156, 116, 38, 0.18);
+}
