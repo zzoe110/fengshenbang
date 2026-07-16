@@ -39,6 +39,10 @@
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-gold: 0 4px 20px rgba(212, 175, 106, 0.2);
 
+  /* 顶部导航背景（半透明，随主题切换） */
+  --color-header-bg: rgba(10, 10, 10, 0.85);
+  --color-header-bg-scrolled: rgba(10, 10, 10, 0.95);
+
   /* 字体 */
   --font-zh: 'PingFang SC', 'Microsoft YaHei', '阿里巴巴普惠体', sans-serif;
   --font-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -137,4 +141,8 @@
   --shadow-md: 0 4px 16px rgba(20, 20, 30, 0.10);
   --shadow-lg: 0 8px 32px rgba(20, 20, 30, 0.12);
   --shadow-gold: 0 4px 20px rgba(156, 116, 38, 0.18);
+
+  /* 顶部导航背景（浅色版，半透明） */
+  --color-header-bg: rgba(255, 255, 255, 0.82);
+  --color-header-bg-scrolled: rgba(255, 255, 255, 0.92);
 }

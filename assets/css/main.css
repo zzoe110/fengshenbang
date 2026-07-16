@@ -72,7 +72,7 @@ button {
   left: 0;
   right: 0;
   z-index: var(--z-header);
-  background: rgba(10, 10, 10, 0.85);
+  background: var(--color-header-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(184, 146, 74, 0.1);
@@ -80,7 +80,7 @@ button {
 }
 
 .header.scrolled {
-  background: rgba(10, 10, 10, 0.95);
+  background: var(--color-header-bg-scrolled);
   box-shadow: var(--shadow-md);
 }
 

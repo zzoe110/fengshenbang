@@ -75,8 +75,8 @@
     /* ignore */
   }
 
-  // —— 注入切换按钮 ——
-  document.addEventListener('DOMContentLoaded', function () {
+  // —— 注入切换按钮（支持挂载点；兼容 DOMContentLoaded 已触发的情况）——
+  function inject() {
     if (document.querySelector('.fsb-theme-toggle')) return; // 防重复注入
 
     var btn = document.createElement('button');
@@ -84,7 +84,15 @@
     btn.className = 'fsb-theme-toggle';
     render(btn);
     btn.addEventListener('click', toggle);
-    document.body.appendChild(btn);
+
+    // 若页面指定了挂载容器（如后台登录页要固定放边上），则插入容器内并改为内联样式
+    var mount = document.getElementById('theme-toggle-mount');
+    if (mount) {
+      btn.classList.add('fsb-theme-toggle--inline');
+      mount.appendChild(btn);
+    } else {
+      document.body.appendChild(btn);
+    }
 
     window.FSBTheme = {
       get: function () {
@@ -94,5 +102,12 @@
       toggle: toggle,
       _btn: btn,
     };
-  });
+  }
+
+  // 防止脚本在 DOMContentLoaded 之后才执行（如缓存/异步加载）导致按钮不注入
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inject);
+  } else {
+    inject();
+  }
 })();

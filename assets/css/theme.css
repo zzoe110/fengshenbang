@@ -61,6 +61,32 @@
   }
 }
 
+/* ============================================
+   内联变体：页面指定 #theme-toggle-mount 容器时使用
+   不悬浮，跟随容器布局（如后台登录卡片右上角）
+   ============================================ */
+.fsb-theme-toggle--inline {
+  position: static;
+  right: auto;
+  bottom: auto;
+  width: 38px;
+  height: 38px;
+}
+
+.fsb-theme-toggle--inline svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* 挂载容器：固定在登录卡片右上角 */
+.theme-toggle-mount {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  line-height: 0;
+}
+
 /* 减少动效偏好 */
 @media (prefers-reduced-motion: reduce) {
   .fsb-theme-toggle {
