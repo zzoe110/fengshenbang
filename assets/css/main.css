@@ -706,6 +706,21 @@ button {
   font-size: var(--fs-xs);
 }
 
+/* 页脚备案号（工信部链接） */
+.footer-icp {
+  margin-top: 0.5rem;
+  font-size: var(--fs-xs);
+}
+.footer-icp-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.footer-icp-link:hover {
+  color: var(--color-gold-highlight);
+  text-decoration: underline;
+}
+
 /* ============================================
    滚动动画
    ============================================ */

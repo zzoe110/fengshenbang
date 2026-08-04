@@ -114,6 +114,7 @@ async function loadSiteMeta() {
   };
   updateSEO(home);
   injectJSONLD();
+  updateICP();
 }
 
 // 动态生成 Organization 结构化数据（GEO 核心载体：业务实体词典硬编码，文本字段来自 config）
@@ -123,7 +124,7 @@ function injectJSONLD() {
     '@type': 'Organization',
     'name': SITE_CONFIG.siteFullName || SITE_CONFIG.siteName,
     'alternateName': SITE_CONFIG.siteName,
-    'url': '/',
+    'url': getSiteBaseUrl() + '/',
     'logo': SITE_CONFIG.logo,
     'description': SITE_CONFIG.homeDescription || SITE_CONFIG.description,
     'slogan': '从品牌到AI，助力企业破局增长',
@@ -142,6 +143,15 @@ function injectJSONLD() {
   s.type = 'application/ld+json';
   s.textContent = JSON.stringify(ld);
   document.head.appendChild(s);
+}
+
+// 动态注入页脚备案号（后台 config.json 的 icp 字段可改；缺省使用页脚硬编码兜底）
+function updateICP() {
+  const link = document.querySelector('.footer-icp-link');
+  if (!link) return;
+  if (SITE_CONFIG.icp) {
+    link.textContent = SITE_CONFIG.icp;
+  }
 }
 
 // ============================================
