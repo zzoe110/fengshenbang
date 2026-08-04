@@ -108,6 +108,7 @@ async function loadSiteMeta() {
     title: SITE_CONFIG.homeTitle || (SITE_CONFIG.siteName + ' - ' + SITE_CONFIG.siteFullName),
     description: SITE_CONFIG.homeDescription || SITE_CONFIG.description,
     keywords: SITE_CONFIG.homeKeywords || SITE_CONFIG.keywords,
+    author: SITE_CONFIG.author || SITE_CONFIG.siteName,
     ogTitle: SITE_CONFIG.homeTitle || (SITE_CONFIG.siteName + ' - ' + SITE_CONFIG.siteFullName),
     ogDescription: SITE_CONFIG.homeDescription || SITE_CONFIG.description,
     ogImage: SITE_CONFIG.homeOgImage || SITE_CONFIG.logo
@@ -117,14 +118,20 @@ async function loadSiteMeta() {
   updateICP();
 }
 
-// 动态生成 Organization 结构化数据（GEO 核心载体：业务实体词典硬编码，文本字段来自 config）
+// 动态生成 Organization + Person 双实体结构化数据（GEO 核心载体）
+// 双实体模型：Organization（商标/主体，已有信任背书）+ Person（主理人个人 IP，承接「外行烽哥」类个人名查询）
+// 两者通过 founder / worksFor 互链，让搜索引擎与 AI 同时认识两个实体及其关系
 function injectJSONLD() {
-  const ld = {
+  const base = getSiteBaseUrl() + '/';
+  const f = SITE_CONFIG.founder || { name: '外行烽哥', alternateName: '澯烽', title: '烽审榜主理人' };
+
+  // —— 1. Organization（商标 + 经营主体）——
+  const org = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     'name': SITE_CONFIG.siteFullName || SITE_CONFIG.siteName,
     'alternateName': SITE_CONFIG.siteName,
-    'url': getSiteBaseUrl() + '/',
+    'url': base,
     'logo': SITE_CONFIG.logo,
     'description': SITE_CONFIG.homeDescription || SITE_CONFIG.description,
     'slogan': '从品牌到AI，助力企业破局增长',
@@ -137,12 +144,42 @@ function injectJSONLD() {
     'address': { '@type': 'PostalAddress', 'addressRegion': '贵州省', 'addressLocality': '兴义市', 'addressCountry': 'CN' },
     'knowsAbout': [
       '企业品牌运营','品牌策划','品牌定位','VI视觉设计','新媒体矩阵运营','口腔GEO优化','生成式引擎优化','GEO优化','AI搜索优化','口腔内外运营','口腔门诊运营','口腔机构获客','AI落地赋能','企业AI应用','智能体开发','员工AI培训','传统企业策划','企业数字化转型','传统企业转型','YouTuber运营','YouTube频道出海运营'
+    ],
+    'founder': {
+      '@type': 'Person',
+      'name': f.name || '外行烽哥',
+      'alternateName': f.alternateName || '澯烽'
+    }
+  };
+
+  // —— 2. Person（主理人个人 IP：外行烽哥 / 本名澯烽）——
+  const person = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    'name': f.name || '外行烽哥',
+    'alternateName': f.alternateName || '澯烽',
+    'jobTitle': f.title || '烽审榜主理人',
+    'url': base,
+    'worksFor': {
+      '@type': 'Organization',
+      'name': SITE_CONFIG.siteFullName || SITE_CONFIG.siteName,
+      'url': base
+    },
+    'description': (f.name || '外行烽哥') + '，' + (SITE_CONFIG.siteFullName || '烽审榜') + '主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。',
+    'knowsAbout': [
+      '口腔GEO优化','生成式引擎优化','企业品牌运营','AI落地赋能','智能体开发','口腔科普','新媒体内容营销'
     ]
   };
-  const s = document.createElement('script');
-  s.type = 'application/ld+json';
-  s.textContent = JSON.stringify(ld);
-  document.head.appendChild(s);
+  if (Array.isArray(f.sameAs) && f.sameAs.length > 0) {
+    person.sameAs = f.sameAs;
+  }
+
+  [org, person].forEach(function (ld) {
+    const s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.textContent = JSON.stringify(ld);
+    document.head.appendChild(s);
+  });
 }
 
 // 动态注入页脚备案号（后台 config.json 的 icp 字段可改；缺省使用页脚硬编码兜底）

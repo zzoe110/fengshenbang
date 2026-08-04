@@ -81,7 +81,7 @@ window.FSB_DATA = {
       summary: "DeepSeek、豆包、文心一言正在重塑用户搜索习惯。本文拆解口腔机构GEO优化的3个核心动作。",
       content: "完整内容（后台编辑）",
       coverImage: "",
-      author: "烽审榜",
+      author: "外行烽哥",
       publishDate: "2026-06-29",
       readTime: 8
     },
@@ -93,7 +93,7 @@ window.FSB_DATA = {
       summary: "90%企业的AI转型死在第一步。本文给出可执行的三步走框架。",
       content: "完整内容（后台编辑）",
       coverImage: "",
-      author: "烽审榜",
+      author: "外行烽哥",
       publishDate: "2026-06-27",
       readTime: 12
     },
@@ -105,7 +105,7 @@ window.FSB_DATA = {
       summary: "流量越来越贵，口腔机构必须从'拉新'转向'养用户'。",
       content: "完整内容（后台编辑）",
       coverImage: "",
-      author: "烽审榜",
+      author: "外行烽哥",
       publishDate: "2026-06-24",
       readTime: 10
     }
