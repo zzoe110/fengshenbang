@@ -43,14 +43,16 @@
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/api.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', async function () {
-      // 初始化加密密钥
-      await Security.initCredentials();
-
-      // 绑定登录表单
+    document.addEventListener('DOMContentLoaded', function () {
+      // 先绑定登录表单：不依赖加密模块，确保即使 crypto.subtle 不可用也能登录
       document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         await handleLogin();
+      });
+
+      // 再异步初始化加密密钥（失败不影响登录，仅影响后台数据加密）
+      Security.initCredentials().catch(function (err) {
+        console.warn('加密密钥初始化失败（不影响登录）', err);
       });
     });
 

@@ -1,3 +1,10 @@
+/* 强制 HTTPS（全站兜底，head 级最早执行）：非安全上下文下 crypto.subtle 不可用，
+   会导致后台登录/加密模块失效、登录按钮无法绑定。即使 EdgeOne 未配置强制 HTTPS，
+   这里也保证整站始终运行在 HTTPS 下。localhost/127.0.0.1 例外（本地开发）。 */
+if (typeof location !== 'undefined' && location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+}
+
 /* ============================================
    烽审榜 主题切换 (黑金 / 日间)
    - 同步阶段：读取 localStorage 立即设置 data-theme，避免闪烁

@@ -1,4 +1,19 @@
 // ============================================
+// 强制 HTTPS（代码层兜底）
+// 非安全上下文下 crypto.subtle 不可用，会导致后台加密模块初始化失败、
+// 登录按钮无法绑定，表现为「后台登录不了」。即使 EdgeOne 未配置强制 HTTPS，
+// 这里也保证后台页面始终运行在 HTTPS 下。
+// ============================================
+if (
+  typeof location !== 'undefined' &&
+  location.protocol === 'http:' &&
+  location.hostname !== 'localhost' &&
+  location.hostname !== '127.0.0.1'
+) {
+  location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+}
+
+// ============================================
 // 烽审榜 - 安全模块
 // 1. 密码哈希（PBKDF2）
 // 2. 数据加密（AES-GCM）
