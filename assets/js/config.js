@@ -74,9 +74,40 @@ function updateSEO(meta) {
     const saved = localStorage.getItem('fsb_site_config');
     if (saved) {
       const parsed = JSON.parse(saved);
-      Object.assign(SITE_CONFIG, parsed);
+      Object.assign(SITE_CONFIG, parsed.data || parsed);
     }
   } catch (e) {
     console.warn('配置加载失败，使用默认配置', e);
   }
 })();
+
+// ============================================
+// 页脚/联系邮箱：从后台「站点设置」动态注入
+// 后台改邮箱 → 写回 /data/config.json → 全站页脚 mailto 自动更新
+// （config.js 在所有前台页加载，含 blog-detail，故统一在此处理）
+// ============================================
+function updateContactEmailLinks() {
+  const email = (SITE_CONFIG.contact && SITE_CONFIG.contact.email) || '';
+  if (!email) return;
+  document.querySelectorAll('a[data-site-email]').forEach(a => {
+    a.href = 'mailto:' + email;
+  });
+}
+
+async function applyContactEmail() {
+  // 先用本地（localStorage / 默认）兜底，保证首屏即有正确链接
+  updateContactEmailLinks();
+  // 再拉远程配置覆盖（后台「站点设置」保存后约 1-2 分钟全站更新）
+  try {
+    const res = await fetch('/data/config.json', { cache: 'no-store' });
+    if (res.ok) {
+      const cfg = await res.json();
+      if (cfg && cfg.contact && cfg.contact.email) {
+        SITE_CONFIG.contact.email = cfg.contact.email;
+        updateContactEmailLinks();
+      }
+    }
+  } catch (e) { /* 保持兜底值 */ }
+}
+
+document.addEventListener('DOMContentLoaded', applyContactEmail);
