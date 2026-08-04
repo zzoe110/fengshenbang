@@ -38,7 +38,7 @@ if (typeof location !== 'undefined' && location.protocol === 'http:' && location
     return document.documentElement.getAttribute('data-theme') === 'light';
   }
 
-  // 应用主题：light 设属性，其他（含 dark）移除属性 → 默认黑金
+  // 应用主题：light 设属性；dark 移除属性 → 回退到 :root（黑金）
   function apply(theme) {
     if (theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
@@ -73,13 +73,16 @@ if (typeof location !== 'undefined' && location.protocol === 'http:' && location
   }
 
   // —— 同步阶段：尽早应用，避免页面闪烁（此脚本置于 <head> 内）——
+  // 默认主题 = 日间（light）；仅当用户此前显式选择过黑金(dark) 时才沿用其偏好
   try {
     var saved = localStorage.getItem(KEY);
-    if (saved === 'light' || saved === 'dark') {
-      apply(saved);
+    if (saved === 'dark') {
+      apply('dark');
+    } else {
+      apply('light'); // 未设置 / 设置为 light / 读取异常 → 一律日间
     }
   } catch (e) {
-    /* ignore */
+    apply('light');
   }
 
   // —— 注入切换按钮（支持挂载点；兼容 DOMContentLoaded 已触发的情况）——
