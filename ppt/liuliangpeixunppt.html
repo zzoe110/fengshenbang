@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不是一个人在战斗！—— 京州口腔患者管理流量闭环全解析</title>
+<style>
+  :root{
+    --navy:#16324f;
+    --navy-deep:#0b1a29;
+    --blue:#2c5282;
+    --red:#e11414;
+    --red-2:#b30f0f;
+    --red-soft:#fdecec;
+    --ink:#0f141b;
+    --gray:#3d4654;
+    --gray-light:#8089a0;
+    --line:#e8edf3;
+    --bg:#ffffff;
+    --bg-soft:#f6f9fc;
+    --font:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans CN",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);background:var(--navy-deep);overflow:hidden;-webkit-font-smoothing:antialiased}
+  .deck{position:relative;width:100vw;height:100vh}
+
+  /* ---------- Slide base ---------- */
+  .slide{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:60px 84px;
+    background:var(--bg);
+    opacity:0;visibility:hidden;
+    transform:translateY(20px);
+    transition:opacity .5s ease,transform .5s ease,visibility .5s;
+  }
+  .slide.active{opacity:1;visibility:visible;transform:none}
+  .slide.alt{background:linear-gradient(135deg,var(--navy-deep) 0%,var(--navy) 65%,var(--blue) 100%);color:#fff}
+  .slide.alt .gray,.slide.alt .dim{color:rgba(255,255,255,.7)}
+  .slide.alt .lede{color:rgba(255,255,255,.82)}
+
+  .container{width:100%;max-width:1180px;margin:0 auto}
+
+  /* ---------- Typography ---------- */
+  .kicker{
+    display:inline-block;font-size:14px;font-weight:800;letter-spacing:.18em;
+    color:#fff;background:var(--red);padding:8px 18px;border-radius:7px;
+    margin-bottom:24px;
+  }
+  .slide.alt .kicker{background:#fff;color:var(--navy)}
+  h1{font-size:64px;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+  h2{font-size:44px;line-height:1.2;font-weight:900;letter-spacing:-.01em}
+  h3{font-size:26px;font-weight:800;letter-spacing:-.01em}
+  .lede{font-size:20px;line-height:1.7;color:var(--gray);max-width:880px;margin-top:16px}
+  .gray{color:var(--gray)}
+  .dim{color:var(--gray-light)}
+  .red{color:var(--red)}
+
+  /* ---------- Reveal ---------- */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .slide.active .reveal{opacity:1;transform:none}
+  .slide.active .reveal.d1{transition-delay:.10s}
+  .slide.active .reveal.d2{transition-delay:.20s}
+  .slide.active .reveal.d3{transition-delay:.30s}
+  .slide.active .reveal.d4{transition-delay:.40s}
+
+  /* ---------- Cards (flat / minimal) ---------- */
+  .card{
+    background:#fff;border:1.5px solid var(--line);border-radius:16px;
+    padding:30px 32px;position:relative;overflow:hidden;
+  }
+  .grid{display:grid;gap:24px}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+
+  .num-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:54px;height:54px;padding:0 14px;border-radius:14px;
+    background:var(--red);color:#fff;font-size:24px;font-weight:900;margin-bottom:18px;
+  }
+
+  /* ---------- Pill ---------- */
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 20px;border-radius:999px;background:var(--bg-soft);
+    border:1.5px solid var(--line);font-size:15px;font-weight:700;color:var(--gray);
+  }
+  .pill.red{background:var(--red);border-color:var(--red);color:#fff}
+
+  /* ---------- Department layout ---------- */
+  .dept{
+    display:grid;grid-template-columns:210px 1fr;gap:40px;align-items:center;
+    background:#fff;border:1.5px solid var(--line);border-radius:22px;
+    padding:40px 46px;
+  }
+  .dept .badge{
+    width:170px;height:170px;border-radius:26px;
+    background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#fff;box-shadow:0 14px 32px rgba(22,50,79,.3);
+  }
+  .dept .badge .emoji{font-size:60px;line-height:1}
+  .dept .badge .role{font-size:14px;font-weight:700;margin-top:12px;opacity:.9;letter-spacing:.06em}
+  .dept .body h3{font-size:30px;margin-bottom:6px}
+  .dept .body .metaphor{
+    font-size:24px;font-weight:900;color:var(--red);margin-bottom:18px;letter-spacing:-.01em;
+  }
+  .dept .body .what{font-size:17px;line-height:1.8;color:var(--gray)}
+
+  /* 工作/价值/标准/动作 表 */
+  .duty{margin-top:18px;border-radius:12px;overflow:hidden;border:1.5px solid var(--line)}
+  .duty .row{display:flex;font-size:16px;line-height:1.7}
+  .duty .row+.row{border-top:1.5px solid var(--line)}
+  .duty .k{flex-shrink:0;width:74px;background:var(--bg-soft);color:var(--navy);font-weight:900;display:flex;align-items:center;justify-content:center;padding:13px 0;font-size:15px;letter-spacing:.04em}
+  .duty .v{padding:13px 18px;color:var(--gray)}
+
+  /* 大白话总结：红色强调块 */
+  .tagline{
+    display:block;margin-top:22px;padding:18px 24px;border-radius:14px;
+    background:var(--red-soft);border-left:6px solid var(--red);
+    color:var(--red);font-size:19px;font-weight:800;line-height:1.55;
+  }
+
+  /* 对门店意义 说明条 */
+  .note-strip{
+    margin-top:24px;display:flex;gap:16px;align-items:flex-start;
+    background:var(--bg-soft);border-left:5px solid var(--blue);
+    border-radius:0 14px 14px 0;padding:20px 26px;
+  }
+  .note-strip .ic{font-size:26px;flex-shrink:0;line-height:1.3}
+  .note-strip h4{font-size:17px;color:var(--navy);margin-bottom:6px}
+  .note-strip p{font-size:16px;line-height:1.75;color:var(--gray)}
+
+  /* ---------- Flow loop ---------- */
+  .loop{display:flex;align-items:center;justify-content:center;gap:0;margin:26px 0 6px;flex-wrap:wrap}
+  .loop .node{
+    flex:1;min-width:150px;max-width:230px;text-align:center;
+    padding:30px 18px;border-radius:18px;background:#fff;border:1.5px solid var(--line);
+    position:relative;
+  }
+  .loop .node.hot{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 16px 38px rgba(225,20,20,.35)}
+  .loop .node .ic{font-size:40px;display:block;margin-bottom:12px}
+  .loop .node .t{font-size:24px;font-weight:900}
+  .loop .node .s{font-size:13px;opacity:.82;margin-top:6px}
+  .loop .arrow{font-size:28px;color:var(--gray-light);padding:0 12px;font-weight:800}
+  .loop.tight .node{flex:1 1 130px;min-width:0;max-width:none;padding:22px 8px}
+  .loop.tight .node .ic{font-size:32px;margin-bottom:8px}
+  .loop.tight .node .t{font-size:19px}
+  .loop.tight .node .s{font-size:11px}
+  .loop.tight .arrow{font-size:20px;padding:0 5px}
+
+  /* ---------- Core page ---------- */
+  .core-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:30px}
+  .core-card{
+    background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:34px 28px;
+    text-align:center;border-top:5px solid var(--red);
+  }
+  .core-card .ic{font-size:50px;margin-bottom:14px}
+  .core-card h4{font-size:24px;margin-bottom:10px;color:var(--navy)}
+  .core-card p{font-size:16px;line-height:1.75;color:var(--gray)}
+  .banner{
+    margin-top:30px;background:var(--navy);color:#fff;border-radius:18px;
+    padding:28px 36px;display:flex;align-items:center;gap:20px;
+    font-size:22px;font-weight:800;line-height:1.55;
+    box-shadow:0 16px 38px rgba(22,50,79,.22);
+  }
+  .banner .ic{font-size:38px;flex-shrink:0}
+  .banner b{color:#ff8a8a}
+
+  /* ---------- Section divider ---------- */
+  .big-num{font-size:140px;font-weight:900;line-height:.85;color:rgba(255,255,255,.14)}
+  .divider-line{width:90px;height:6px;background:var(--red);border-radius:4px;margin:26px 0}
+
+  /* ---------- Panorama ---------- */
+  .pano-block{
+    border-radius:16px;padding:20px 14px;text-align:center;color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:96px;
+  }
+  .pano-block .ic{font-size:30px;margin-bottom:6px}
+  .pano-block .t{font-size:18px;font-weight:900}
+  .pano-block .s{font-size:12px;opacity:.88;margin-top:4px}
+  .pano-row{display:grid;gap:10px;margin-bottom:10px}
+  .pano-4{grid-template-columns:repeat(4,1fr)}
+  .pano-2{grid-template-columns:repeat(2,1fr)}
+  .pano-1{grid-template-columns:1fr}
+  .pano-arrow{text-align:center;font-size:22px;color:var(--gray-light);margin:2px 0}
+  .pano-label{font-size:14px;font-weight:800;color:var(--gray);letter-spacing:.08em;margin:4px 0 2px}
+  .pano-label.center{text-align:center;color:var(--red);font-size:16px}
+  .p-navy{background:var(--navy)}
+  .p-blue{background:var(--blue)}
+  .p-red{background:var(--red)}
+  .p-purple{background:#6b46c1}
+  .p-green{background:#2f855a}
+  .p-gray{background:#64748b}
+  .p-violet{background:#553c9a}
+  .pano-center{background:linear-gradient(135deg,var(--red),var(--red-2));border:3px solid #fff;box-shadow:0 0 0 5px var(--red-soft)}
+  .pano-center .t{font-size:22px}
+  .pano-center .s{font-size:14px}
+
+  /* ---------- Family ---------- */
+  .family{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:26px 0}
+  .f-card{
+    border-radius:22px;padding:38px 30px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .f-card.mkt{background:var(--red-soft);border:2px solid var(--red)}
+  .f-card.med{background:#e9f5ee;border:2px solid #2f855a}
+  .f-card .ic{font-size:64px;margin-bottom:14px}
+  .f-card h3{font-size:28px;margin-bottom:10px}
+  .f-card p{font-size:16px;line-height:1.75;color:var(--gray);max-width:260px}
+  .f-plus{display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--gray-light);padding:0 16px}
+
+  /* ---------- Cover deco ---------- */
+  .cover-deco{position:absolute;right:-60px;top:-60px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(225,20,20,.14),transparent 70%)}
+  .cover-ring{position:absolute;right:40px;bottom:40px;width:220px;height:220px;border:2px dashed rgba(255,255,255,.18);border-radius:50%}
+
+  /* ---------- Footer / nav ---------- */
+  .progress{position:fixed;top:0;left:0;height:5px;background:var(--red);z-index:50;transition:width .4s ease}
+  .footer{
+    position:absolute;bottom:26px;left:84px;right:84px;
+    display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--gray-light);
+  }
+  .slide.alt .footer{color:rgba(255,255,255,.5)}
+  .counter{font-weight:800;color:var(--navy)}
+  .slide.alt .counter{color:#fff}
+  .dots{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:50}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .3s}
+  .dot.on{background:#fff;width:24px;border-radius:4px}
+  .nav-btn{
+    position:fixed;top:50%;transform:translateY(-50%);z-index:50;
+    width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(22,50,79,.08);color:var(--navy);font-size:22px;
+    display:flex;align-items:center;justify-content:center;transition:all .25s;
+  }
+  .nav-btn:hover{background:var(--red);color:#fff}
+  .nav-prev{left:20px}.nav-next{right:20px}
+  .hint{position:fixed;top:18px;right:24px;font-size:12px;color:rgba(255,255,255,.4);z-index:50}
+
+  @media (max-width:900px){
+    .slide{padding:40px 32px}
+    h1{font-size:42px}h2{font-size:28px}
+    .dept{grid-template-columns:1fr;gap:20px}
+    .dept .badge{width:130px;height:130px;margin:0 auto}
+    .loop .node{min-width:120px}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="hint">← → 翻页 · F 全屏</div>
+<button class="nav-btn nav-prev" id="prev" onclick="go(-1)">‹</button>
+<button class="nav-btn nav-next" id="next" onclick="go(1)">›</button>
+<div class="dots" id="dots"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ===== 01 封面 ===== -->
+  <section class="slide alt active">
+    <div class="cover-deco"></div>
+    <div class="cover-ring"></div>
+    <div class="container">
+      <p class="kicker reveal">京州口腔运营中心 · 企划部</p>
+      <h1 class="reveal d1" style="font-size:82px">不是一个人在战斗！</h1>
+      <p class="lede reveal d2" style="font-size:26px;margin-top:20px;color:rgba(255,255,255,.92)">京州口腔患者管理流量闭环全解析</p>
+      <p class="lede reveal d3" style="margin-top:16px;color:rgba(255,255,255,.72)">主讲：企划部　·　面向区域总、门店运营店长、医疗核心干部</p>
+      <div class="reveal d4" style="display:flex;gap:14px;margin-top:34px;flex-wrap:wrap">
+        <span class="pill red">企划部</span>
+        <span class="pill">运营中心</span>
+        <span class="pill">2026年7月</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 02 三大现实 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Why · 我们为什么要搭建流量闭环</p>
+      <h2 class="reveal d1">当下我们面临的三大现实</h2>
+      <p class="lede reveal d1">坐等患者上门，已经成为过去式。</p>
+      <div class="grid grid-3 reveal d2" style="margin-top:32px">
+        <div class="card">
+          <div class="num-badge">1</div>
+          <h3 class="red">患者选择多元化</h3>
+          <p class="dim" style="margin-top:12px;line-height:1.8;font-size:16px">信息透明、机构众多，坐等上门的时代已经结束。</p>
+        </div>
+        <div class="card">
+          <div class="num-badge">2</div>
+          <h3 class="red">竞争持续加剧</h3>
+          <p class="dim" style="margin-top:12px;line-height:1.8;font-size:16px">不主动拓客，流量就会源源不断流向竞品。</p>
+        </div>
+        <div class="card">
+          <div class="num-badge">3</div>
+          <h3 class="red">规模持续扩大</h3>
+          <p class="dim" style="margin-top:12px;line-height:1.8;font-size:16px">单兵作战难持续，必须搭建标准化体系战。</p>
+        </div>
+      </div>
+      <div class="banner reveal d3" style="margin-top:32px">
+        <div class="ic">💡</div>
+        <p>不能只等患者上门，必须主动<b>"请"进来、"留"下来、让患者"带朋友"来</b>。这就像打仗——不能只有陆军（门店），还要有空军（线上）、炮兵（团购）、指挥部（企划）协同作战。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 流量闭环概念 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Concept · 什么是患者流量闭环</p>
+      <h2 class="reveal d1">什么是患者流量闭环</h2>
+      <div class="loop tight reveal d2" style="margin-top:24px">
+        <div class="node"><span class="ic">🎣</span><div class="t">引流获客</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="ic">🚪</span><div class="t">初诊到店</div></div>
+        <div class="arrow">→</div>
+        <div class="node hot"><span class="ic">🏥</span><div class="t">诊疗服务交付</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="ic">🤝</span><div class="t">满意患者</div><div class="s">复购 / 老带新</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="ic">💤</span><div class="t">患者沉睡</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="ic">📞</span><div class="t">唤醒回流</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="ic">🔄</span><div class="t">再次进店</div></div>
+      </div>
+      <div class="note-strip reveal d3" style="margin-top:34px;border-left-color:var(--red)">
+        <div class="ic">🎯</div>
+        <div><h4 class="red">核心定义</h4><p>把每一位接触京州的患者视作长期资产，全生命周期持续运营——来了不想走，走了还想回来。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 发展部 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">进店前 · 01</p>
+      <div class="dept reveal d1">
+        <div class="badge"><span class="emoji">🪖</span><span class="role">地面陆军</span></div>
+        <div class="body">
+          <h3>发展部 · 全域线下覆盖</h3>
+          <div class="metaphor">门店的先锋部队</div>
+          <div class="duty">
+            <div class="row"><div class="k">工作</div><div class="v">地推拓客、异业合作、线下硬广铺设、表单收集</div></div>
+            <div class="row"><div class="k">价值</div><div class="v">线下全域渗透，挖掘周边潜在人群</div></div>
+          </div>
+          <span class="tagline">🗣️ 大白话：广撒网，把潜在患者引流到门店鱼塘</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 05 网络部 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">进店前 · 02</p>
+      <div class="dept reveal d1">
+        <div class="badge"><span class="emoji">✈️</span><span class="role">线上空军</span></div>
+        <div class="body">
+          <h3>网络部 · 精准意向挖掘</h3>
+          <div class="metaphor">门店的千里眼</div>
+          <div class="duty">
+            <div class="row"><div class="k">工作</div><div class="v">抖音、微信、搜索平台线上投放，承接咨询、收集线索</div></div>
+            <div class="row"><div class="k">价值</div><div class="v">锁定主动搜索口腔需求的高意向人群</div></div>
+          </div>
+          <span class="tagline">🗣️ 大白话：精准捕捉有看牙需求的客户</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 06 电商部 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">进店前 · 03</p>
+      <div class="dept reveal d1">
+        <div class="badge"><span class="emoji">🛒</span><span class="role">流量入口</span></div>
+        <div class="body">
+          <h3>电商部 · 团购引流破圈</h3>
+          <div class="metaphor">线上炮兵 · 流量入口</div>
+          <div class="duty">
+            <div class="row"><div class="k">工作</div><div class="v">平台团购套餐上架运营，依靠平价体验项目引流</div></div>
+            <div class="row"><div class="k">价值</div><div class="v">低成本创造到店契机，储备升单客源</div></div>
+          </div>
+          <span class="tagline">🗣️ 大白话：团购作为敲门砖，吸引新人走进门店</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 07 企划部 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">进店前 · 04</p>
+      <div class="dept reveal d1">
+        <div class="badge"><span class="emoji">🎯</span><span class="role">总指挥部</span></div>
+        <div class="body">
+          <h3>企划部 · 统一品牌与活动策划</h3>
+          <div class="metaphor">门店的总指挥部</div>
+          <div class="duty">
+            <div class="row"><div class="k">工作</div><div class="v">全门店活动策划、宣传物料输出、打造统一品牌声量</div></div>
+            <div class="row"><div class="k">价值</div><div class="v">给患者一个当下选择京州、进店咨询的理由</div></div>
+          </div>
+          <span class="tagline">🗣️ 大白话：统一弹药、统一宣传节奏，让所有引流动作更有效</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 08 核心观点：营销负责邀约，交付决定留存 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Part 03 · 进店后（闭环成败核心战场）</p>
+      <h2 class="reveal d1">核心观点：营销负责邀约，交付决定留存</h2>
+      <div class="grid grid-2 reveal d2" style="margin-top:30px">
+        <div class="card" style="border-top:5px solid var(--blue)">
+          <div class="num-badge" style="background:var(--blue)">A</div>
+          <h3 style="color:var(--blue);font-size:26px">营销团队的任务</h3>
+          <p class="dim" style="margin-top:14px;line-height:1.85;font-size:18px">创造患者<b style="color:var(--ink)">第一次到店</b>的理由<br>——让京州被看见、被选择</p>
+        </div>
+        <div class="card" style="border-top:5px solid var(--red)">
+          <div class="num-badge" style="background:var(--red)">B</div>
+          <h3 style="color:var(--red);font-size:26px">门店 & 医疗的任务</h3>
+          <p class="dim" style="margin-top:14px;line-height:1.85;font-size:18px">创造患者<b style="color:var(--ink)">愿意复购、愿意转介绍</b>的理由<br>——让患者真正满意</p>
+        </div>
+      </div>
+      <div class="banner reveal d3" style="background:var(--red)">
+        <div class="ic">🎯</div>
+        <p style="font-size:24px">患者因<b style="color:#fff">营销活动</b>而来，因<b style="color:#fff">专业服务</b>再次回头。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 09 ⭐医疗&门店团队 核心枢纽 ===== -->
+  <section class="slide alt">
+    <div class="container">
+      <p class="kicker reveal">Core · ⭐ 核心枢纽</p>
+      <h2 class="reveal d1" style="color:#fff;font-size:50px">医疗 & 门店团队：<br>整个流量闭环的核心枢纽</h2>
+      <p class="lede reveal d1" style="color:rgba(255,255,255,.85);margin-top:14px">所有前端引流的最终终点，落在诊室、落在接诊服务。</p>
+      <div class="core-row reveal d2">
+        <div class="core-card" style="background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.16);border-top:5px solid #ff5a5a">
+          <div class="ic">🔄</div><h4 style="color:#fff">患者自主复购</h4>
+          <p style="color:rgba(255,255,255,.78)">一次满意的交付，换来长期的信任与回头</p>
+        </div>
+        <div class="core-card" style="background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.16);border-top:5px solid #ff5a5a">
+          <div class="ic">🤝</div><h4 style="color:#fff">主动向亲友推荐</h4>
+          <p style="color:rgba(255,255,255,.78)">老带新裂变，成本最低、最靠谱的业绩来源</p>
+        </div>
+        <div class="core-card" style="background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.16);border-top:5px solid #ff5a5a">
+          <div class="ic">⭐</div><h4 style="color:#fff">自愿发布线上好评</h4>
+          <p style="color:rgba(255,255,255,.78)">好评反哺线上获客，让引流更轻松</p>
+        </div>
+      </div>
+      <div class="banner reveal d3" style="background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2)">
+        <div class="ic">🦷</div>
+        <p style="color:#fff;font-size:24px">营销帮我们敲开大门；<b style="color:#ff5a5a">医疗服务决定客人愿不愿意留下来。</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 10 进店后协同部门分工 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Part 03 · 进店后协同</p>
+      <h2 class="reveal d1">进店后协同部门分工</h2>
+      <div class="grid grid-2 reveal d2" style="margin-top:30px">
+        <div class="card" style="border-top:5px solid var(--navy)">
+          <h3 style="color:var(--navy);font-size:26px">🪖 发展部（院内）</h3>
+          <p style="color:var(--red);font-weight:800;margin:10px 0 16px;font-size:17px">老客深度客情运营</p>
+          <div class="duty" style="margin-top:0">
+            <div class="row"><div class="k">活动</div><div class="v">观影节、老客微度假等</div></div>
+            <div class="row"><div class="k">目标</div><div class="v">推动老带新裂变</div></div>
+          </div>
+          <p style="margin-top:16px;font-size:16px;color:var(--red);font-weight:800">🗣️ 大白话：经营好老客户，让老客户主动帮我们宣传</p>
+        </div>
+        <div class="card" style="border-top:5px solid var(--red)">
+          <h3 style="color:var(--red);font-size:26px">🛒 电商部（院内）</h3>
+          <p style="color:var(--red);font-weight:800;margin:10px 0 16px;font-size:17px">团购到店患者深度运营</p>
+          <div class="duty" style="margin-top:0">
+            <div class="row"><div class="k">动作</div><div class="v">跟进体验单客户，筛查全口口腔隐患，挖掘升级需求</div></div>
+          </div>
+          <p style="margin-top:16px;font-size:16px;color:var(--red);font-weight:800">🗣️ 大白话：把小额体验客流，转化为种植、矫正等高价值订单</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 11 门店全员共识 临门一脚 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Part 03 · 门店共识</p>
+      <h2 class="reveal d1">门店全员共识：你们是闭环的"临门一脚"</h2>
+      <p class="lede reveal d1" style="margin-top:18px">发展、网络、电商、企划所有投入，最终都汇聚到门店接诊环节。</p>
+      <div class="grid grid-2 reveal d2" style="margin-top:28px">
+        <div class="note-strip" style="margin-top:0">
+          <div class="ic">🚪</div>
+          <div><h4>引流解决"患者来不来"</h4><p>营销各部门的全部动作，都是为了把人送到你门口。</p></div>
+        </div>
+        <div class="note-strip" style="margin-top:0;border-left-color:var(--red)">
+          <div class="ic">💯</div>
+          <div><h4 class="red">门店与医疗解决"患者满不满意"</h4><p>接诊、治疗、服务，决定患者去留与口碑。</p></div>
+        </div>
+      </div>
+      <div class="banner reveal d3" style="background:var(--red);margin-top:28px">
+        <div class="ic">⚠️</div>
+        <p style="font-size:24px">任何一环断裂，整条流量链条失效。<b style="color:#fff">你们，就是最后、也最关键的一脚。</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 12 电话客服部 沉睡激活 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Part 04 · 沉睡激活</p>
+      <div class="dept reveal d1">
+        <div class="badge"><span class="emoji">📞</span><span class="role">信号兵</span></div>
+        <div class="body">
+          <h3>电话客服部 · 沉睡患者召回专线</h3>
+          <div class="metaphor">门店的患者召回专员</div>
+          <div class="duty">
+            <div class="row"><div class="k">标准</div><div class="v">超过6个月未复诊患者统一纳入沉睡池</div></div>
+            <div class="row"><div class="k">动作</div><div class="v">定期回访、健康提醒、活动邀约</div></div>
+            <div class="row"><div class="k">价值</div><div class="v">唤醒存量客户，唤醒成本远低于新增拓客</div></div>
+          </div>
+          <span class="tagline">🗣️ 大白话：找回遗忘复诊的老朋友，盘活门店存量资产</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 13 全景流量闭环总图 ===== -->
+  <section class="slide">
+    <div class="container">
+      <p class="kicker reveal">Overview · 全景图</p>
+      <h2 class="reveal d1">全景流量闭环总图</h2>
+      <p class="lede reveal d1">每个部门都是链条上不可或缺的一环，环环相扣，流水才能节节攀升。</p>
+      <div class="reveal d2" style="margin-top:22px">
+        <div class="pano-label">前端引流</div>
+        <div class="pano-row pano-4">
+          <div class="pano-block p-navy"><span class="ic">🪖</span><div class="t">发展部</div><div class="s">地推扫街</div></div>
+          <div class="pano-block p-blue"><span class="ic">✈️</span><div class="t">网络部</div><div class="s">精准投放</div></div>
+          <div class="pano-block p-red"><span class="ic">🛒</span><div class="t">电商部</div><div class="s">团购引流</div></div>
+          <div class="pano-block p-purple"><span class="ic">🎯</span><div class="t">企划部</div><div class="s">活动策划</div></div>
+        </div>
+        <div class="pano-arrow">⬇</div>
+        <div class="pano-label center">核心枢纽</div>
+        <div class="pano-row pano-1">
+          <div class="pano-block pano-center"><span class="ic">⭐</span><div class="t">门店 + 医疗团队（诊疗交付）</div><div class="s">技术实力 · 服务温度 · 方案能力</div></div>
+        </div>
+        <div class="pano-arrow">⬇</div>
+        <div class="pano-row pano-2">
+          <div class="pano-block p-green"><span class="ic">🔄</span><div class="t">满意客户</div><div class="s">复购 + 老带新裂变</div></div>
+          <div class="pano-block p-gray"><span class="ic">💤</span><div class="t">长期未复诊</div><div class="s">进入沉睡池</div></div>
+        </div>
+        <div class="pano-arrow">⬇</div>
+        <div class="pano-row pano-1">
+          <div class="pano-block p-violet"><span class="ic">📞</span><div class="t">电话客服部激活沉睡患者</div><div class="s">唤醒 → 再次到店</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 14 营销与医疗 互为支撑 ===== -->
+  <section class="slide alt">
+    <div class="container">
+      <p class="kicker reveal">Summary · 互为支撑</p>
+      <h2 class="reveal d1" style="color:#fff;font-size:58px">营销与医疗，目标一致，互为支撑</h2>
+      <div class="family reveal d2">
+        <div class="f-card mkt">
+          <div class="ic">🌾</div><h3>找米的人</h3>
+          <p>营销团队负责持续输送客流，让患者知道京州、想来京州</p>
+        </div>
+        <div class="f-plus">➕</div>
+        <div class="f-card med">
+          <div class="ic">🍳</div><h3>做饭的人</h3>
+          <p>医疗门店团队用专业留住患者，让人来了觉得"选对了"</p>
+        </div>
+      </div>
+      <div class="grid grid-2 reveal d3">
+        <div class="note-strip" style="margin-top:0;background:rgba(255,255,255,.06);border-left-color:#ff5a5a">
+          <div class="ic">✅</div>
+          <div><h4 style="color:#fff">缺少客流</h4><p style="color:rgba(255,255,255,.78)">再好的技术，也没有发挥空间。</p></div>
+        </div>
+        <div class="note-strip" style="margin-top:0;background:rgba(255,255,255,.06);border-left-color:#ff5a5a">
+          <div class="ic">✅</div>
+          <div><h4 style="color:#fff">交付不足</h4><p style="color:rgba(255,255,255,.78)">再多流量，最终都会流失。</p></div>
+        </div>
+      </div>
+      <div class="banner reveal d4" style="background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2)">
+        <div class="ic">🤝</div>
+        <p style="color:#fff;font-size:22px">营销让人<b style="color:#ff5a5a">想来</b>京州；医疗让人觉得<b style="color:#ff5a5a">选京州没错</b>。双向配合，门店流水持续上涨。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 15 Q&A + 结束 ===== -->
+  <section class="slide alt">
+    <div class="cover-deco"></div>
+    <div class="container" style="text-align:center">
+      <p class="kicker reveal" style="background:#fff;color:var(--navy)">Q&A · 互动交流</p>
+      <h1 class="reveal d1" style="font-size:96px;color:#fff;margin-top:10px">协同作战</h1>
+      <h1 class="reveal d1" style="font-size:96px;color:#ff5a5a">共赢未来！</h1>
+      <div class="divider-line reveal d2" style="margin:26px auto"></div>
+      <p class="lede reveal d2" style="color:rgba(255,255,255,.85);margin:0 auto">感谢聆听！· 有问必答，共同进步</p>
+      <div class="reveal d3" style="display:flex;gap:30px;justify-content:center;margin-top:38px;color:rgba(255,255,255,.6);font-size:14px">
+        <span><b style="color:#fff">京州口腔运营中心 · 企划部</b></span>
+        <span>2026年7月</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=slides.length;
+  let cur=0;
+  const progress=document.getElementById('progress');
+  const dotsBox=document.getElementById('dots');
+  slides.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>show(i);
+    dotsBox.appendChild(d);
+  });
+  function render(){
+    slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+    progress.style.width=((cur+1)/total*100)+'%';
+    [...dotsBox.children].forEach((d,i)=>d.classList.toggle('on',i===cur));
+  }
+  function show(i){cur=Math.max(0,Math.min(total-1,i));render();}
+  function go(step){show(cur+step);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);}
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);}
+    if(e.key==='Home')show(0);
+    if(e.key==='End')show(total-1);
+    if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  let startX=0;
+  document.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>50)go(dx<0?1:-1);
+  },{passive:true});
+  render();
+</script>
+</body>
+</html>
