@@ -2,17 +2,137 @@
 let editingId = null;
 let blogs = [];
 
+// Markdown 编辑器相关
+let contentEditor = null;
+let emojiPanel = null;
+let turndownService = null;
+
+const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '😎', '🤩', '🤔', '🙏',
+  '👍', '👏', '💪', '🔥', '✨', '⭐', '💡', '📈', '📉', '🎯',
+  '✅', '❌', '❓', '💰', '🚀', '🎉', '❤️', '🦷', '📝', '⏰',
+  '🤝', '😅', '🥳', '💯', '🌟', '👀', '📌', '📚', '🏆', '🌈'];
+
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
+  initEditor();
   await loadData();
 });
+
+// 初始化 Markdown 编辑器（EasyMDE）+ HTML→MD 转换器 + emoji 面板
+function initEditor() {
+  turndownService = new TurndownService({
+    headingStyle: 'atx',
+    codeBlockStyle: 'fenced',
+    bulletListMarker: '-'
+  });
+
+  contentEditor = new EasyMDE({
+    element: document.getElementById('f_content'),
+    autoDownloadFontAwesome: false,
+    spellChecker: false,
+    minHeight: '340px',
+    toolbar: buildToolbar(),
+    status: false,
+    placeholder: '支持 Markdown 语法，可实时预览；也可直接书写 HTML。点击 😀 插入表情。'
+  });
+
+  labelToolbarIcons();
+  initEmojiPanel();
+}
+
+// 用文字/emoji 直接标注工具栏按钮（不依赖 Font Awesome）
+function labelToolbarIcons() {
+  const map = {
+    'tb-bold': 'B', 'tb-italic': 'I', 'tb-h': 'H', 'tb-quote': '❝',
+    'tb-code': '</>', 'tb-ul': '•≡', 'tb-ol': '1.', 'tb-link': '🔗',
+    'tb-image': '🖼', 'tb-preview': '👁', 'tb-side': '▏▕', 'tb-full': '⛶', 'tb-emoji': '😀'
+  };
+  document.querySelectorAll('.editor-toolbar button').forEach(function (btn) {
+    Object.keys(map).forEach(function (cls) {
+      if (btn.classList.contains(cls)) btn.textContent = map[cls];
+    });
+  });
+}
+
+// 自定义工具栏（不依赖 Font Awesome，图标用文字/emoji 渲染）
+function buildToolbar() {
+  return [
+    { name: 'bold', action: EasyMDE.toggleBold, className: 'tb-ico tb-bold', title: '加粗' },
+    { name: 'italic', action: EasyMDE.toggleItalic, className: 'tb-ico tb-italic', title: '斜体' },
+    { name: 'heading', action: EasyMDE.toggleHeadingSmaller, className: 'tb-ico tb-h', title: '标题' },
+    '|',
+    { name: 'quote', action: EasyMDE.toggleBlockquote, className: 'tb-ico tb-quote', title: '引用' },
+    { name: 'code', action: EasyMDE.toggleCodeBlock, className: 'tb-ico tb-code', title: '代码块' },
+    '|',
+    { name: 'unordered-list', action: EasyMDE.toggleUnorderedList, className: 'tb-ico tb-ul', title: '无序列表' },
+    { name: 'ordered-list', action: EasyMDE.toggleOrderedList, className: 'tb-ico tb-ol', title: '有序列表' },
+    '|',
+    { name: 'link', action: EasyMDE.drawLink, className: 'tb-ico tb-link', title: '链接' },
+    { name: 'image', action: EasyMDE.drawImage, className: 'tb-ico tb-image', title: '图片' },
+    '|',
+    { name: 'preview', action: EasyMDE.togglePreview, className: 'tb-ico tb-preview', title: '预览' },
+    { name: 'side-by-side', action: EasyMDE.toggleSideBySide, className: 'tb-ico tb-side', title: '分屏' },
+    { name: 'fullscreen', action: EasyMDE.toggleFullScreen, className: 'tb-ico tb-full', title: '全屏' },
+    '|',
+    { name: 'emoji', action: toggleEmojiPanel, className: 'tb-ico tb-emoji', title: '插入表情' }
+  ];
+}
+
+// emoji 浮动面板
+function initEmojiPanel() {
+  emojiPanel = document.createElement('div');
+  emojiPanel.className = 'emoji-panel';
+  emojiPanel.style.display = 'none';
+
+  EMOJIS.forEach(function (e) {
+    const span = document.createElement('span');
+    span.className = 'emoji-item';
+    span.textContent = e;
+    span.addEventListener('click', function () {
+      if (contentEditor) contentEditor.codemirror.replaceSelection(e);
+      emojiPanel.style.display = 'none';
+      contentEditor.codemirror.focus();
+    });
+    emojiPanel.appendChild(span);
+  });
+
+  document.body.appendChild(emojiPanel);
+
+  document.addEventListener('click', function (ev) {
+    if (emojiPanel.style.display !== 'none' &&
+      !emojiPanel.contains(ev.target) &&
+      !(ev.target.closest && ev.target.closest('.tb-emoji'))) {
+      emojiPanel.style.display = 'none';
+    }
+  });
+}
+
+function toggleEmojiPanel(editor) {
+  if (!emojiPanel) return;
+  if (emojiPanel.style.display === 'none') {
+    const rect = editor.codemirror.getWrapperElement().getBoundingClientRect();
+    emojiPanel.style.top = (rect.bottom + 6) + 'px';
+    emojiPanel.style.left = rect.left + 'px';
+    emojiPanel.style.display = 'grid';
+  } else {
+    emojiPanel.style.display = 'none';
+  }
+}
+
+// 存储的是 HTML；编辑时转回 Markdown（纯文本/已是 Markdown 则原样返回）
+function toMarkdown(html) {
+  if (/<[a-z][\s\S]*>/i.test(html)) {
+    try { return turndownService.turndown(html); } catch (e) { return html; }
+  }
+  return html;
+}
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
   document.getElementById('addBtn').addEventListener('click', () => openModal(null));
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
-  document.getElementById('saveBtn').addEventListener('click', async function() { await saveBlog(); });
+  document.getElementById('saveBtn').addEventListener('click', async function () { await saveBlog(); });
   document.getElementById('searchInput').addEventListener('input', renderTable);
 
   document.querySelectorAll('.tab').forEach(tab => {
@@ -47,7 +167,7 @@ function renderTable() {
 
   const tbody = document.getElementById('blogTbody');
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#707070;">暂无文章</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--color-text-muted);">暂无文章</td></tr>';
     return;
   }
 
@@ -60,7 +180,7 @@ function renderTable() {
 
     return `
       <tr>
-        <td><strong style="color:#fff;">${blog.title}</strong></td>
+        <td><strong style="color:var(--color-text-primary);">${blog.title}</strong></td>
         <td>${catLabel}</td>
         <td>${blog.author}</td>
         <td>${blog.publishDate}</td>
@@ -92,7 +212,7 @@ function openModal(id) {
       document.getElementById('f_readTime').value = blog.readTime;
       document.getElementById('f_tags').value = (blog.tags || []).join(',');
       document.getElementById('f_summary').value = blog.summary || '';
-      document.getElementById('f_content').value = blog.content || '';
+      contentEditor.value(toMarkdown(blog.content || ''));
       document.getElementById('f_coverImage').value = blog.coverImage || '';
       document.getElementById('f_publishDate').value = blog.publishDate;
 
@@ -109,10 +229,13 @@ function openModal(id) {
       if (el.id !== 'f_author' && el.id !== 'f_readTime') el.value = '';
     });
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
+    contentEditor.value('');
   }
 
   updateSeoScore();
   modal.classList.add('show');
+  // 模态框由隐藏变显示后，CodeMirror 需 refresh 以正确计算高度
+  if (contentEditor) contentEditor.codemirror.refresh();
 }
 
 function closeModal() {
@@ -129,7 +252,7 @@ async function saveBlog() {
     readTime: parseInt(document.getElementById('f_readTime').value) || 5,
     tags: document.getElementById('f_tags').value.split(',').map(s => s.trim()).filter(Boolean),
     summary: document.getElementById('f_summary').value.trim(),
-    content: document.getElementById('f_content').value,
+    content: marked.parse(contentEditor.value()),
     coverImage: document.getElementById('f_coverImage').value.trim(),
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]
   };

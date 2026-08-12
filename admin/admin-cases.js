@@ -68,7 +68,7 @@ function renderTable() {
 
     return `
       <tr>
-        <td><strong style="color:#fff;">${c.title}</strong></td>
+        <td><strong style="color:var(--color-text-primary);">${c.title}</strong></td>
         <td>${c.client}</td>
         <td>${c.industry}</td>
         <td>${serviceMap[c.serviceId] || '-'}</td>

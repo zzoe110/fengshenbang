@@ -65,7 +65,7 @@ function renderTable() {
     return `
       <tr>
         <td style="font-size:1.5rem;">${svc.icon}</td>
-        <td><strong style="color:#fff;">${svc.title}</strong></td>
+        <td><strong style="color:var(--color-text-primary);">${svc.title}</strong></td>
         <td>${svc.subtitle}</td>
         <td>${svc.caseCount}</td>
         <td>${svc.publishDate}</td>

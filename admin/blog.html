@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="../assets/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/vendor/easymde.min.css">
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
   <script src="../assets/js/theme.js"></script>
@@ -111,8 +112,8 @@
           <textarea class="form-textarea" id="f_summary" placeholder="文章摘要..."></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">正文内容（支持 HTML）</label>
-          <textarea class="form-textarea" id="f_content" placeholder="<p>正文内容...</p>" style="min-height:200px;"></textarea>
+          <label class="form-label">正文内容（支持 Markdown / HTML，实时预览）</label>
+          <textarea class="form-textarea" id="f_content" placeholder="支持 Markdown 语法，右侧/下方可实时预览，也可直接写 HTML。点击工具栏 😀 插入表情。" style="min-height:200px;"></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">封面图 URL</label>
@@ -157,6 +158,9 @@
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/api.js"></script>
+  <script src="../assets/vendor/marked.min.js"></script>
+  <script src="../assets/vendor/turndown.min.js"></script>
+  <script src="../assets/vendor/easymde.min.js"></script>
   <script src="admin.js"></script>
   <script src="admin-blog.js"></script>
   <script src="../assets/js/analytics.js"></script>
