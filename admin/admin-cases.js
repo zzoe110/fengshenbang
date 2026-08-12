@@ -1,12 +1,22 @@
 // 案例管理
 let editingId = null;
 let cases = [];
+let caseEditor = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
+  initCaseEditor();
   await loadData();
 });
+
+function initCaseEditor() {
+  if (typeof MarkdownEditor === 'undefined') return;
+  caseEditor = MarkdownEditor.create('f_summary', {
+    minHeight: '240px',
+    placeholder: '案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+  });
+}
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
@@ -98,7 +108,8 @@ function openModal(id) {
       document.getElementById('f_client').value = c.client || '';
       document.getElementById('f_industry').value = c.industry || '';
       document.getElementById('f_serviceId').value = c.serviceId || '';
-      document.getElementById('f_summary').value = c.summary || '';
+      if (caseEditor) caseEditor.value(MarkdownEditor.toMd(c.summary || ''));
+      else document.getElementById('f_summary').value = c.summary || '';
       document.getElementById('f_metrics').value = (c.metrics || []).map(m => `${m.label}|${m.value}`).join('\n');
       document.getElementById('f_publishDate').value = c.publishDate;
 
@@ -112,11 +123,13 @@ function openModal(id) {
     title.textContent = '新增案例';
     document.getElementById('f_id').disabled = false;
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => el.value = '');
+    if (caseEditor) caseEditor.value('');
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
   }
 
   updateSeoScore();
   modal.classList.add('show');
+  if (caseEditor) caseEditor.codemirror.refresh();
 }
 
 function closeModal() {
@@ -137,7 +150,7 @@ async function saveCase() {
     client: document.getElementById('f_client').value.trim(),
     industry: document.getElementById('f_industry').value.trim(),
     serviceId: document.getElementById('f_serviceId').value,
-    summary: document.getElementById('f_summary').value.trim(),
+    summary: MarkdownEditor.toHtml(caseEditor ? caseEditor.value() : document.getElementById('f_summary').value),
     metrics,
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]
   };

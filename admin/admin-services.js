@@ -1,12 +1,22 @@
 // 业务管理
 let editingId = null;
 let services = [];
+let serviceEditor = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
+  initServiceEditor();
   await loadData();
 });
+
+function initServiceEditor() {
+  if (typeof MarkdownEditor === 'undefined') return;
+  serviceEditor = MarkdownEditor.create('f_summary', {
+    minHeight: '240px',
+    placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+  });
+}
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
@@ -93,7 +103,8 @@ function openModal(id) {
       document.getElementById('f_title').value = svc.title;
       document.getElementById('f_subtitle').value = svc.subtitle;
       document.getElementById('f_icon').value = svc.icon;
-      document.getElementById('f_summary').value = svc.summary;
+      if (serviceEditor) serviceEditor.value(MarkdownEditor.toMd(svc.summary || ''));
+      else document.getElementById('f_summary').value = svc.summary || '';
       document.getElementById('f_features').value = (svc.features || []).join('\n');
       document.getElementById('f_caseCount').value = svc.caseCount;
       document.getElementById('f_publishDate').value = svc.publishDate;
@@ -109,11 +120,13 @@ function openModal(id) {
     title.textContent = '新增业务';
     document.getElementById('f_id').disabled = false;
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => el.value = '');
+    if (serviceEditor) serviceEditor.value('');
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
   }
 
   updateSeoScore();
   modal.classList.add('show');
+  if (serviceEditor) serviceEditor.codemirror.refresh();
 }
 
 function closeModal() {
@@ -127,7 +140,7 @@ async function saveService() {
     title: document.getElementById('f_title').value.trim(),
     subtitle: document.getElementById('f_subtitle').value.trim(),
     icon: document.getElementById('f_icon').value.trim() || '🎯',
-    summary: document.getElementById('f_summary').value.trim(),
+    summary: MarkdownEditor.toHtml(serviceEditor ? serviceEditor.value() : document.getElementById('f_summary').value),
     features: document.getElementById('f_features').value.split('\n').map(s => s.trim()).filter(Boolean),
     caseCount: parseInt(document.getElementById('f_caseCount').value) || 0,
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]

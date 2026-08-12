@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="../assets/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/vendor/easymde.min.css">
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
   <script src="../assets/js/theme.js"></script>
@@ -108,8 +109,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">案例简介</label>
-          <textarea class="form-textarea" id="f_summary" placeholder="案例简介..."></textarea>
+          <label class="form-label">案例简介（支持 Markdown / HTML，实时预览）</label>
+          <textarea class="form-textarea" id="f_summary" placeholder="案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。" style="min-height:200px;"></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">核心数据（每行一个，格式：标签\|数值）</label>
@@ -154,7 +155,11 @@
   <script src="../assets/js/security.js"></script>
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/api.js"></script>
+  <script src="../assets/vendor/marked.min.js"></script>
+  <script src="../assets/vendor/turndown.min.js"></script>
+  <script src="../assets/vendor/easymde.min.js"></script>
   <script src="admin.js"></script>
+  <script src="markdown-editor.js"></script>
   <script src="admin-cases.js"></script>
   <script src="../assets/js/analytics.js"></script>
 </body>
