@@ -79,6 +79,13 @@ export async function verifyToken(token, env) {
   }
 }
 
+// 极短退避（环境不支持 setTimeout 时立即 resolve，不影响重试）
+function sleep(ms) {
+  return new Promise(resolve => {
+    try { setTimeout(resolve, ms); } catch { resolve(); }
+  });
+}
+
 // 把文件写回 GitHub 仓库（创建或更新），EdgeOne 检测到 push 后自动重新部署
 export async function githubWrite(env, filePath, contentStr) {
   const token = env.GITHUB_TOKEN;
@@ -95,39 +102,53 @@ export async function githubWrite(env, filePath, contentStr) {
     Accept: 'application/vnd.github+json'
   };
 
-  // 先取当前 sha（存在则更新，不存在则新建）
-  let sha = null;
-  try {
-    const getRes = await fetch(`${apiBase}?ref=${branch}`, { headers });
-    if (getRes.status === 200) {
-      const j = await getRes.json();
-      sha = j.sha || null;
-    } else if (getRes.status !== 404) {
+  // 读取文件当前 sha（存在则更新，不存在则新建）
+  const getSha = async () => {
+    try {
+      const getRes = await fetch(`${apiBase}?ref=${branch}`, { headers });
+      if (getRes.status === 200) {
+        const j = await getRes.json();
+        return j.sha || null;
+      } else if (getRes.status === 404) {
+        return null; // 文件不存在 → 新建
+      }
       const txt = await getRes.text();
       throw new Error(`读取文件失败 ${getRes.status}: ${txt}`);
+    } catch (e) {
+      if (e && String(e.message).startsWith('读取文件失败')) throw e;
+      return null; // 网络错误时当作新建，交由 PUT 决定
     }
-  } catch (e) {
-    if (e && String(e.message).startsWith('读取文件失败')) throw e;
-    // 其他网络错误：继续尝试写入（当作新建）
-  }
-
-  const body = {
-    message: `CMS 更新 ${filePath} @ ${new Date().toISOString()}`,
-    content: utf8ToBase64(contentStr),
-    branch
   };
-  if (sha) body.sha = sha;
 
-  const putRes = await fetch(apiBase, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify(body)
-  });
-  if (!putRes.ok) {
+  let lastErr = null;
+  // 写入可能因 sha 冲突(409)失败：文件在 GET 与 PUT 之间被改动（高频连续写入 / CDN 缓存 /
+  // GitHub 最终一致性延迟）。遇到 409 重新拉取最新 sha 并重试，最多 3 次。
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const sha = await getSha();
+    const body = {
+      message: `CMS 更新 ${filePath} @ ${new Date().toISOString()}`,
+      content: utf8ToBase64(contentStr),
+      branch
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiBase, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body)
+    });
+    if (putRes.ok) return putRes.json();
+
     const txt = await putRes.text();
+    if (putRes.status === 409) {
+      // sha 冲突：退避后重新 GET 最新 sha 再试
+      lastErr = new Error(`写入 GitHub 失败 409: ${txt}`);
+      await sleep(250 * (attempt + 1));
+      continue;
+    }
     throw new Error(`写入 GitHub 失败 ${putRes.status}: ${txt}`);
   }
-  return putRes.json();
+  throw lastErr || new Error('写入 GitHub 失败：重试后仍冲突');
 }
 
 // 兼容多种 Pages Functions 调用约定，尽可能拿到 request 与 env：
