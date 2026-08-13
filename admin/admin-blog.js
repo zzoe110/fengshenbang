@@ -211,7 +211,6 @@ function openModal(id) {
       document.getElementById('f_title').value = blog.title;
       document.getElementById('f_category').value = blog.category;
       document.getElementById('f_author').value = blog.author;
-      document.getElementById('f_readTime').value = blog.readTime;
       document.getElementById('f_tags').value = (blog.tags || []).join(',');
       document.getElementById('f_summary').value = blog.summary || '';
       contentEditor.value(toMarkdown(blog.content || ''));
@@ -228,7 +227,7 @@ function openModal(id) {
     title.textContent = '新增文章';
     document.getElementById('f_id').disabled = false;
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => {
-      if (el.id !== 'f_author' && el.id !== 'f_readTime') el.value = '';
+      if (el.id !== 'f_author') el.value = '';
     });
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
     contentEditor.value('');
@@ -245,16 +244,31 @@ function closeModal() {
   editingId = null;
 }
 
+// 根据正文内容自动估算阅读时长：中文约 400 字/分钟，英文约 200 词/分钟，向上取整，最少 1 分钟
+function calcReadTime(html) {
+  if (!html) return 1;
+  const text = String(html)
+    .replace(/<[^>]+>/g, ' ')        // 去除 HTML 标签
+    .replace(/[#>*_`~\[\]()]/g, ' ') // 去除常见 Markdown 符号
+    .replace(/\s+/g, ' ')
+    .trim();
+  const cjk = (text.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g) || []).length;
+  const en = (text.match(/[A-Za-z0-9]+/g) || []).length;
+  const minutes = cjk / 400 + en / 200;
+  return Math.max(1, Math.ceil(minutes || 0));
+}
+
 async function saveBlog() {
+  const contentHtml = marked.parse(contentEditor.value());
   const data = {
     id: document.getElementById('f_id').value.trim(),
     title: document.getElementById('f_title').value.trim(),
     category: document.getElementById('f_category').value,
     author: document.getElementById('f_author').value.trim(),
-    readTime: parseInt(document.getElementById('f_readTime').value) || 5,
+    readTime: calcReadTime(contentHtml),
     tags: document.getElementById('f_tags').value.split(',').map(s => s.trim()).filter(Boolean),
     summary: document.getElementById('f_summary').value.trim(),
-    content: marked.parse(contentEditor.value()),
+    content: contentHtml,
     coverImage: document.getElementById('f_coverImage').value.trim(),
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]
   };
