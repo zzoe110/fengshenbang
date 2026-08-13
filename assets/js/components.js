@@ -60,8 +60,17 @@
     return '<nav class="nav">' + links + cta + '</nav>';
   }
 
+  function getConfig() {
+    // config.js 用 const 声明 SITE_CONFIG（经典脚本中 const 不挂到 window），
+    // 这里优先取全局词法绑定，再退而取 window，最后返回 null。
+    try { if (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) return SITE_CONFIG; } catch (e) {}
+    try { if (window.SITE_CONFIG) return window.SITE_CONFIG; } catch (e) {}
+    return null;
+  }
+
   function renderFooter(base) {
-    var logo = (window.SITE_CONFIG && window.SITE_CONFIG.logo) || 'assets/images/logo.png';
+    var cfg = getConfig();
+    var logo = (cfg && cfg.logo) || 'assets/images/logo.png';
     var year = new Date().getFullYear();
 
     var navLinks = NAV_ITEMS.map(function (it) {

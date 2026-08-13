@@ -4,20 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>烽审榜 · 数据清洗工具</title>
+<meta name="description" content="烽审榜数据清洗工具：从京州口腔系统导出JSON，一键清洗为可粘贴的Excel表格。">
+<meta name="author" content="兴义市烽审榜技术咨询服务行">
+
+<!-- 与主站一致的基础样式，保证导航/页脚统一样式 -->
+<link rel="stylesheet" href="../assets/css/variables.css">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+<link rel="stylesheet" href="../assets/css/theme.css">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<script src="../assets/js/theme.js"></script>
+
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f5f6fa;
-  color: #2d3436;
-  padding: 40px 24px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-.header { text-align: center; margin-bottom: 40px; }
-.header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
-.header p { color: #636e72; font-size: 14px; }
-.card {
+/* 工具页独有样式（与主站 .card 区分，避免潜在冲突） */
+.tool-intro { text-align: center; margin: 0 auto; max-width: 800px; padding: 110px 24px 8px; }
+.tool-intro h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.tool-intro p { color: #636e72; font-size: 14px; }
+.tool-wrap { max-width: 800px; margin: 0 auto 60px; padding: 24px; }
+.tool-card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,.08);
@@ -31,46 +35,67 @@ body {
   text-decoration: none;
   color: inherit;
 }
-.card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.12); }
-.card-icon {
+.tool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.12); }
+.tool-card .card-icon {
   width: 56px; height: 56px;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-size: 28px;
   flex-shrink: 0;
 }
-.card-icon.blue { background: #dfe6e9; color: #0984e3; }
-.card-icon.purple { background: #f0e6ff; color: #6c5ce7; }
-.card-body h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.card-body p { font-size: 13px; color: #636e72; line-height: 1.5; }
-.footer { text-align: center; margin-top: 40px; font-size: 13px; color: #b2bec3; }
-.footer a { color: #0984e3; text-decoration: none; }
+.tool-card .card-icon.blue { background: #dfe6e9; color: #0984e3; }
+.tool-card .card-icon.purple { background: #f0e6ff; color: #6c5ce7; }
+.tool-card .card-body h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.tool-card .card-body p { font-size: 13px; color: #636e72; line-height: 1.5; }
 </style>
 </head>
-<body>
-<div class="header">
-  <h1>🛠️ 烽审榜 · 数据清洗工具</h1>
-  <p>从京州口腔系统导出JSON，一键清洗为可粘贴的Excel表格</p>
-</div>
+<body data-nav="tool">
 
-<a href="DianShangBu.html" class="card">
-  <div class="card-icon blue">🦷</div>
-  <div class="card-body">
-    <h3>电商部 · 数据清洗</h3>
-    <p>JSON → 23列表格（工作簿1格式），按电商部日报表模板清洗，直接粘贴到Excel</p>
+  <!-- 顶部导航（统一组件占位：改 nav 只改 assets/js/components.js 一处） -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">技术咨询服务行</span>
+      </a>
+      <div id="site-nav"></div>
+      <div id="theme-toggle-mount" class="theme-toggle-mount theme-toggle-mount--header"></div>
+      <button class="menu-toggle" aria-label="菜单">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="tool-intro">
+    <h1>🛠️ 烽审榜 · 数据清洗工具</h1>
+    <p>从京州口腔系统导出JSON，一键清洗为可粘贴的Excel表格</p>
   </div>
-</a>
 
-<a href="DianHuaKeFu.html" class="card">
-  <div class="card-icon purple">📞</div>
-  <div class="card-body">
-    <h3>网电客服 · 数据清洗</h3>
-    <p>JSON → 25列表格（工作簿2格式），按网电客服部模板清洗，直接粘贴到Excel</p>
+  <div class="tool-wrap">
+    <a href="DianShangBu.html" class="tool-card">
+      <div class="card-icon blue">🦷</div>
+      <div class="card-body">
+        <h3>电商部 · 数据清洗</h3>
+        <p>JSON → 23列表格（工作簿1格式），按电商部日报表模板清洗，直接粘贴到Excel</p>
+      </div>
+    </a>
+
+    <a href="DianHuaKeFu.html" class="tool-card">
+      <div class="card-icon purple">📞</div>
+      <div class="card-body">
+        <h3>网电客服 · 数据清洗</h3>
+        <p>JSON → 25列表格（工作簿2格式），按网电客服部模板清洗，直接粘贴到Excel</p>
+      </div>
+    </a>
   </div>
-</a>
 
-<div class="footer">
-  <a href="../index.html">← 返回烽审榜首页</a> &nbsp;|&nbsp; 澯烽  18087918667
-</div>
+  <!-- 页脚（统一组件占位） -->
+  <div id="site-footer"></div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/components.js"></script>
+  <script src="../assets/js/main.js"></script>
 </body>
 </html>
