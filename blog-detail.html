@@ -135,6 +135,30 @@
       loadArticle();
     });
 
+    // 设置/创建普通 meta 标签（不存在则创建），用于 description / keywords
+    function setMeta(name, content) {
+      if (!content) return;
+      let el = document.head.querySelector('meta[name="' + name + '"]');
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('name', name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    }
+
+    // 设置/创建 Open Graph meta 标签（property 形式）
+    function setOg(prop, content) {
+      if (!content) return;
+      let el = document.head.querySelector('meta[property="' + prop + '"]');
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('property', prop);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    }
+
     async function loadArticle() {
       const loading = document.getElementById('loadingState');
       const empty = document.getElementById('emptyState');
@@ -198,10 +222,33 @@
         contentEl.innerHTML = `<p style="color:var(--color-text-tertiary);padding:2rem 0;text-align:center;">完整内容请登录后台编辑发布。</p>`;
       }
 
-      // 更新页面标题和 SEO
-      document.title = article.title + ' - 烽审榜';
-      const descMeta = document.querySelector('meta[name="description"]');
-      if (descMeta && article.summary) descMeta.content = article.summary;
+      // 更新页面标题和 SEO（优先使用后台独立 SEO 设置，缺失时回退文章字段）
+      // 读取独立存储的 SEO（与正文分离，存于 /data/seo.json）
+      let seo = {};
+      try {
+        const seoRes = await fetch('/data/seo.json', { cache: 'no-store' });
+        if (seoRes.ok) {
+          const seoData = (await seoRes.json()).seo || {};
+          const entry = seoData['blog_' + id];
+          seo = (entry && entry.data) || entry || {};
+        }
+      } catch (e) { /* SEO 文件尚未生成时回退默认 */ }
+
+      const seoTitle = seo.title || (article.title + ' - 烽审榜');
+      const seoDesc = seo.description || article.summary || '';
+      const seoKeywords = seo.keywords || (article.tags || []).join(',') || '';
+
+      document.title = seoTitle;
+      setMeta('description', seoDesc);
+      setMeta('keywords', seoKeywords);
+      setOg('og:type', 'article');
+      setOg('og:title', seoTitle);
+      setOg('og:description', seoDesc);
+      if (seo.ogImage) setOg('og:image', seo.ogImage);
+      setOg('og:url', location.href);
+      // 规范链接带上文章 id，保证每篇文章唯一 canonical（利于 GEO/SEO）
+      const canon = document.querySelector('link[rel="canonical"]');
+      if (canon) canon.href = 'https://www.fsbtop.top/blog-detail.html?id=' + encodeURIComponent(id);
     }
   </script>
   <script src="assets/js/analytics.js"></script>

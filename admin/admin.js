@@ -156,14 +156,47 @@ const DataStore = {
     }
   },
 
-  saveSEO(key, data) {
+  async saveSEO(key, data) {
     try {
       const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
       all[key] = { data, updatedAt: Date.now() };
       localStorage.setItem(this.KEY_SEO, JSON.stringify(all));
       Security.log('SEO_UPDATE', { key });
+      // 关键修复：同时回写 GitHub（data/seo.json），保证跨浏览器/设备/清缓存都能读回，
+      // 且线上文章页能真正读取到这份 SEO。
+      try { await API.saveData('seo', all); } catch (e) { console.error('SEO 同步到 GitHub 失败', e); }
     } catch (e) {
       console.error('保存SEO失败', e);
+    }
+  },
+
+  // 启动时把 GitHub 上的 SEO 映射拉回本地，保证多端一致读取
+  async hydrateSEO() {
+    try {
+      const remote = await API.getRemote('seo'); // 返回 seo.json 中的 seo 映射对象
+      const local = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
+      // 远程为基准，本地覆盖（本会话内刚保存的优先）
+      const merged = Object.assign({}, (remote && typeof remote === 'object') ? remote : {}, local);
+      localStorage.setItem(this.KEY_SEO, JSON.stringify(merged));
+      this._seoHydrated = true;
+    } catch (e) {
+      // 远程不可用（如 seo.json 尚未生成）时保留本地数据
+    }
+  },
+
+  // 批量写入整份 SEO 映射（用于站点设置导入）
+  async saveAllSEO(map) {
+    try {
+      const all = {};
+      Object.keys(map || {}).forEach(k => {
+        const v = map[k];
+        all[k] = (v && typeof v === 'object' && 'data' in v) ? v : { data: v, updatedAt: Date.now() };
+      });
+      localStorage.setItem(this.KEY_SEO, JSON.stringify(all));
+      await API.saveData('seo', all);
+      this._seoHydrated = true;
+    } catch (e) {
+      console.error('批量保存SEO失败', e);
     }
   },
 

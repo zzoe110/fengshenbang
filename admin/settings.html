@@ -140,9 +140,10 @@
   <script src="../assets/js/data.js"></script>
   <script src="admin.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
       checkAuth();
       document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+      await DataStore.hydrateSEO();
       loadConfig();
       document.getElementById('saveBtn').addEventListener('click', saveConfig);
       document.getElementById('exportBtn').addEventListener('click', exportData);
@@ -247,7 +248,7 @@
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = async (ev) => {
         try {
           const data = JSON.parse(ev.target.result);
           if (data.config) localStorage.setItem('fsb_site_config', JSON.stringify(data.config));
@@ -256,7 +257,7 @@
           if (data.blog) DataStore.saveBlog(data.blog);
           if (data.cases) DataStore.saveCases(data.cases);
           if (data.ad) DataStore.saveAd(data.ad);
-          if (data.seo) localStorage.setItem('fsb_seo', JSON.stringify(data.seo));
+          if (data.seo) await DataStore.saveAllSEO(data.seo);
           showToast('导入成功，刷新页面查看', 'success');
           setTimeout(() => location.reload(), 1000);
         } catch (err) {

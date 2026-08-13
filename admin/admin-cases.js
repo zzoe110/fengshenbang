@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
   initCaseEditor();
+  await DataStore.hydrateSEO();
   await loadData();
 });
 
@@ -166,7 +167,7 @@ async function saveCase() {
     keywords: document.getElementById('f_seo_keywords').value.trim(),
     ogImage: document.getElementById('f_seo_ogImage').value.trim()
   };
-  DataStore.saveSEO('case_' + data.id, seo);
+  await DataStore.saveSEO('case_' + data.id, seo);
 
   if (editingId) {
     const idx = cases.findIndex(c => c.id === editingId);

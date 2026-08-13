@@ -127,9 +127,10 @@
   <script>
     const PAGES = ['home', 'services', 'blog', 'cases'];
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
       checkAuth();
       document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+      await DataStore.hydrateSEO();
       loadSEO();
       document.getElementById('saveBtn').addEventListener('click', saveAll);
       ['home_title', 'home_desc'].forEach(id => {
@@ -181,7 +182,7 @@
           keywords: (document.getElementById(`${page}_keywords`) || {}).value?.trim() || '',
           ogImage: (document.getElementById(`${page}_ogImage`) || {}).value?.trim() || ''
         };
-        DataStore.saveSEO('page_' + page, data);
+        await DataStore.saveSEO('page_' + page, data);
       });
       showToast('所有SEO已保存', 'success');
     }

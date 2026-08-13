@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
   initEditor();
+  await DataStore.hydrateSEO();
   await loadData();
 });
 
@@ -268,7 +269,7 @@ async function saveBlog() {
     keywords: document.getElementById('f_seo_keywords').value.trim(),
     ogImage: document.getElementById('f_seo_ogImage').value.trim()
   };
-  DataStore.saveSEO('blog_' + data.id, seo);
+  await DataStore.saveSEO('blog_' + data.id, seo);
 
   if (editingId) {
     const idx = blogs.findIndex(b => b.id === editingId);

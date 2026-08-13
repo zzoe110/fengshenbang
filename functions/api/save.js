@@ -1,14 +1,15 @@
 // ============================================
 // POST /api/save
 // 鉴权后将数据写回 GitHub 仓库对应 JSON 文件，触发重新部署
-// body: { type: 'services'|'blog'|'cases', data: [...] }
+// body: { type: 'services'|'blog'|'cases'|'seo', data: [...] }
 // ============================================
 import { jsonResponse, verifyToken, githubWrite, resolveContext } from '../_shared.js';
 
 const TYPE_FILE = {
   services: 'data/services.json',
   blog: 'data/blog.json',
-  cases: 'data/cases.json'
+  cases: 'data/cases.json',
+  seo: 'data/seo.json'
 };
 
 export async function onRequestPost(request, context) {
@@ -26,9 +27,10 @@ export async function onRequestPost(request, context) {
     const type = body.type;
     const data = body.data;
     if (!type || !TYPE_FILE[type]) {
-      return jsonResponse({ error: '无效的 type（支持：services / blog / cases）' }, 400);
+      return jsonResponse({ error: '无效的 type（支持：services / blog / cases / seo）' }, 400);
     }
-    if (!Array.isArray(data)) {
+    // seo 为键值映射对象（非数组），其余类型必须为数组
+    if (!Array.isArray(data) && type !== 'seo') {
       return jsonResponse({ error: 'data 必须是数组' }, 400);
     }
 

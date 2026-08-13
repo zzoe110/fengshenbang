@@ -35,7 +35,7 @@ const API = {
 
   // 远程读取静态 JSON。type: services | blog | cases
   getRemote: async (type) => {
-    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json' };
+    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json', seo: 'seo.json' };
     const file = fileMap[type];
     if (!file) throw new Error('未知数据类型: ' + type);
     const r = await apiGet('/data/' + file);

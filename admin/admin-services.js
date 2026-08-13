@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
   initServiceEditor();
+  await DataStore.hydrateSEO();
   await loadData();
 });
 
@@ -158,7 +159,7 @@ async function saveService() {
     keywords: document.getElementById('f_seo_keywords').value.trim(),
     ogImage: document.getElementById('f_seo_ogImage').value.trim()
   };
-  DataStore.saveSEO('service_' + data.id, seo);
+  await DataStore.saveSEO('service_' + data.id, seo);
 
   if (editingId) {
     const idx = services.findIndex(s => s.id === editingId);
