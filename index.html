@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="assets/css/theme.css">
   <script src="assets/js/theme.js"></script>
 </head>
-<body>
+<body data-nav="home">
 
   <!-- 顶部导航 -->
   <header class="header">
@@ -48,16 +48,7 @@
         <img src="assets/images/logo.png" alt="烽审榜 Logo">
         <span class="logo-text">技术咨询服务行</span>
       </a>
-      <nav class="nav">
-        <a href="index.html" class="active">首页</a>
-        <a href="services.html">主营业务</a>
-        <a href="blog.html">博客文章</a>
-        <a href="cases.html">客户案例</a>
-        <a href="about.html">关于我们</a>
-        <a href="contact.html">联系我们</a>
-        <a href="tool/index.html">工具</a>
-        <a href="admin/login.html" class="nav-cta">后台登录</a>
-      </nav>
+      <div id="site-nav"></div>
       <div id="theme-toggle-mount" class="theme-toggle-mount theme-toggle-mount--header"></div>
       <button class="menu-toggle" aria-label="菜单">
         <span></span>
@@ -201,49 +192,11 @@
   </section>
 
   <!-- 页脚 -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <img src="assets/images/logo.png" alt="烽审榜">
-          <p class="footer-tagline">
-            兴义市烽审榜技术咨询服务行<br>
-            专业企业品牌运营 · 口腔GEO优化 · AI落地赋能
-          </p>
-        </div>
-        <div class="footer-col">
-          <h4>导航</h4>
-          <a href="index.html">首页</a>
-          <a href="services.html">主营业务</a>
-          <a href="blog.html">博客文章</a>
-          <a href="cases.html">客户案例</a>
-          <a href="about.html">关于我们</a>
-          <a href="contact.html">联系我们</a>
-        </div>
-        <div class="footer-col">
-          <h4>服务</h4>
-          <a href="services.html#brand-operations">企业品牌运营</a>
-          <a href="services.html#dental-operations">口腔运营</a>
-          <a href="services.html#dental-geo">口腔GEO</a>
-          <a href="services.html#ai-empowerment">AI落地赋能</a>
-        </div>
-        <div class="footer-col">
-          <h4>联系</h4>
-          <a href="mailto:contact@fengshenbang.com" data-site-email>邮箱咨询</a>
-          <a href="contact.html">联系我们</a>
-          <a href="about.html">关于我们</a>
-          <a href="admin/login.html">后台登录</a>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p>
-        <p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <!-- Scripts -->
   <script src="assets/js/config.js"></script>
+  <script src="assets/js/components.js"></script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/analytics.js"></script>
