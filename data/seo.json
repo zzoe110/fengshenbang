@@ -1,11 +1,3 @@
 {
-  "seo": {
-    "__seo_roundtrip_test__": {
-      "data": {
-        "title": "TEST",
-        "description": "roundtrip"
-      },
-      "updatedAt": 1
-    }
-  }
+  "seo": {}
 }
