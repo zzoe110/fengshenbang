@@ -1,14 +1,3 @@
 {
-  "seo": {
-    "page_cases": {
-      "title": "T_CASE",
-      "description": "D_CASE"
-    },
-    "page_services": {
-      "title": "T_SVC"
-    },
-    "page_blog": {
-      "title": "T_BLOG"
-    }
-  }
+  "seo": {}
 }
