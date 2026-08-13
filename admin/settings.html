@@ -215,8 +215,13 @@
       };
       // 后台「站点设置」改了 → 写回 GitHub /data/config.json（约 1-2 分钟全站更新）
       try {
-        await DataStore.saveConfig(data);
-        showToast('站点配置已保存，全站约 1-2 分钟后自动更新', 'success');
+        const res = await DataStore.saveConfig(data);
+        if (res && res.remote) {
+          showToast('站点配置已保存，全站约 1-2 分钟后自动更新', 'success');
+        } else {
+          const msg = (res && res.error && res.error.message) ? res.error.message : '云端同步失败';
+          showToast('已存到本地，但云端保存失败：' + msg + '（请重试）', 'error', 6000);
+        }
       } catch (err) {
         console.error(err);
         showToast('保存失败：' + (err && err.message ? err.message : err), 'error');

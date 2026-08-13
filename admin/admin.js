@@ -34,7 +34,7 @@ function logout() {
 // ============================================
 // 3. Toast 提示（XSS 安全版）
 // ============================================
-function showToast(message, type = 'success') {
+function showToast(message, type = 'success', duration = 2500) {
   let toast = document.querySelector('.toast');
   if (!toast) {
     toast = document.createElement('div');
@@ -44,7 +44,7 @@ function showToast(message, type = 'success') {
   toast.className = `toast ${type}`;
   toast.textContent = message; // textContent 自动 XSS 安全
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  setTimeout(() => toast.classList.remove('show'), duration);
 }
 
 // ============================================
@@ -157,17 +157,23 @@ const DataStore = {
   },
 
   async saveSEO(key, data) {
+    let remoteOk = false;
+    let error = null;
+    const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
+    all[key] = { data, updatedAt: Date.now() };
+    localStorage.setItem(this.KEY_SEO, JSON.stringify(all));
+    Security.log('SEO_UPDATE', { key });
+    // 关键修复：同时回写 GitHub（data/seo.json），保证跨浏览器/设备/清缓存都能读回，
+    // 且线上文章页能真正读取到这份 SEO。
+    // 返回真实写入状态，避免"假成功"（本地存了但云端失败却报成功）。
     try {
-      const all = JSON.parse(localStorage.getItem(this.KEY_SEO) || '{}');
-      all[key] = { data, updatedAt: Date.now() };
-      localStorage.setItem(this.KEY_SEO, JSON.stringify(all));
-      Security.log('SEO_UPDATE', { key });
-      // 关键修复：同时回写 GitHub（data/seo.json），保证跨浏览器/设备/清缓存都能读回，
-      // 且线上文章页能真正读取到这份 SEO。
-      try { await API.saveData('seo', all); } catch (e) { console.error('SEO 同步到 GitHub 失败', e); }
+      await API.saveData('seo', all);
+      remoteOk = true;
     } catch (e) {
-      console.error('保存SEO失败', e);
+      error = e;
+      console.error('SEO 同步到 GitHub 失败', e);
     }
+    return { local: true, remote: remoteOk, error };
   },
 
   // 启动时把 GitHub 上的 SEO 映射拉回本地，保证多端一致读取
@@ -232,16 +238,22 @@ const DataStore = {
   },
 
   // 保存站点配置：写回 GitHub（经 /api/save），本地兜底
+  // 返回真实写入状态：远程失败也如实返回，避免"假成功"
   async saveConfig(cfg) {
+    let remoteOk = false;
+    let error = null;
     try {
       await API.saveData('config', cfg);
+      remoteOk = true;
     } catch (e) {
+      error = e;
       console.error('保存站点配置失败', e);
     }
     this._localCache = this._localCache || {};
     this._localCache.config = cfg;
     try { localStorage.setItem('fsb_site_config', JSON.stringify({ data: cfg, updatedAt: Date.now() })); } catch (e) {}
     if (window.SITE_CONFIG) Object.assign(window.SITE_CONFIG, cfg);
+    return { local: true, remote: remoteOk, error };
   },
 
   // ============================================

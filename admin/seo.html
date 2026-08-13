@@ -167,15 +167,26 @@
   <script>
     const PAGES = ['home', 'services', 'blog', 'cases', 'about', 'contact'];
 
-    document.addEventListener('DOMContentLoaded', async function () {
+    document.addEventListener('DOMContentLoaded', function () {
       checkAuth();
-      document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
-      await DataStore.hydrateSEO();
-      loadSEO();
-      document.getElementById('saveBtn').addEventListener('click', saveAll);
+
+      // 先绑定交互按钮，数据加载失败也不应阻断保存
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+      const saveBtn = document.getElementById('saveBtn');
+      if (saveBtn) saveBtn.addEventListener('click', saveAll);
+
       ['home_title', 'home_desc'].forEach(id => {
-        document.getElementById(id).addEventListener('input', updateCharCount);
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateCharCount);
       });
+
+      // 数据加载异步进行，异常不影响保存功能
+      (async () => {
+        try { await DataStore.hydrateSEO(); } catch (e) { console.error('SEO 同步失败', e); }
+        try { loadSEO(); } catch (e) { console.error('加载 SEO 失败', e); }
+      })();
     });
 
     async function loadSEO() {
@@ -207,24 +218,54 @@
     }
 
     async function saveAll() {
-      // 首页 SEO 写回 config.json（触发重新部署，前台约1-2分钟生效）
-      const cfg = await DataStore.getConfig();
-      cfg.homeTitle = (document.getElementById('home_title') || {}).value?.trim() || '';
-      cfg.homeDescription = (document.getElementById('home_desc') || {}).value?.trim() || '';
-      cfg.homeKeywords = (document.getElementById('home_keywords') || {}).value?.trim() || '';
-      cfg.homeOgImage = (document.getElementById('home_ogImage') || {}).value?.trim() || '';
-      await DataStore.saveConfig(cfg);
-      // 其他页仍存本地 SEO
-      ['services', 'blog', 'cases', 'about', 'contact'].forEach(page => {
-        const data = {
-          title: (document.getElementById(`${page}_title`) || {}).value?.trim() || '',
-          description: (document.getElementById(`${page}_desc`) || {}).value?.trim() || '',
-          keywords: (document.getElementById(`${page}_keywords`) || {}).value?.trim() || '',
-          ogImage: (document.getElementById(`${page}_ogImage`) || {}).value?.trim() || ''
-        };
-        await DataStore.saveSEO('page_' + page, data);
-      });
-      showToast('所有SEO已保存', 'success');
+      const btn = document.getElementById('saveBtn');
+      const originalText = btn ? btn.textContent : '保存所有';
+      // 1) 进入保存态：禁用按钮 + 进度文案，给明确反馈
+      if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
+      try {
+        // 首页 SEO 写回 config.json（触发重新部署，前台约1-2分钟生效）
+        const cfg = await DataStore.getConfig();
+        cfg.homeTitle = (document.getElementById('home_title') || {}).value?.trim() || '';
+        cfg.homeDescription = (document.getElementById('home_desc') || {}).value?.trim() || '';
+        cfg.homeKeywords = (document.getElementById('home_keywords') || {}).value?.trim() || '';
+        cfg.homeOgImage = (document.getElementById('home_ogImage') || {}).value?.trim() || '';
+
+        const results = [];
+        const cfgRes = await DataStore.saveConfig(cfg);
+        results.push(['首页', cfgRes]);
+
+        // 其他页仍存本地 SEO（回写 data/seo.json）
+        const pages = [
+          ['services', '业务页'], ['blog', '博客页'], ['cases', '案例页'],
+          ['about', '关于页'], ['contact', '联系页']
+        ];
+        for (const [page, label] of pages) {
+          const data = {
+            title: (document.getElementById(`${page}_title`) || {}).value?.trim() || '',
+            description: (document.getElementById(`${page}_desc`) || {}).value?.trim() || '',
+            keywords: (document.getElementById(`${page}_keywords`) || {}).value?.trim() || '',
+            ogImage: (document.getElementById(`${page}_ogImage`) || {}).value?.trim() || ''
+          };
+          const res = await DataStore.saveSEO('page_' + page, data);
+          results.push([label, res]);
+        }
+
+        // 2) 汇总真实结果，区分"云端成功"与"仅本地、云端失败"
+        const failed = results.filter(r => !r[1].remote);
+        if (failed.length === 0) {
+          showToast('✅ 全部 SEO 已保存到云端，约 1-2 分钟后全站生效', 'success', 4000);
+        } else {
+          const names = failed.map(f => f[0]).join('、');
+          const firstErr = failed[0][1].error;
+          const msg = (firstErr && firstErr.message) ? firstErr.message : '未知错误';
+          showToast(`⚠️ ${names} 云端保存失败：${msg}（已存本地，请重试）`, 'error', 8000);
+        }
+      } catch (e) {
+        // 3) 任何意料外异常也要明确告诉用户，而不是静默
+        showToast('❌ 保存失败：' + (e && e.message ? e.message : e), 'error', 8000);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = originalText; }
+      }
     }
   </script>
   <script src="../assets/js/analytics.js"></script>
