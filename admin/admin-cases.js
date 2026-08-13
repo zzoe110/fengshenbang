@@ -86,6 +86,7 @@ function renderTable() {
         <td>${c.publishDate}</td>
         <td><span class="seo-badge ${seoBadge}">${seoText}</span></td>
         <td class="list-actions">
+          <a class="btn btn-sm btn-outline" href="../cases.html#${encodeURIComponent(c.id)}" target="_blank" rel="noopener">🔗 查看</a>
           <button class="btn btn-sm btn-secondary" onclick="openModal('${c.id}')">编辑</button>
           <button class="btn btn-sm btn-danger" onclick="deleteCase('${c.id}')">删除</button>
         </td>

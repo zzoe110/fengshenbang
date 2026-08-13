@@ -188,6 +188,7 @@ function renderTable() {
         <td>${blog.readTime} 分钟</td>
         <td><span class="seo-badge ${seoBadge}">${seoText}</span></td>
         <td class="list-actions">
+          <a class="btn btn-sm btn-outline" href="../blog-detail.html?id=${encodeURIComponent(blog.id)}" target="_blank" rel="noopener">🔗 查看</a>
           <button class="btn btn-sm btn-secondary" onclick="openModal('${blog.id}')">编辑</button>
           <button class="btn btn-sm btn-danger" onclick="deleteBlog('${blog.id}')">删除</button>
         </td>

@@ -82,6 +82,7 @@ function renderTable() {
         <td>${svc.publishDate}</td>
         <td><span class="seo-badge ${seoBadge}">${seoText}</span></td>
         <td class="list-actions">
+          <a class="btn btn-sm btn-outline" href="../services.html#${encodeURIComponent(svc.id)}" target="_blank" rel="noopener">🔗 查看</a>
           <button class="btn btn-sm btn-secondary" onclick="openModal('${svc.id}')">编辑</button>
           <button class="btn btn-sm btn-danger" onclick="deleteService('${svc.id}')">删除</button>
         </td>

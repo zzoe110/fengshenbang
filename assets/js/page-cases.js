@@ -21,7 +21,7 @@ async function renderCases() {
   cases.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
   grid.innerHTML = cases.map((c, i) => `
-    <article class="case-card fade-in fade-in-delay-${(i % 6) + 1}">
+    <article class="case-card fade-in fade-in-delay-${(i % 6) + 1}" id="${c.id}">
       <div class="case-card-header">
         <span class="case-card-industry">${c.industry}</span>
         <h3 class="case-card-title">${c.title}</h3>
