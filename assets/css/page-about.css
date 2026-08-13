@@ -1,0 +1,193 @@
+/* 关于页 / 联系页 共享样式 */
+
+/* ===== 页面主视觉（复用 services 页式样，保持全站一致）===== */
+.page-hero {
+  position: relative;
+  padding: calc(72px + 5rem) 0 4rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(184, 146, 74, 0.1) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.page-hero-title {
+  font-size: var(--fs-6xl);
+  font-weight: 900;
+  color: var(--color-text-primary);
+  margin: 1rem 0 1.5rem;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.page-hero-desc {
+  font-size: var(--fs-lg);
+  color: var(--color-text-tertiary);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== 关于页：理念卡片（复用 .services-grid / .service-card 视觉）===== */
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: var(--space-xl);
+}
+
+.value-card {
+  position: relative;
+  padding: 2.5rem 2rem;
+  background: var(--color-bg-secondary);
+  background-image: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  overflow: hidden;
+}
+
+.value-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-base);
+}
+
+.value-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-gold-primary);
+  box-shadow: var(--shadow-gold);
+}
+
+.value-card:hover::before {
+  transform: scaleX(1);
+}
+
+.value-icon {
+  font-size: 2.75rem;
+  margin-bottom: 1.25rem;
+  display: inline-block;
+  filter: drop-shadow(0 0 12px rgba(184, 146, 74, 0.4));
+}
+
+.value-title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.value-desc {
+  color: var(--color-text-tertiary);
+  line-height: 1.75;
+  font-size: var(--fs-sm);
+}
+
+/* ===== 关于页：个人简介补充说明 ===== */
+.about-extra {
+  margin-top: 1.5rem;
+  padding-left: 1.25rem;
+  border-left: 3px solid var(--color-gold-primary);
+  color: var(--color-text-secondary);
+  line-height: 1.85;
+  font-size: var(--fs-base);
+}
+
+.about-extra strong {
+  color: var(--color-gold-highlight);
+  font-weight: 600;
+}
+
+/* ===== 联系页：联系信息卡片 ===== */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: var(--space-xl);
+}
+
+.contact-card {
+  position: relative;
+  padding: 2.5rem 2rem;
+  background: var(--color-bg-secondary);
+  background-image: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.contact-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--color-gold-primary);
+  box-shadow: var(--shadow-gold);
+}
+
+.contact-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.25rem;
+  display: inline-block;
+  filter: drop-shadow(0 0 12px rgba(184, 146, 74, 0.4));
+}
+
+.contact-label {
+  font-size: var(--fs-sm);
+  color: var(--color-gold-secondary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.contact-value {
+  font-size: var(--fs-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.contact-value a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.contact-value a:hover {
+  color: var(--color-gold-highlight);
+}
+
+.contact-note {
+  margin-top: 1rem;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 860px) {
+  .page-hero-title {
+    font-size: var(--fs-4xl);
+  }
+  .about-extra {
+    margin-top: 1rem;
+  }
+}
