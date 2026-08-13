@@ -186,11 +186,12 @@
     }
 
     async function saveConfig() {
-      // 拉取现有配置，保留本表单未覆盖的字段（如 homeTitle/homeDescription/homeKeywords/homeOgImage）
+      // 拉取现有配置，并合并默认配置，确保本表单未覆盖的字段（homeTitle/homeDescription/homeKeywords/homeOgImage/founder 等）不丢失
       let existing = {};
       try { existing = (await DataStore.getConfig()) || {}; } catch (e) {}
+      const base = { ...DEFAULT_CONFIG, ...existing };
       const data = {
-        ...existing,
+        ...base,
         siteName: document.getElementById('siteName').value.trim(),
         siteFullName: document.getElementById('siteFullName').value.trim(),
         siteUrl: document.getElementById('siteUrl').value.trim(),
@@ -200,13 +201,13 @@
         author: document.getElementById('author').value.trim(),
         icp: document.getElementById('icp').value.trim(),
         contact: {
-          ...(existing.contact || {}),
+          ...(base.contact || {}),
           email: document.getElementById('contact_email').value.trim(),
           phone: document.getElementById('contact_phone').value.trim(),
           address: document.getElementById('contact_address').value.trim()
         },
         social: {
-          ...(existing.social || {}),
+          ...(base.social || {}),
           wechat: document.getElementById('social_wechat').value.trim(),
           weibo: document.getElementById('social_weibo').value.trim(),
           douyin: document.getElementById('social_douyin').value.trim()
@@ -215,7 +216,7 @@
       // 后台「站点设置」改了 → 写回 GitHub /data/config.json（约 1-2 分钟全站更新）
       try {
         await DataStore.saveConfig(data);
-        showToast('站点配置已保存', 'success');
+        showToast('站点配置已保存，全站约 1-2 分钟后自动更新', 'success');
       } catch (err) {
         console.error(err);
         showToast('保存失败：' + (err && err.message ? err.message : err), 'error');

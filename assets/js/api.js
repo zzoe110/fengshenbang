@@ -33,12 +33,13 @@ const API = {
   // 鉴权：返回 { token, username, expireMinutes }
   login: (username, password) => apiSend('/api/login', 'POST', { username, password }),
 
-  // 远程读取静态 JSON。type: services | blog | cases
+  // 远程读取静态 JSON。type: services | blog | cases | seo | config
   getRemote: async (type) => {
-    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json', seo: 'seo.json' };
+    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json', seo: 'seo.json', config: 'config.json' };
     const file = fileMap[type];
     if (!file) throw new Error('未知数据类型: ' + type);
     const r = await apiGet('/data/' + file);
+    if (type === 'config') return r; // config.json 本身是扁平对象，直接返回
     return r[type] || (Array.isArray(r) ? r : []);
   },
 
