@@ -1,12 +1,3 @@
 {
-  "seo": {
-    "page_about": {
-      "title": "T_ABOUT",
-      "description": "D_ABOUT"
-    },
-    "page_contact": {
-      "title": "T_CONTACT",
-      "description": "D_CONTACT"
-    }
-  }
+  "seo": {}
 }
