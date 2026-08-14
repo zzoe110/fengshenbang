@@ -151,6 +151,10 @@ function closeModal() {
 }
 
 async function saveCase() {
+  const saveBtn = document.getElementById('saveBtn');
+  const originalText = saveBtn ? saveBtn.textContent : '保存';
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中...'; }
+  try {
   const metricsText = document.getElementById('f_metrics').value;
   const metrics = metricsText.split('\n').map(line => {
     const [label, value] = line.split('|').map(s => s.trim());
@@ -196,14 +200,25 @@ async function saveCase() {
   showToast('已保存', 'success');
   closeModal();
   await loadData();
+  } catch (e) {
+    console.error('案例保存失败', e);
+    showToast('保存失败：' + (e && e.message ? e.message : e) + '（本地可能已缓存，请重试）', 'error', 6000);
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; }
+  }
 }
 
 async function deleteCase(id) {
   if (!confirm('确定删除此案例？')) return;
-  cases = cases.filter(c => c.id !== id);
-  await DataStore.saveCases(cases);
-  showToast('已删除', 'success');
-  await loadData();
+  try {
+    cases = cases.filter(c => c.id !== id);
+    await DataStore.saveCases(cases);
+    showToast('已删除', 'success');
+    await loadData();
+  } catch (e) {
+    console.error('案例删除失败', e);
+    showToast('删除失败：' + (e && e.message ? e.message : e) + '（请重试）', 'error', 6000);
+  }
 }
 
 function updateSeoScore() {

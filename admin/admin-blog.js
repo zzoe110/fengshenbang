@@ -268,6 +268,10 @@ function calcReadTime(html) {
 }
 
 async function saveBlog() {
+  const saveBtn = document.getElementById('saveBtn');
+  const originalText = saveBtn ? saveBtn.textContent : '保存';
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中...'; }
+  try {
   const contentHtml = marked.parse(contentEditor.value());
   const data = {
     id: document.getElementById('f_id').value.trim(),
@@ -310,14 +314,25 @@ async function saveBlog() {
   showToast('已保存', 'success');
   closeModal();
   await loadData();
+  } catch (e) {
+    console.error('文章保存失败', e);
+    showToast('保存失败：' + (e && e.message ? e.message : e) + '（本地可能已缓存，请重试）', 'error', 6000);
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; }
+  }
 }
 
 async function deleteBlog(id) {
   if (!confirm('确定删除这篇文章？')) return;
-  blogs = blogs.filter(b => b.id !== id);
-  await DataStore.saveBlog(blogs);
-  showToast('已删除', 'success');
-  await loadData();
+  try {
+    blogs = blogs.filter(b => b.id !== id);
+    await DataStore.saveBlog(blogs);
+    showToast('已删除', 'success');
+    await loadData();
+  } catch (e) {
+    console.error('文章删除失败', e);
+    showToast('删除失败：' + (e && e.message ? e.message : e) + '（请重试）', 'error', 6000);
+  }
 }
 
 function updateSeoScore() {

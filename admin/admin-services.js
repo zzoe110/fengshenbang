@@ -137,6 +137,10 @@ function closeModal() {
 }
 
 async function saveService() {
+  const saveBtn = document.getElementById('saveBtn');
+  const originalText = saveBtn ? saveBtn.textContent : '保存';
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中...'; }
+  try {
   const data = {
     id: document.getElementById('f_id').value.trim(),
     title: document.getElementById('f_title').value.trim(),
@@ -177,14 +181,25 @@ async function saveService() {
   showToast('已保存', 'success');
   closeModal();
   await loadData();
+  } catch (e) {
+    console.error('业务保存失败', e);
+    showToast('保存失败：' + (e && e.message ? e.message : e) + '（本地可能已缓存，请重试）', 'error', 6000);
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; }
+  }
 }
 
 async function deleteService(id) {
   if (!confirm('确定删除这个业务？相关数据将无法恢复。')) return;
-  services = services.filter(s => s.id !== id);
-  await DataStore.saveServices(services);
-  showToast('已删除', 'success');
-  await loadData();
+  try {
+    services = services.filter(s => s.id !== id);
+    await DataStore.saveServices(services);
+    showToast('已删除', 'success');
+    await loadData();
+  } catch (e) {
+    console.error('业务删除失败', e);
+    showToast('删除失败：' + (e && e.message ? e.message : e) + '（请重试）', 'error', 6000);
+  }
 }
 
 function updateSeoScore() {
