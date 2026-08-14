@@ -2,12 +2,12 @@
   "seo": {
     "blog_geo-ai-search-2026": {
       "data": {
-        "title": "AI搜索时代，口腔机构如何抢占GEO红利？| 外行烽哥",
-        "description": "AI搜索正在重塑口腔流量格局。SEO老炮外行烽哥结合10年品牌经验+5年口腔实战，拆解GEO三大抓手、2026四大趋势，附30天落地自查表，帮口腔机构抓住AI搜索红利。",
-        "keywords": "GEO优化,口腔GEO,AI搜索优化,口腔机构营销,生成式引擎优化,结构化数据,Schema标记,口腔SEO,种植牙SEO,内容事实密度,本地GEO,外行烽哥",
+        "title": "",
+        "description": "",
+        "keywords": "",
         "ogImage": ""
       },
-      "updatedAt": 1786592961441
+      "updatedAt": 1786542489821
     },
     "blog_ai-empowerment-3steps": {
       "data": {
@@ -71,6 +71,15 @@
         "ogImage": ""
       },
       "updatedAt": 1786689796006
+    },
+    "case_XingYiYiJiaJiaJu-HuangZong": {
+      "data": {
+        "title": "SEO标题：兴义全屋家具定制——黄总项目：2个月不到1万做到本地行业第一 | 澯烽",
+        "description": "黄总的家具厂与烽审榜合作2个月，以抖音打造创始人IP为核心，不到1万费用，播放量做到兴义同类行业第一，变现超5万元。",
+        "keywords": "兴义家具定制,兴义全屋定制,创始人IP打造,抖音品牌运营,GEO优化,兴义家居,澯烽",
+        "ogImage": ""
+      },
+      "updatedAt": 1786692465447
     }
   }
 }
