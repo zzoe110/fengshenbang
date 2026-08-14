@@ -131,7 +131,18 @@ function openModal(id) {
 
   updateSeoScore();
   modal.classList.add('show');
-  if (caseEditor) caseEditor.codemirror.refresh();
+  // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，
+  // 否则会量到 0 高度导致编辑区塌陷（表现为"编辑器加载不全"）。用双 rAF 确保布局已落地。
+  if (caseEditor) refreshEditor(caseEditor);
+}
+
+// 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
+function refreshEditor(editor) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try { editor.codemirror.refresh(); } catch (e) {}
+    });
+  });
 }
 
 function closeModal() {

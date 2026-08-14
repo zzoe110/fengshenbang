@@ -235,8 +235,17 @@ function openModal(id) {
 
   updateSeoScore();
   modal.classList.add('show');
-  // 模态框由隐藏变显示后，CodeMirror 需 refresh 以正确计算高度
-  if (contentEditor) contentEditor.codemirror.refresh();
+  // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，否则编辑区塌陷
+  if (contentEditor) refreshEditor(contentEditor);
+}
+
+// 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
+function refreshEditor(editor) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try { editor.codemirror.refresh(); } catch (e) {}
+    });
+  });
 }
 
 function closeModal() {
