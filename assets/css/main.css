@@ -462,6 +462,62 @@ button {
   font-size: var(--fs-sm);
 }
 
+/* ============================================================
+   Markdown 渲染容器表格样式
+   后台「案例 / 业务」摘要用 Markdown 编辑器撰写（支持表格），
+   存储时已转成 <table> HTML。这些摘要原本被塞进 <p> 标签、
+   且全站 CSS 此前完全没有表格样式，导致表格要么被浏览器拆坏、
+   要么裸奔无边框。这里统一补样式（与博客详情页保持一致）。
+   涉及容器：.case-card-summary / .service-detail-summary / .service-summary
+   ============================================================ */
+.case-card-summary table,
+.service-detail-summary table,
+.service-summary table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: var(--fs-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.case-card-summary thead,
+.service-detail-summary thead,
+.service-summary thead {
+  background: var(--color-bg-secondary);
+}
+.case-card-summary th,
+.service-detail-summary th,
+.service-summary th,
+.case-card-summary td,
+.service-detail-summary td,
+.service-summary td {
+  border: 1px solid var(--color-border);
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+  min-width: 90px;
+  line-height: 1.5;
+}
+.case-card-summary th,
+.service-detail-summary th,
+.service-summary th {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.case-card-summary tbody tr:nth-child(even),
+.service-detail-summary tbody tr:nth-child(even),
+.service-summary tbody tr:nth-child(even) {
+  background: var(--color-bg-secondary);
+}
+.case-card-summary tbody tr:hover,
+.service-detail-summary tbody tr:hover,
+.service-summary tbody tr:hover {
+  background: rgba(201, 162, 77, 0.08);
+}
+
 .service-features {
   margin-bottom: 1.5rem;
 }

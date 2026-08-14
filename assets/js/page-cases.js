@@ -28,7 +28,7 @@ async function renderCases() {
         <p class="case-card-client">🏢 ${c.client}</p>
       </div>
       <div class="case-card-body">
-        <p class="case-card-summary">${c.summary}</p>
+        <div class="case-card-summary">${c.summary}</div>
       </div>
       <div class="case-card-metrics">
         ${c.metrics.map(m => `

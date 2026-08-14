@@ -26,7 +26,7 @@ async function renderServicesDetail() {
           <div class="service-detail-subtitle">${svc.subtitle}</div>
         </div>
       </div>
-      <p class="service-detail-summary">${svc.summary}</p>
+      <div class="service-detail-summary">${svc.summary}</div>
       <div class="service-detail-features">
         ${svc.features.map(f => `<div class="service-detail-feature">${f}</div>`).join('')}
       </div>

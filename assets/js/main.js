@@ -218,7 +218,7 @@ async function loadServices() {
         <div class="service-icon">${svc.icon}</div>
         <h3 class="service-title">${svc.title}</h3>
         <div class="service-subtitle">${svc.subtitle}</div>
-        <p class="service-summary">${svc.summary}</p>
+        <div class="service-summary">${svc.summary}</div>
         <ul class="service-features">
           ${svc.features.map(f => `<li>${f}</li>`).join('')}
         </ul>
