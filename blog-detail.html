@@ -36,6 +36,13 @@
     .article-content li { margin-bottom: 0.5rem; }
     .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
     .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    /* Markdown 表格样式（marked 转出的 <table> 此前无样式，导致"显示不了表格"） */
+    .article-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--fs-sm); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+    .article-content thead { background: var(--color-bg-secondary); }
+    .article-content th, .article-content td { border: 1px solid var(--color-border); padding: 0.6rem 0.9rem; text-align: left; min-width: 90px; line-height: 1.5; }
+    .article-content th { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+    .article-content tbody tr:nth-child(even) { background: var(--color-bg-secondary); }
+    .article-content tbody tr:hover { background: rgba(201,162,77,0.08); }
     .article-empty { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
     .article-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
     .article-loading { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
