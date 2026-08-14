@@ -2,6 +2,7 @@
 let editingId = null;
 let cases = [];
 let caseEditor = null;
+let caseSnapshot = '';
 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
@@ -17,6 +18,10 @@ function initCaseEditor() {
     minHeight: '240px',
     placeholder: '案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
   });
+  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
+  if (caseEditor && caseEditor.codemirror) {
+    caseEditor.codemirror.on('change', autoSaveCaseDraft);
+  }
 }
 
 function bindEvents() {
@@ -41,6 +46,12 @@ function bindEvents() {
 
   document.getElementById('editModal').addEventListener('click', (e) => {
     if (e.target.id === 'editModal') closeModal();
+  });
+
+  // 新增模式：普通字段输入即自动存草稿（编辑器内容变化已在 initCaseEditor 内监听）
+  ['f_id', 'f_title', 'f_client', 'f_industry', 'f_serviceId', 'f_summary', 'f_metrics', 'f_publishDate', 'f_seo_title', 'f_seo_description', 'f_seo_keywords', 'f_seo_ogImage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', autoSaveCaseDraft);
   });
 }
 
@@ -127,6 +138,12 @@ function openModal(id) {
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => el.value = '');
     if (caseEditor) caseEditor.value('');
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
+    // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
+    const d = loadDraft('case', null);
+    if (d && draftHasContent(d)) {
+      fillCaseDraft(d);
+      showToast('已自动恢复上次未保存的草稿', 'info', 3000);
+    }
   }
 
   updateSeoScore();
@@ -134,6 +151,7 @@ function openModal(id) {
   // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，
   // 否则会量到 0 高度导致编辑区塌陷（表现为"编辑器加载不全"）。用双 rAF 确保布局已落地。
   if (caseEditor) refreshEditor(caseEditor);
+  caseSnapshot = collectCaseForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }
 
 // 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
@@ -145,9 +163,63 @@ function refreshEditor(editor) {
   });
 }
 
-function closeModal() {
+// 收集案例表单数据（用于脏检测与草稿）
+function collectCaseData() {
+  return {
+    id: val('f_id'),
+    title: val('f_title'),
+    client: val('f_client'),
+    industry: val('f_industry'),
+    serviceId: val('f_serviceId'),
+    summary: caseEditor ? caseEditor.value() : val('f_summary'),
+    metrics: val('f_metrics'),
+    publishDate: val('f_publishDate'),
+    seoTitle: val('f_seo_title'),
+    seoDesc: val('f_seo_description'),
+    seoKeywords: val('f_seo_keywords'),
+    seoOg: val('f_seo_ogImage')
+  };
+}
+function collectCaseForm() { return JSON.stringify(collectCaseData()); }
+function isCaseDirty() { return collectCaseForm() !== caseSnapshot; }
+
+// 把草稿对象填回表单（含 Markdown 编辑器）
+function fillCaseDraft(d) {
+  document.getElementById('f_id').value = d.id || '';
+  document.getElementById('f_title').value = d.title || '';
+  document.getElementById('f_client').value = d.client || '';
+  document.getElementById('f_industry').value = d.industry || '';
+  document.getElementById('f_serviceId').value = d.serviceId || '';
+  if (caseEditor) caseEditor.value(d.summary || '');
+  else document.getElementById('f_summary').value = d.summary || '';
+  document.getElementById('f_metrics').value = d.metrics || '';
+  document.getElementById('f_publishDate').value = d.publishDate || new Date().toISOString().split('T')[0];
+  document.getElementById('f_seo_title').value = d.seoTitle || '';
+  document.getElementById('f_seo_description').value = d.seoDesc || '';
+  document.getElementById('f_seo_keywords').value = d.seoKeywords || '';
+  document.getElementById('f_seo_ogImage').value = d.seoOg || '';
+}
+
+// 新增模式自动存草稿；编辑模式不存（数据已在，靠确认保护）
+function autoSaveCaseDraft() {
+  if (editingId) return;
+  const d = collectCaseData();
+  if (draftHasContent(d)) saveDraft('case', null, d);
+  else clearDraft('case', null);
+}
+
+function closeModal(skipConfirm) {
+  // 有未保存改动时先确认，避免误点遮罩/取消导致内容清零；
+  // 真正保存成功时由 saveCase 传 true 跳过确认直接关闭。
+  if (!skipConfirm && isCaseDirty()) {
+    if (!confirm('当前内容尚未保存，确定要放弃吗？\n（未保存的内容将丢失）')) {
+      return; // 用户取消 -> 保住内容，不关闭
+    }
+  }
+  clearDraft('case', null); // 关闭即清除草稿（无论放弃还是保存完成）
   document.getElementById('editModal').classList.remove('show');
   editingId = null;
+  caseSnapshot = '';
 }
 
 async function saveCase() {
@@ -198,7 +270,7 @@ async function saveCase() {
 
   await DataStore.saveCases(cases);
   showToast('已保存', 'success');
-  closeModal();
+  closeModal(true);
   await loadData();
   } catch (e) {
     console.error('案例保存失败', e);

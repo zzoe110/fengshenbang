@@ -1,6 +1,7 @@
 // 博客管理
 let editingId = null;
 let blogs = [];
+let blogSnapshot = '';
 
 // Markdown 编辑器相关
 let contentEditor = null;
@@ -40,6 +41,10 @@ function initEditor() {
 
   labelToolbarIcons();
   initEmojiPanel();
+  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
+  if (contentEditor && contentEditor.codemirror) {
+    contentEditor.codemirror.on('change', autoSaveBlogDraft);
+  }
 }
 
 // 用文字/emoji 直接标注工具栏按钮（不依赖 Font Awesome）
@@ -152,6 +157,12 @@ function bindEvents() {
   document.getElementById('editModal').addEventListener('click', (e) => {
     if (e.target.id === 'editModal') closeModal();
   });
+
+  // 新增模式：普通字段输入即自动存草稿（正文编辑器变化已在 initEditor 内监听）
+  ['f_id', 'f_title', 'f_category', 'f_author', 'f_tags', 'f_summary', 'f_content', 'f_coverImage', 'f_publishDate', 'f_seo_title', 'f_seo_description', 'f_seo_keywords', 'f_seo_ogImage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', autoSaveBlogDraft);
+  });
 }
 
 async function loadData() {
@@ -231,12 +242,19 @@ function openModal(id) {
     });
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
     contentEditor.value('');
+    // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
+    const d = loadDraft('blog', null);
+    if (d && draftHasContent(d)) {
+      fillBlogDraft(d);
+      showToast('已自动恢复上次未保存的草稿', 'info', 3000);
+    }
   }
 
   updateSeoScore();
   modal.classList.add('show');
   // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，否则编辑区塌陷
   if (contentEditor) refreshEditor(contentEditor);
+  blogSnapshot = collectBlogForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }
 
 // 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
@@ -248,9 +266,65 @@ function refreshEditor(editor) {
   });
 }
 
-function closeModal() {
+// 收集博客表单数据（用于脏检测与草稿）
+function collectBlogData() {
+  return {
+    id: val('f_id'),
+    title: val('f_title'),
+    category: val('f_category'),
+    author: val('f_author'),
+    tags: val('f_tags'),
+    summary: val('f_summary'),
+    content: contentEditor ? contentEditor.value() : val('f_content'),
+    coverImage: val('f_coverImage'),
+    publishDate: val('f_publishDate'),
+    seoTitle: val('f_seo_title'),
+    seoDesc: val('f_seo_description'),
+    seoKeywords: val('f_seo_keywords'),
+    seoOg: val('f_seo_ogImage')
+  };
+}
+function collectBlogForm() { return JSON.stringify(collectBlogData()); }
+function isBlogDirty() { return collectBlogForm() !== blogSnapshot; }
+
+// 把草稿对象填回表单（含 Markdown 编辑器）
+function fillBlogDraft(d) {
+  document.getElementById('f_id').value = d.id || '';
+  document.getElementById('f_title').value = d.title || '';
+  document.getElementById('f_category').value = d.category || '';
+  document.getElementById('f_author').value = d.author || '';
+  document.getElementById('f_tags').value = d.tags || '';
+  document.getElementById('f_summary').value = d.summary || '';
+  if (contentEditor) contentEditor.value(d.content || '');
+  else document.getElementById('f_content').value = d.content || '';
+  document.getElementById('f_coverImage').value = d.coverImage || '';
+  document.getElementById('f_publishDate').value = d.publishDate || new Date().toISOString().split('T')[0];
+  document.getElementById('f_seo_title').value = d.seoTitle || '';
+  document.getElementById('f_seo_description').value = d.seoDesc || '';
+  document.getElementById('f_seo_keywords').value = d.seoKeywords || '';
+  document.getElementById('f_seo_ogImage').value = d.seoOg || '';
+}
+
+// 新增模式自动存草稿；编辑模式不存（数据已在，靠确认保护）
+function autoSaveBlogDraft() {
+  if (editingId) return;
+  const d = collectBlogData();
+  if (draftHasContent(d)) saveDraft('blog', null, d);
+  else clearDraft('blog', null);
+}
+
+function closeModal(skipConfirm) {
+  // 有未保存改动时先确认，避免误点遮罩/取消导致内容清零；
+  // 真正保存成功时由 saveBlog 传 true 跳过确认直接关闭。
+  if (!skipConfirm && isBlogDirty()) {
+    if (!confirm('当前内容尚未保存，确定要放弃吗？\n（未保存的内容将丢失）')) {
+      return; // 用户取消 -> 保住内容，不关闭
+    }
+  }
+  clearDraft('blog', null); // 关闭即清除草稿（无论放弃还是保存完成）
   document.getElementById('editModal').classList.remove('show');
   editingId = null;
+  blogSnapshot = '';
 }
 
 // 根据正文内容自动估算阅读时长：中文约 400 字/分钟，英文约 200 词/分钟，向上取整，最少 1 分钟
@@ -312,7 +386,7 @@ async function saveBlog() {
 
   await DataStore.saveBlog(blogs);
   showToast('已保存', 'success');
-  closeModal();
+  closeModal(true);
   await loadData();
   } catch (e) {
     console.error('文章保存失败', e);

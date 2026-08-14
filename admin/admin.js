@@ -387,3 +387,42 @@ window.addEventListener('unhandledrejection', function (e) {
 //     }
 //   }, 3000);
 // }
+
+// ============================================
+// 9. 编辑草稿自动保存（防误点关闭/刷新导致内容清零）
+// ============================================
+// 草稿仅保存在浏览器 localStorage，不上云；用于"新增"场景下意外关闭后自动找回。
+const DRAFT_PREFIX = 'fsb_admin_draft_';
+function _draftKey(module, id) { return DRAFT_PREFIX + module + '_' + (id || 'new'); }
+
+function saveDraft(module, id, data) {
+  try { localStorage.setItem(_draftKey(module, id), JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+}
+
+function loadDraft(module, id) {
+  try {
+    const raw = localStorage.getItem(_draftKey(module, id));
+    return raw ? JSON.parse(raw).data : null;
+  } catch (e) { return null; }
+}
+
+function clearDraft(module, id) {
+  try { localStorage.removeItem(_draftKey(module, id)); } catch (e) {}
+}
+
+// 判断草稿对象是否真的有内容（任一字段非空即视为有）
+function draftHasContent(d) {
+  if (!d || typeof d !== 'object') return false;
+  return Object.keys(d).some(k => {
+    const v = d[k];
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === 'string') return v.trim() !== '';
+    return v !== undefined && v !== null;
+  });
+}
+
+// 安全取表单字段值（元素不存在时返回空串，避免页面报错）
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}

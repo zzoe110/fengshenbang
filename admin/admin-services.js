@@ -2,6 +2,7 @@
 let editingId = null;
 let services = [];
 let serviceEditor = null;
+let serviceSnapshot = '';
 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
@@ -17,6 +18,10 @@ function initServiceEditor() {
     minHeight: '240px',
     placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
   });
+  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
+  if (serviceEditor && serviceEditor.codemirror) {
+    serviceEditor.codemirror.on('change', autoSaveServiceDraft);
+  }
 }
 
 function bindEvents() {
@@ -46,6 +51,12 @@ function bindEvents() {
   // 点击模态框背景关闭
   document.getElementById('editModal').addEventListener('click', (e) => {
     if (e.target.id === 'editModal') closeModal();
+  });
+
+  // 新增模式：普通字段输入即自动存草稿（编辑器内容变化已在 initServiceEditor 内监听）
+  ['f_id', 'f_title', 'f_subtitle', 'f_icon', 'f_summary', 'f_features', 'f_caseCount', 'f_publishDate', 'f_seo_title', 'f_seo_description', 'f_seo_keywords', 'f_seo_ogImage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', autoSaveServiceDraft);
   });
 }
 
@@ -124,16 +135,32 @@ function openModal(id) {
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => el.value = '');
     if (serviceEditor) serviceEditor.value('');
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
+    // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
+    const d = loadDraft('service', null);
+    if (d && draftHasContent(d)) {
+      fillServiceDraft(d);
+      showToast('已自动恢复上次未保存的草稿', 'info', 3000);
+    }
   }
 
   updateSeoScore();
   modal.classList.add('show');
   if (serviceEditor) serviceEditor.codemirror.refresh();
+  serviceSnapshot = collectServiceForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }
 
-function closeModal() {
+function closeModal(skipConfirm) {
+  // 有未保存改动时先确认，避免误点遮罩/取消导致内容清零；
+  // 真正保存成功时由 saveService 传 true 跳过确认直接关闭。
+  if (!skipConfirm && isServiceDirty()) {
+    if (!confirm('当前内容尚未保存，确定要放弃吗？\n（未保存的内容将丢失）')) {
+      return; // 用户取消 -> 保住内容，不关闭
+    }
+  }
+  clearDraft('service', null); // 关闭即清除草稿（无论放弃还是保存完成）
   document.getElementById('editModal').classList.remove('show');
   editingId = null;
+  serviceSnapshot = '';
 }
 
 async function saveService() {
@@ -179,7 +206,7 @@ async function saveService() {
 
   await DataStore.saveServices(services);
   showToast('已保存', 'success');
-  closeModal();
+  closeModal(true);
   await loadData();
   } catch (e) {
     console.error('业务保存失败', e);
@@ -215,4 +242,49 @@ function updateSeoScore() {
   const badge = document.getElementById('seoScoreBadge');
   badge.textContent = `SEO 评分: ${score} / 100`;
   badge.className = 'seo-badge ' + (score >= 80 ? '' : score >= 50 ? 'warning' : 'error');
+}
+
+// 收集业务表单数据（用于脏检测与草稿）
+function collectServiceData() {
+  return {
+    id: val('f_id'),
+    title: val('f_title'),
+    subtitle: val('f_subtitle'),
+    icon: val('f_icon'),
+    summary: serviceEditor ? serviceEditor.value() : val('f_summary'),
+    features: val('f_features'),
+    caseCount: val('f_caseCount'),
+    publishDate: val('f_publishDate'),
+    seoTitle: val('f_seo_title'),
+    seoDesc: val('f_seo_description'),
+    seoKeywords: val('f_seo_keywords'),
+    seoOg: val('f_seo_ogImage')
+  };
+}
+function collectServiceForm() { return JSON.stringify(collectServiceData()); }
+function isServiceDirty() { return collectServiceForm() !== serviceSnapshot; }
+
+// 把草稿对象填回表单（含 Markdown 编辑器）
+function fillServiceDraft(d) {
+  document.getElementById('f_id').value = d.id || '';
+  document.getElementById('f_title').value = d.title || '';
+  document.getElementById('f_subtitle').value = d.subtitle || '';
+  document.getElementById('f_icon').value = d.icon || '';
+  if (serviceEditor) serviceEditor.value(d.summary || '');
+  else document.getElementById('f_summary').value = d.summary || '';
+  document.getElementById('f_features').value = d.features || '';
+  document.getElementById('f_caseCount').value = d.caseCount || '';
+  document.getElementById('f_publishDate').value = d.publishDate || new Date().toISOString().split('T')[0];
+  document.getElementById('f_seo_title').value = d.seoTitle || '';
+  document.getElementById('f_seo_description').value = d.seoDesc || '';
+  document.getElementById('f_seo_keywords').value = d.seoKeywords || '';
+  document.getElementById('f_seo_ogImage').value = d.seoOg || '';
+}
+
+// 新增模式自动存草稿；编辑模式不存（数据已在，靠确认保护）
+function autoSaveServiceDraft() {
+  if (editingId) return;
+  const d = collectServiceData();
+  if (draftHasContent(d)) saveDraft('service', null, d);
+  else clearDraft('service', null);
 }
