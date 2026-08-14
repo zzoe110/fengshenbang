@@ -26,10 +26,10 @@
     {
       "id": "case-ai-manufacturing",
       "title": "制造企业AI落地：质检效率提升300%",
-      "serviceId": "ai-empowerment",
       "client": "广东XX电子制造",
       "industry": "智能制造",
-      "summary": "定制AI质检系统+员工培训，3个月实现质检自动化。",
+      "serviceId": "ai-empowerment",
+      "summary": "<p>定制AI质检系统+员工培训，3个月实现质检自动化。</p>\n",
       "metrics": [
         {
           "label": "质检效率",
