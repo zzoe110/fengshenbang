@@ -60,7 +60,7 @@
       'tb-code': '</>', 'tb-ul': '•≡', 'tb-ol': '1.', 'tb-link': '🔗',
       'tb-image': '🖼', 'tb-preview': '👁', 'tb-side': '▏▕', 'tb-full': '⛶', 'tb-emoji': '😀'
     };
-    const container = editor.codemirror.getWrapperElement().closest('.EasyMDE_container');
+    const container = editor.codemirror.getWrapperElement().closest('.EasyMDEContainer');
     if (!container) return;
     container.querySelectorAll('.editor-toolbar button').forEach(function (btn) {
       Object.keys(map).forEach(function (cls) {
