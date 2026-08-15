@@ -210,10 +210,10 @@
       setOg('og:title', seoTitle);
       setOg('og:description', seoDesc);
       if (seo.ogImage) setOg('og:image', seo.ogImage);
-      setOg('og:url', location.href);
+      setOg('og:url', 'https://www.fsbtop.top/blog/' + encodeURIComponent(id) + '.html');
       // 规范链接带上文章 id，保证每篇文章唯一 canonical（利于 GEO/SEO）
       const canon = document.querySelector('link[rel="canonical"]');
-      if (canon) canon.href = 'https://www.fsbtop.top/blog-detail.html?id=' + encodeURIComponent(id);
+      if (canon) canon.href = 'https://www.fsbtop.top/blog/' + encodeURIComponent(id) + '.html';
     }
   </script>
   <script src="assets/js/analytics.js"></script>

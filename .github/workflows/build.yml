@@ -1,0 +1,45 @@
+# 烽审榜 SSG 自动构建
+# --------------------------------
+# push 到 main 时自动运行 build.js，生成案例/博客静态详情页，
+# commit 回仓库（[skip ci] 防止递归触发）。
+# EdgeOne Pages 继续无构建部署（直接托管生成的 HTML）。
+name: SSG Build
+
+on:
+  push:
+    branches: [main]
+  # 允许手动触发（用于首次运行或补生成）
+  workflow_dispatch:
+
+# 排除自身 [skip ci] commit 造成的递归
+concurrency:
+  group: ssg-build
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run SSG generator (build.js)
+        run: node build.js
+
+      - name: Commit & push generated static pages
+        run: |
+          git config user.name "ssg-bot"
+          git config user.email "noreply@fsbtop.top"
+          git add cases/ blog/ sitemap.xml
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "[skip ci] SSG: auto-generate case/blog detail pages"
+          git push

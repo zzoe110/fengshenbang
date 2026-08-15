@@ -50,7 +50,7 @@ async function renderCases() {
   cases.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
   grid.innerHTML = cases.map((c, i) => {
-    const detailUrl = 'case.html?id=' + encodeURIComponent(c.id);
+    const detailUrl = 'cases/' + c.id + '.html';
     const metricsHtml = (c.metrics && c.metrics.length)
       ? `<div class="case-card-metrics">${c.metrics.map(m => `
           <div class="case-metric">
@@ -81,7 +81,7 @@ async function renderCases() {
   if (location.hash) {
     const id = decodeURIComponent(location.hash.slice(1));
     if (cases.some(c => c.id === id)) {
-      window.location.replace('case.html?id=' + encodeURIComponent(id));
+      window.location.replace('cases/' + id + '.html');
       return;
     }
   }
