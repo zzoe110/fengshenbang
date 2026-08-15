@@ -738,6 +738,17 @@ button {
   padding: var(--space-2xl) 0 var(--space-lg);
   color: var(--color-text-tertiary);
   font-size: var(--fs-sm);
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-primary), transparent);
 }
 
 .footer-grid {
@@ -754,13 +765,18 @@ button {
 }
 
 .footer-brand img {
-  height: 48px;
-  width: auto;
+  height: auto;
+  max-height: 56px;
+  max-width: 220px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
 }
 
 .footer-tagline {
   color: var(--color-text-tertiary);
-  line-height: 1.6;
+  line-height: 1.8;
+  font-size: var(--fs-sm);
+  max-width: 320px;
 }
 
 .footer-col h4 {
@@ -789,6 +805,7 @@ button {
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--fs-xs);
+  line-height: 1.8;
 }
 
 /* 页脚备案号（工信部链接） */

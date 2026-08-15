@@ -32,6 +32,12 @@
     font-size: var(--fs-base);
   }
 
+  /* 页脚 Logo 移动端缩小 */
+  .footer-brand img {
+    max-height: 42px;
+    max-width: 160px;
+  }
+
   .nav {
     position: fixed;
     top: 60px;
