@@ -64,6 +64,11 @@
   line-height: 1.7;
   font-size: var(--fs-sm);
   margin-bottom: 1.5rem;
+  /* 固定高度：最多 3 行，超出省略，保证卡片整齐统一 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .case-card-metrics {
