@@ -188,7 +188,42 @@ function openModal(id) {
   const modal = document.getElementById('editModal');
   const title = document.getElementById('modalTitle');
 
-  // 懒初始化编辑器：首次打开弹窗时才创建（确保在可见状态下初始化）
+  // 1) 先回填普通字段（含 f_content textarea 兜底值，供编辑器创建前读取）
+  if (id) {
+    title.textContent = '编辑文章';
+    const blog = blogs.find(b => b.id === id);
+    if (blog) {
+      document.getElementById('f_id').value = blog.id;
+      document.getElementById('f_id').disabled = true;
+      document.getElementById('f_title').value = blog.title;
+      document.getElementById('f_category').value = blog.category;
+      document.getElementById('f_author').value = blog.author;
+      document.getElementById('f_tags').value = (blog.tags || []).join(',');
+      document.getElementById('f_summary').value = blog.summary || '';
+      document.getElementById('f_content').value = blog.content || '';
+      document.getElementById('f_coverImage').value = blog.coverImage || '';
+      document.getElementById('f_publishDate').value = blog.publishDate;
+
+      const seo = DataStore.getSEO('blog_' + blog.id) || {};
+      document.getElementById('f_seo_title').value = seo.title || '';
+      document.getElementById('f_seo_description').value = seo.description || '';
+      document.getElementById('f_seo_keywords').value = seo.keywords || '';
+      document.getElementById('f_seo_ogImage').value = seo.ogImage || '';
+    }
+  } else {
+    title.textContent = '新增文章';
+    document.getElementById('f_id').disabled = false;
+    document.querySelectorAll('.modal input, .modal textarea').forEach(el => {
+      if (el.id !== 'f_author') el.value = '';
+    });
+    document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
+  }
+
+  updateSeoScore();
+  // 2) 关键：先显示弹窗，让编辑器在「可见状态」下创建（避免 display:none 隐藏初始化塌陷）
+  modal.classList.add('show');
+
+  // 3) 弹窗已可见，懒初始化编辑器（首次打开才创建）
   if (!contentEditor) {
     turndownService = new TurndownService({
       headingStyle: 'atx',
@@ -211,35 +246,12 @@ function openModal(id) {
     }
   }
 
+  // 4) 编辑器就绪后填充正文
   if (id) {
-    title.textContent = '编辑文章';
     const blog = blogs.find(b => b.id === id);
-    if (blog) {
-      document.getElementById('f_id').value = blog.id;
-      document.getElementById('f_id').disabled = true;
-      document.getElementById('f_title').value = blog.title;
-      document.getElementById('f_category').value = blog.category;
-      document.getElementById('f_author').value = blog.author;
-      document.getElementById('f_tags').value = (blog.tags || []).join(',');
-      document.getElementById('f_summary').value = blog.summary || '';
-      contentEditor.value(toMarkdown(blog.content || ''));
-      document.getElementById('f_coverImage').value = blog.coverImage || '';
-      document.getElementById('f_publishDate').value = blog.publishDate;
-
-      const seo = DataStore.getSEO('blog_' + blog.id) || {};
-      document.getElementById('f_seo_title').value = seo.title || '';
-      document.getElementById('f_seo_description').value = seo.description || '';
-      document.getElementById('f_seo_keywords').value = seo.keywords || '';
-      document.getElementById('f_seo_ogImage').value = seo.ogImage || '';
-    }
+    if (blog && contentEditor) contentEditor.value(toMarkdown(blog.content || ''));
   } else {
-    title.textContent = '新增文章';
-    document.getElementById('f_id').disabled = false;
-    document.querySelectorAll('.modal input, .modal textarea').forEach(el => {
-      if (el.id !== 'f_author') el.value = '';
-    });
-    document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
-    contentEditor.value('');
+    if (contentEditor) contentEditor.value('');
     // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
     const d = loadDraft('blog', null);
     if (d && draftHasContent(d)) {
@@ -248,9 +260,7 @@ function openModal(id) {
     }
   }
 
-  updateSeoScore();
-  modal.classList.add('show');
-  // 安全网：编辑模式复用实例时确保布局正确（新增模式刚创建不需要）
+  // 安全网：创建后强制刷新一次 CodeMirror 布局（此时弹窗已可见）
   if (contentEditor) refreshEditor(contentEditor);
   blogSnapshot = collectBlogForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }

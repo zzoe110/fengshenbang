@@ -95,17 +95,7 @@ function openModal(id) {
   const modal = document.getElementById('editModal');
   const title = document.getElementById('modalTitle');
 
-  // 懒初始化编辑器：首次打开弹窗时才创建（确保可见状态下初始化，避免塌陷）
-  if (!serviceEditor) {
-    serviceEditor = MarkdownEditor.create('f_summary', {
-      minHeight: '240px',
-      placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
-    });
-    if (serviceEditor && serviceEditor.codemirror) {
-      serviceEditor.codemirror.on('change', autoSaveServiceDraft);
-    }
-  }
-
+  // 1) 先回填普通字段（含 f_summary textarea 兜底值，供编辑器创建前读取）
   if (id) {
     title.textContent = '编辑业务';
     const svc = services.find(s => s.id === id);
@@ -115,8 +105,7 @@ function openModal(id) {
       document.getElementById('f_title').value = svc.title;
       document.getElementById('f_subtitle').value = svc.subtitle;
       document.getElementById('f_icon').value = svc.icon;
-      if (serviceEditor) serviceEditor.value(MarkdownEditor.toMd(svc.summary || ''));
-      else document.getElementById('f_summary').value = svc.summary || '';
+      document.getElementById('f_summary').value = svc.summary || '';
       document.getElementById('f_features').value = (svc.features || []).join('\n');
       document.getElementById('f_caseCount').value = svc.caseCount;
       document.getElementById('f_publishDate').value = svc.publishDate;
@@ -132,8 +121,30 @@ function openModal(id) {
     title.textContent = '新增业务';
     document.getElementById('f_id').disabled = false;
     document.querySelectorAll('.modal input, .modal textarea').forEach(el => el.value = '');
-    if (serviceEditor) serviceEditor.value('');
     document.getElementById('f_publishDate').value = new Date().toISOString().split('T')[0];
+  }
+
+  updateSeoScore();
+  // 2) 关键：先显示弹窗，让编辑器在「可见状态」下创建（避免 display:none 隐藏初始化塌陷）
+  modal.classList.add('show');
+
+  // 3) 弹窗已可见，懒初始化编辑器（首次打开才创建）
+  if (!serviceEditor) {
+    serviceEditor = MarkdownEditor.create('f_summary', {
+      minHeight: '240px',
+      placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+    });
+    if (serviceEditor && serviceEditor.codemirror) {
+      serviceEditor.codemirror.on('change', autoSaveServiceDraft);
+    }
+  }
+
+  // 4) 编辑器就绪后填充正文
+  if (id) {
+    const svc = services.find(s => s.id === id);
+    if (svc && serviceEditor) serviceEditor.value(MarkdownEditor.toMd(svc.summary || ''));
+  } else {
+    if (serviceEditor) serviceEditor.value('');
     // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
     const d = loadDraft('service', null);
     if (d && draftHasContent(d)) {
@@ -142,11 +153,18 @@ function openModal(id) {
     }
   }
 
-  updateSeoScore();
-  modal.classList.add('show');
-  // 安全网：编辑模式复用实例时确保布局正确
-  if (serviceEditor) serviceEditor.codemirror.refresh();
+  // 安全网：创建后强制刷新一次 CodeMirror 布局（此时弹窗已可见）
+  if (serviceEditor) refreshEditor(serviceEditor);
   serviceSnapshot = collectServiceForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
+}
+
+// 等弹窗显示并完成布局后再刷新 CodeMirror（安全网，懒初始化后一般不需要）
+function refreshEditor(editor) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try { editor.codemirror.refresh(); } catch (e) {}
+    });
+  });
 }
 
 function closeModal(skipConfirm) {
