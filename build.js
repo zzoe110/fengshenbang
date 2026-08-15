@@ -52,6 +52,45 @@ const SITE = {
   ]
 };
 
+// 站点级 JSON-LD（Organization + Person 双实体），静态写进每个详情页 <head>，
+// 让不执行 JS 的 AI 爬虫（百度 / ChatGPT / 文心 / 豆包 / DeepSeek）也能读取实体关系。
+// 与 main.js injectJSONLD 结构一致，但用绝对 URL（schema.org 最佳实践）。
+const SITE_JSONLD = `<script type="application/ld+json" id="fsb-static-jsonld">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "兴义市烽审榜技术咨询服务行",
+      "alternateName": "烽审榜",
+      "url": "https://www.fsbtop.top/",
+      "logo": "https://www.fsbtop.top/assets/images/logo.png",
+      "description": "兴义市烽审榜技术咨询服务行（商标「烽审榜」）提供企业品牌运营、口腔内外运营、口腔GEO优化、AI落地赋能、传统企业策划与YouTuber出海服务，覆盖品牌定位、AI搜索优化、智能体开发全链路，已服务150+客户、满意度98%。",
+      "slogan": "从品牌到AI，助力企业破局增长",
+      "foundingLocation": { "@type": "Place", "name": "贵州省兴义市" },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "贵州省" },
+        { "@type": "AdministrativeArea", "name": "兴义市" },
+        { "@type": "Country", "name": "中国" }
+      ],
+      "address": { "@type": "PostalAddress", "addressRegion": "贵州省", "addressLocality": "兴义市", "addressCountry": "CN" },
+      "knowsAbout": ["企业品牌运营","品牌策划","品牌定位","VI视觉设计","新媒体矩阵运营","口腔GEO优化","生成式引擎优化","GEO优化","AI搜索优化","口腔内外运营","口腔门诊运营","口腔机构获客","AI落地赋能","企业AI应用","智能体开发","员工AI培训","传统企业策划","企业数字化转型","传统企业转型","YouTuber运营","YouTube频道出海运营"],
+      "founder": { "@type": "Person", "name": "外行澯烽哥", "alternateName": "澯烽" }
+    },
+    {
+      "@type": "Person",
+      "name": "外行澯烽哥",
+      "alternateName": "澯烽",
+      "jobTitle": "烽审榜主理人",
+      "url": "https://www.fsbtop.top/",
+      "worksFor": { "@type": "Organization", "name": "兴义市烽审榜技术咨询服务行", "url": "https://www.fsbtop.top/" },
+      "description": "外行澯烽哥，兴义市烽审榜技术咨询服务行主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。",
+      "knowsAbout": ["口腔GEO优化","生成式引擎优化","企业品牌运营","AI落地赋能","智能体开发","口腔科普","新媒体内容营销"]
+    }
+  ]
+}
+</script>`;
+
 // 案例详情页内联样式（复刻 case.html 的 <style>，保证视觉一致）
 const CASE_STYLE = `
     .case-container { max-width: 820px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
@@ -264,6 +303,7 @@ function renderCasePage(item) {
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${CASE_STYLE}</style>
   <link rel="stylesheet" href="${base}assets/css/theme.css">
+  ${SITE_JSONLD}
 </head>
 <body data-nav="cases">
   <header class="header">
@@ -341,6 +381,7 @@ function renderBlogPage(item) {
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${ARTICLE_STYLE}</style>
   <link rel="stylesheet" href="${base}assets/css/theme.css">
+  ${SITE_JSONLD}
 </head>
 <body data-nav="blog">
   <header class="header">

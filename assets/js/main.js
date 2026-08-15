@@ -122,6 +122,9 @@ async function loadSiteMeta() {
 // 双实体模型：Organization（商标/主体，已有信任背书）+ Person（主理人个人 IP，承接「外行澯烽哥」类个人名查询）
 // 两者通过 founder / worksFor 互链，让搜索引擎与 AI 同时认识两个实体及其关系
 function injectJSONLD() {
+  // 若页面已含静态 JSON-LD（SSG 生成的详情页或各静态页内联），则跳过运行时注入，避免重复实体
+  if (document.getElementById('fsb-static-jsonld')) return;
+
   const base = getSiteBaseUrl() + '/';
   const f = SITE_CONFIG.founder || { name: '外行澯烽哥', alternateName: '澯烽', title: '烽审榜主理人' };
 
