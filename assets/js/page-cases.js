@@ -3,11 +3,30 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCases();
 });
 
+// 去掉正文开头的 SEO 元信息块 + 作者署名块（admin 误写入正文，属内部信息/署名不应出现在列表预览）
+function stripPreamble(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html || '';
+  let el = tmp.firstElementChild;
+  while (el) {
+    const t = (el.textContent || '').trim();
+    if (/SEO标题/.test(t) || /^作者\s*\|/.test(t)) {
+      const next = el.nextElementSibling;
+      el.remove();
+      if (next && next.tagName === 'HR') next.remove();
+      el = tmp.firstElementChild;
+    } else {
+      break;
+    }
+  }
+  return tmp.innerHTML;
+}
+
 // 去掉 HTML 标签并截取前 N 个字符作为卡片预览
 function makePreview(html, max) {
   max = max || 160;
   const tmp = document.createElement('div');
-  tmp.innerHTML = html || '';
+  tmp.innerHTML = stripPreamble(html || '');
   let text = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
   if (text.length > max) text = text.slice(0, max);
   return text;

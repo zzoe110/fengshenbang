@@ -112,6 +112,34 @@
       loadCase();
     });
 
+    // 去掉正文开头的 SEO 元信息块（内部信息不应公开泄露），保留作者署名与正文
+    function stripSeoMeta(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      const p = tmp.querySelector('p');
+      if (p && /SEO标题/.test(p.textContent || '')) p.remove();
+      return tmp.innerHTML;
+    }
+
+    // 去掉正文开头的 SEO 元信息块 + 作者署名块（用于列表预览 / SEO 描述，避免泄露内部信息）
+    function stripPreamble(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      let el = tmp.firstElementChild;
+      while (el) {
+        const t = (el.textContent || '').trim();
+        if (/SEO标题/.test(t) || /^作者\s*\|/.test(t)) {
+          const next = el.nextElementSibling;
+          el.remove();
+          if (next && next.tagName === 'HR') next.remove();
+          el = tmp.firstElementChild;
+        } else {
+          break;
+        }
+      }
+      return tmp.innerHTML;
+    }
+
     // 去掉 HTML 标签并截取前 N 个字符，用于 SEO description
     function stripHtml(html, max) {
       const tmp = document.createElement('div');
@@ -196,10 +224,10 @@
         `).join('');
       }
 
-      // 正文（HTML，与博客 content 同构）
+      // 正文（HTML，与博客 content 同构；去掉内部 SEO 元信息块）
       const bodyEl = document.getElementById('caseBody');
       if (item.summary && item.summary !== '完整内容（后台编辑）') {
-        bodyEl.innerHTML = item.summary;
+        bodyEl.innerHTML = stripSeoMeta(item.summary);
       } else {
         bodyEl.innerHTML = '<p style="color:var(--color-text-tertiary);padding:2rem 0;text-align:center;">完整内容请登录后台编辑发布。</p>';
       }
@@ -213,7 +241,7 @@
 
       // SEO：每篇案例独立 title / description / canonical（利于 GEO 逐条收录）
       const seoTitle = (item.title || '案例详情') + ' - 烽审榜';
-      const seoDesc = stripHtml(item.summary, 150);
+      const seoDesc = stripHtml(stripPreamble(item.summary), 150);
       document.title = seoTitle;
       setMeta('description', seoDesc);
       setMeta('keywords', (item.industry || '') + ',' + (item.client || '') + ',烽审榜案例');
