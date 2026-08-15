@@ -119,11 +119,11 @@ async function loadSiteMeta() {
 }
 
 // 动态生成 Organization + Person 双实体结构化数据（GEO 核心载体）
-// 双实体模型：Organization（商标/主体，已有信任背书）+ Person（主理人个人 IP，承接「外行烽哥」类个人名查询）
+// 双实体模型：Organization（商标/主体，已有信任背书）+ Person（主理人个人 IP，承接「外行澯烽哥」类个人名查询）
 // 两者通过 founder / worksFor 互链，让搜索引擎与 AI 同时认识两个实体及其关系
 function injectJSONLD() {
   const base = getSiteBaseUrl() + '/';
-  const f = SITE_CONFIG.founder || { name: '外行烽哥', alternateName: '澯烽', title: '烽审榜主理人' };
+  const f = SITE_CONFIG.founder || { name: '外行澯烽哥', alternateName: '澯烽', title: '烽审榜主理人' };
 
   // —— 1. Organization（商标 + 经营主体）——
   const org = {
@@ -147,16 +147,16 @@ function injectJSONLD() {
     ],
     'founder': {
       '@type': 'Person',
-      'name': f.name || '外行烽哥',
+      'name': f.name || '外行澯烽哥',
       'alternateName': f.alternateName || '澯烽'
     }
   };
 
-  // —— 2. Person（主理人个人 IP：外行烽哥 / 本名澯烽）——
+  // —— 2. Person（主理人个人 IP：外行澯烽哥 / 本名澯烽）——
   const person = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    'name': f.name || '外行烽哥',
+    'name': f.name || '外行澯烽哥',
     'alternateName': f.alternateName || '澯烽',
     'jobTitle': f.title || '烽审榜主理人',
     'url': base,
@@ -165,7 +165,7 @@ function injectJSONLD() {
       'name': SITE_CONFIG.siteFullName || SITE_CONFIG.siteName,
       'url': base
     },
-    'description': (f.name || '外行烽哥') + '，' + (SITE_CONFIG.siteFullName || '烽审榜') + '主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。',
+    'description': (f.name || '外行澯烽哥') + '，' + (SITE_CONFIG.siteFullName || '烽审榜') + '主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。',
     'knowsAbout': [
       '口腔GEO优化','生成式引擎优化','企业品牌运营','AI落地赋能','智能体开发','口腔科普','新媒体内容营销'
     ]
