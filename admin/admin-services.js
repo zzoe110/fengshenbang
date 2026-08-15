@@ -7,22 +7,10 @@ let serviceSnapshot = '';
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
-  initServiceEditor();
+  // 编辑器改为懒初始化：首次 openModal 时才创建（避免 display:none 隐藏初始化塌陷）
   await DataStore.hydrateSEO();
   await loadData();
 });
-
-function initServiceEditor() {
-  if (typeof MarkdownEditor === 'undefined') return;
-  serviceEditor = MarkdownEditor.create('f_summary', {
-    minHeight: '240px',
-    placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
-  });
-  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
-  if (serviceEditor && serviceEditor.codemirror) {
-    serviceEditor.codemirror.on('change', autoSaveServiceDraft);
-  }
-}
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
@@ -107,6 +95,17 @@ function openModal(id) {
   const modal = document.getElementById('editModal');
   const title = document.getElementById('modalTitle');
 
+  // 懒初始化编辑器：首次打开弹窗时才创建（确保可见状态下初始化，避免塌陷）
+  if (!serviceEditor) {
+    serviceEditor = MarkdownEditor.create('f_summary', {
+      minHeight: '240px',
+      placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+    });
+    if (serviceEditor && serviceEditor.codemirror) {
+      serviceEditor.codemirror.on('change', autoSaveServiceDraft);
+    }
+  }
+
   if (id) {
     title.textContent = '编辑业务';
     const svc = services.find(s => s.id === id);
@@ -145,6 +144,7 @@ function openModal(id) {
 
   updateSeoScore();
   modal.classList.add('show');
+  // 安全网：编辑模式复用实例时确保布局正确
   if (serviceEditor) serviceEditor.codemirror.refresh();
   serviceSnapshot = collectServiceForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }

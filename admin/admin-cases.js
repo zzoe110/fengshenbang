@@ -7,22 +7,11 @@ let caseSnapshot = '';
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
-  initCaseEditor();
+  // 编辑器改为懒初始化：不在页面加载时创建（此时弹窗 display:none 会导致
+  // EasyMDE/CodeMirror 隐藏容器初始化塌陷），而是首次打开弹窗时再创建。
   await DataStore.hydrateSEO();
   await loadData();
 });
-
-function initCaseEditor() {
-  if (typeof MarkdownEditor === 'undefined') return;
-  caseEditor = MarkdownEditor.create('f_summary', {
-    minHeight: '240px',
-    placeholder: '案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
-  });
-  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
-  if (caseEditor && caseEditor.codemirror) {
-    caseEditor.codemirror.on('change', autoSaveCaseDraft);
-  }
-}
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
@@ -111,6 +100,17 @@ function openModal(id) {
   const modal = document.getElementById('editModal');
   const title = document.getElementById('modalTitle');
 
+  // 懒初始化编辑器：首次打开弹窗时才创建（确保在可见状态下初始化，避免隐藏容器塌陷）
+  if (!caseEditor) {
+    caseEditor = MarkdownEditor.create('f_summary', {
+      minHeight: '240px',
+      placeholder: '案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+    });
+    if (caseEditor && caseEditor.codemirror) {
+      caseEditor.codemirror.on('change', autoSaveCaseDraft);
+    }
+  }
+
   if (id) {
     title.textContent = '编辑案例';
     const c = cases.find(x => x.id === id);
@@ -148,8 +148,8 @@ function openModal(id) {
 
   updateSeoScore();
   modal.classList.add('show');
-  // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，
-  // 否则会量到 0 高度导致编辑区塌陷（表现为"编辑器加载不全"）。用双 rAF 确保布局已落地。
+  // 安全网：编辑模式下复用已有实例时，确保 CodeMirror 布局正确
+  // （新增模式刚创建完不需要，但统一调用无副作用）
   if (caseEditor) refreshEditor(caseEditor);
   caseSnapshot = collectCaseForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }

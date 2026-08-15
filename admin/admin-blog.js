@@ -16,37 +16,12 @@ const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '😎', '🤩', 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
-  initEditor();
+  // 编辑器改为懒初始化：首次 openModal 时才创建（避免 display:none 时隐藏初始化塌陷）
   await DataStore.hydrateSEO();
   await loadData();
 });
 
 // 初始化 Markdown 编辑器（EasyMDE）+ HTML→MD 转换器 + emoji 面板
-function initEditor() {
-  turndownService = new TurndownService({
-    headingStyle: 'atx',
-    codeBlockStyle: 'fenced',
-    bulletListMarker: '-'
-  });
-
-  contentEditor = new EasyMDE({
-    element: document.getElementById('f_content'),
-    autoDownloadFontAwesome: false,
-    spellChecker: false,
-    minHeight: '340px',
-    toolbar: buildToolbar(),
-    status: false,
-    placeholder: '支持 Markdown 语法，可实时预览；也可直接书写 HTML。点击 😀 插入表情。'
-  });
-
-  labelToolbarIcons();
-  initEmojiPanel();
-  // 编辑器内容变化即自动存草稿（防误关/刷新丢失）
-  if (contentEditor && contentEditor.codemirror) {
-    contentEditor.codemirror.on('change', autoSaveBlogDraft);
-  }
-}
-
 // 用文字/emoji 直接标注工具栏按钮（不依赖 Font Awesome）
 function labelToolbarIcons() {
   const map = {
@@ -213,6 +188,29 @@ function openModal(id) {
   const modal = document.getElementById('editModal');
   const title = document.getElementById('modalTitle');
 
+  // 懒初始化编辑器：首次打开弹窗时才创建（确保在可见状态下初始化）
+  if (!contentEditor) {
+    turndownService = new TurndownService({
+      headingStyle: 'atx',
+      codeBlockStyle: 'fenced',
+      bulletListMarker: '-'
+    });
+    contentEditor = new EasyMDE({
+      element: document.getElementById('f_content'),
+      autoDownloadFontAwesome: false,
+      spellChecker: false,
+      minHeight: '340px',
+      toolbar: buildToolbar(),
+      status: false,
+      placeholder: '支持 Markdown 语法，可实时预览；也可直接书写 HTML。点击 😀 插入表情。'
+    });
+    labelToolbarIcons();
+    initEmojiPanel();
+    if (contentEditor && contentEditor.codemirror) {
+      contentEditor.codemirror.on('change', autoSaveBlogDraft);
+    }
+  }
+
   if (id) {
     title.textContent = '编辑文章';
     const blog = blogs.find(b => b.id === id);
@@ -252,7 +250,7 @@ function openModal(id) {
 
   updateSeoScore();
   modal.classList.add('show');
-  // 弹窗由隐藏变显示后，CodeMirror 必须等浏览器完成布局再 refresh，否则编辑区塌陷
+  // 安全网：编辑模式复用实例时确保布局正确（新增模式刚创建不需要）
   if (contentEditor) refreshEditor(contentEditor);
   blogSnapshot = collectBlogForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }
