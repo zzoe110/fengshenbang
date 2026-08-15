@@ -766,9 +766,11 @@ button {
 
 .footer-brand img {
   height: auto;
+  width: auto;
   max-height: 56px;
   max-width: 220px;
   object-fit: contain;
+  align-self: flex-start;
   border-radius: var(--radius-sm);
 }
 
