@@ -303,6 +303,7 @@ function renderCasePage(item) {
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${CASE_STYLE}</style>
   <link rel="stylesheet" href="${base}assets/css/theme.css">
+  <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
 </head>
 <body data-nav="cases">
@@ -381,6 +382,7 @@ function renderBlogPage(item) {
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${ARTICLE_STYLE}</style>
   <link rel="stylesheet" href="${base}assets/css/theme.css">
+  <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
 </head>
 <body data-nav="blog">
