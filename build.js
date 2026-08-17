@@ -302,6 +302,7 @@ function renderCasePage(item) {
   <link rel="stylesheet" href="${base}assets/css/main.css">
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${CASE_STYLE}</style>
+  <!-- 主题系统：theme.css(悬浮切换按钮样式) + theme.js(日间/黑金切换与默认主题，与首页共用 localStorage 保持一致) -->
   <link rel="stylesheet" href="${base}assets/css/theme.css">
   <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
@@ -381,6 +382,7 @@ function renderBlogPage(item) {
   <link rel="stylesheet" href="${base}assets/css/main.css">
   <link rel="stylesheet" href="${base}assets/css/responsive.css">
   <style>${ARTICLE_STYLE}</style>
+  <!-- 主题系统：theme.css(悬浮切换按钮样式) + theme.js(日间/黑金切换与默认主题，与首页共用 localStorage 保持一致) -->
   <link rel="stylesheet" href="${base}assets/css/theme.css">
   <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
