@@ -51,6 +51,7 @@ const SITE = {
     { label: '后台登录', href: 'admin/login.html' }
   ]
 };
+SITE.friendLinks = readJson('data/friendlinks.json') || []; // 友情链接（后台可管理）
 
 // 站点级 JSON-LD（Organization + Person 双实体），静态写进每个详情页 <head>，
 // 让不执行 JS 的 AI 爬虫（百度 / ChatGPT / 文心 / 豆包 / DeepSeek）也能读取实体关系。
@@ -239,6 +240,11 @@ function renderFooter(base) {
     if (it.email) return '<a href="' + it.href + '" data-site-email>' + esc(it.label) + '</a>';
     return '<a href="' + base + it.href + '">' + esc(it.label) + '</a>';
   }).join('');
+  const fl = (SITE.friendLinks && SITE.friendLinks.length)
+    ? '<details class="fl-details"><summary>友情链接</summary><div class="fl-list">' +
+        SITE.friendLinks.map(l => '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>').join('') +
+      '</div></details>'
+    : '';
   return '' +
     '<footer class="footer"><div class="container">' +
       '<div class="footer-grid">' +
@@ -250,6 +256,7 @@ function renderFooter(base) {
         '<div class="footer-col"><h4>服务</h4>' + svc + '</div>' +
         '<div class="footer-col"><h4>联系</h4>' + con + '</div>' +
       '</div>' +
+      '<div class="footer-friendlinks">' + fl + '</div>' +
       '<div class="footer-bottom">' +
         '<p>© ' + year + ' ' + esc(SITE.fullName) + ' · ' + esc(SITE.name) + '®注册商标 · All Rights Reserved</p>' +
         '<p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">' + esc(SITE.icp) + '</a></p>' +

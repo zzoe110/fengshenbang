@@ -100,12 +100,28 @@
             '<div class="footer-col"><h4>服务</h4>' + serviceLinks + '</div>' +
             '<div class="footer-col"><h4>联系</h4>' + contactLinks + '</div>' +
           '</div>' +
+          '<div class="footer-friendlinks" id="footer-friendlinks"></div>' +
           '<div class="footer-bottom">' +
             '<p>© ' + year + ' 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p>' +
             '<p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p>' +
           '</div>' +
         '</div>' +
       '</footer>';
+  }
+
+  // 异步加载友情链接并注入页脚（数据来自 data/friendlinks.json，后台可管理增删）
+  function loadFriendLinks(base) {
+    fetch(base + 'data/friendlinks.json')
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) {
+        var mount = document.getElementById('footer-friendlinks');
+        if (!mount || !list || !list.length) return;
+        var items = list.map(function (l) {
+          return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>';
+        }).join('');
+        mount.innerHTML = '<details class="fl-details"><summary>友情链接</summary><div class="fl-list">' + items + '</div></details>';
+      })
+      .catch(function () {});
   }
 
   function init() {
@@ -117,6 +133,7 @@
 
     var footerMount = document.getElementById('site-footer');
     if (footerMount) footerMount.outerHTML = renderFooter(base);
+    loadFriendLinks(base); // 异步注入友情链接（后台 friendlinks.json 管理）
 
     // 注入后刷新邮箱链接（复用 config.js 的远程配置覆盖逻辑，保证后台改邮箱全站生效）
     if (window.applyContactEmail) window.applyContactEmail();

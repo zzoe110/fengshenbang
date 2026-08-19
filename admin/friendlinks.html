@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>友情链接管理 - 烽审榜 CMS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/vendor/easymde.min.css">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <script src="../assets/js/theme.js"></script>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/logo.png" alt="烽审榜" class="sidebar-logo">
+        <span>烽审榜 CMS</span>
+        <div id="theme-toggle-mount" class="theme-toggle-mount theme-toggle-mount--sidebar"></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">📊 仪表盘</a>
+        <a href="profile.html">👤 关于我</a>
+        <a href="services.html">🎯 主营业务</a>
+        <a href="blog.html">📝 博客文章</a>
+        <a href="cases.html">🏆 客户案例</a>
+        <a href="ads.html">📢 广告位</a>
+        <a href="seo.html">🔍 全局SEO</a>
+        <a href="settings.html">⚙️ 站点设置</a>
+        <a href="audit.html">🛡️ 安全审计</a>
+        <a href="friendlinks.html" class="active">🔗 友情链接</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" target="_blank">🌐 查看站点</a>
+        <a href="#" id="logoutBtn">🚪 退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">友情链接管理</h1>
+        <p class="page-desc">管理页脚「友情链接」下拉菜单中的纯文字站点。添加同行站点有助于同行交流与收录。</p>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem;">
+        <h3 style="margin-bottom:1rem;color:var(--color-gold-secondary);">新增友情链接</h3>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+          <div class="form-group" style="flex:1;min-width:200px;margin:0;">
+            <label class="form-label">站点名称（纯文字）</label>
+            <input type="text" class="form-input" id="flName" placeholder="例如：雅贝康口腔">
+          </div>
+          <div class="form-group" style="flex:2;min-width:280px;margin:0;">
+            <label class="form-label">链接地址</label>
+            <input type="url" class="form-input" id="flUrl" placeholder="https://example.com">
+          </div>
+          <button class="btn btn-primary" id="addBtn">+ 添加</button>
+        </div>
+        <p class="form-hint" id="flTip" style="margin-top:0.75rem;">提示：仅链高质量同行 / 相关行业站点，避免低质或无关站；数量建议 10–20 个。保存后自动上线。</p>
+      </div>
+
+      <div class="card">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>站点名称</th>
+              <th>链接地址</th>
+              <th style="width:90px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="flList"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/security.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/vendor/marked.min.js"></script>
+  <script src="../assets/vendor/turndown.min.js"></script>
+  <script src="../assets/vendor/easymde.min.js"></script>
+  <script src="admin.js"></script>
+  <script src="markdown-editor.js"></script>
+  <script src="../assets/js/analytics.js"></script>
+  <script>
+  (function () {
+    var tbody = document.getElementById('flList');
+    var nameI = document.getElementById('flName');
+    var urlI = document.getElementById('flUrl');
+    var addBtn = document.getElementById('addBtn');
+    var tip = document.getElementById('flTip');
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function render(list) {
+      if (!list || !list.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:1.5rem;">暂无友情链接，请在上方添加。</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(function (l, i) {
+        return '<tr>' +
+          '<td>' + esc(l.name) + '</td>' +
+          '<td><a href="' + esc(l.url) + '" target="_blank" rel="noopener" style="color:var(--color-gold-secondary);">' + esc(l.url) + '</a></td>' +
+          '<td><button class="btn btn-sm" data-i="' + i + '" style="color:#e74c3c;border-color:rgba(231,76,60,0.4);">删除</button></td>' +
+        '</tr>';
+      }).join('');
+      tbody.querySelectorAll('[data-i]').forEach(function (b) {
+        b.addEventListener('click', async function () {
+          var idx = +this.getAttribute('data-i');
+          var cur = await DataStore.getFriendLinks() || [];
+          cur.splice(idx, 1);
+          await DataStore.saveFriendLinks(cur);
+          await load();
+        });
+      });
+    }
+
+    async function load() {
+      var list = await DataStore.getFriendLinks();
+      render(list || []);
+    }
+
+    addBtn.addEventListener('click', async function () {
+      var name = nameI.value.trim();
+      var url = urlI.value.trim();
+      if (!name || !url) {
+        tip.textContent = '请填写站点名称和链接地址。';
+        tip.style.color = '#e74c3c';
+        return;
+      }
+      if (!/^https?:\/\//i.test(url)) {
+        tip.textContent = '链接需以 http:// 或 https:// 开头。';
+        tip.style.color = '#e74c3c';
+        return;
+      }
+      var cur = await DataStore.getFriendLinks() || [];
+      cur.push({ name: name, url: url });
+      await DataStore.saveFriendLinks(cur);
+      nameI.value = '';
+      urlI.value = '';
+      tip.textContent = '已添加，已自动保存并上线。';
+      tip.style.color = '';
+      await load();
+    });
+
+    load();
+  })();
+  </script>
+</body>
+</html>

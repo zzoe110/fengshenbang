@@ -825,6 +825,50 @@ button {
   text-decoration: underline;
 }
 
+/* 页脚友情链接（<details> 原生折叠，纯文字，SEO 友好） */
+.footer-friendlinks {
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--color-border);
+}
+.fl-details > summary {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-gold-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  list-style: none;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+.fl-details > summary::-webkit-details-marker { display: none; }
+.fl-details > summary::before {
+  content: '▸';
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+}
+.fl-details[open] > summary::before { content: '▾'; }
+.fl-details > summary:hover { color: var(--color-gold-highlight); }
+.fl-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.9rem;
+}
+.fl-list a {
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.fl-list a:hover {
+  color: var(--color-gold-highlight);
+  text-decoration: underline;
+}
+
 /* ============================================
    滚动动画
    ============================================ */

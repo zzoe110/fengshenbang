@@ -54,6 +54,7 @@ const DataStore = {
   KEY_SERVICES: 'fsb_services',
   KEY_BLOG: 'fsb_blog',
   KEY_CASES: 'fsb_cases',
+  KEY_FRIENDLINKS: 'fsb_friendlinks',
   KEY_PROFILE: 'fsb_profile',
   KEY_AD: 'fsb_ad_slot',
   KEY_SEO: 'fsb_seo',
@@ -101,6 +102,19 @@ const DataStore = {
     this._localCache.cases = data;
     this._saveSync(this.KEY_CASES, data);
     if (window.FSB_DATA) window.FSB_DATA.cases = data;
+  },
+
+  // 友情链接
+  async getFriendLinks() {
+    if (this._localCache.friendlinks) return this._localCache.friendlinks;
+    try { return await API.getRemote('friendlinks'); }
+    catch (e) { return this.getDecrypted(this.KEY_FRIENDLINKS, 'friendlinks'); }
+  },
+  async saveFriendLinks(data) {
+    await API.saveData('friendlinks', data);
+    this._localCache.friendlinks = data;
+    this._saveSync(this.KEY_FRIENDLINKS, data);
+    if (window.FSB_DATA) window.FSB_DATA.friendlinks = data;
   },
 
   getProfile() {
