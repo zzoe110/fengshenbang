@@ -83,7 +83,7 @@
       { name: 'ordered-list', action: EasyMDE.toggleOrderedList, className: 'tb-ico tb-ol', title: '有序列表' },
       '|',
       { name: 'link', action: EasyMDE.drawLink, className: 'tb-ico tb-link', title: '链接' },
-      { name: 'image', action: EasyMDE.drawImage, className: 'tb-ico tb-image', title: '图片' },
+      { name: 'image', action: handleImage, className: 'tb-ico tb-image', title: '上传图片 / 插入外链' },
       '|',
       { name: 'preview', action: EasyMDE.togglePreview, className: 'tb-ico tb-preview', title: '预览' },
       { name: 'side-by-side', action: EasyMDE.toggleSideBySide, className: 'tb-ico tb-side', title: '分屏' },
@@ -163,6 +163,76 @@
     labelToolbarIcons(editor);
     attachEmojiPanel(editor);
     return editor;
+  }
+
+  // ---- 图片上传 / 外链插入 ----
+  function getAdminToken() {
+    return sessionStorage.getItem('fsb_admin_token') || '';
+  }
+
+  function insertImageMd(editor, url, alt) {
+    editor.codemirror.replaceSelection('![' + (alt || '') + '](' + url + ')\n');
+    editor.codemirror.focus();
+  }
+
+  // 自定义图片按钮：优先选本地文件上传，取消/失败则退回手填外链
+  function handleImage(editor) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/png,image/jpeg,image/webp,image/gif';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.addEventListener('change', function () {
+      const file = input.files && input.files[0];
+      document.body.removeChild(input);
+      if (!file) {
+        const url = window.prompt('未选择文件。如需插入外链图片，请粘贴图片网址（取消则不插入）：');
+        if (url) insertImageMd(editor, url, 'image');
+        return;
+      }
+      if (!/^image\//.test(file.type)) {
+        window.alert('只能上传图片文件（PNG / JPEG / WebP / GIF）');
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        window.alert('图片不能超过 2MB，请先压缩后再传');
+        return;
+      }
+      uploadAndInsert(editor, file);
+    });
+    input.click();
+  }
+
+  async function uploadAndInsert(editor, file) {
+    const container = editor.codemirror.getWrapperElement().closest('.EasyMDEContainer');
+    const btn = container && container.querySelector('.tb-image');
+    const oldLabel = btn ? btn.textContent : '';
+    if (btn) btn.textContent = '⏳';
+    try {
+      const dataUrl = await new Promise(function (res, rej) {
+        const fr = new FileReader();
+        fr.onload = function () { res(fr.result); };
+        fr.onerror = function () { rej(new Error('读取文件失败')); };
+        fr.readAsDataURL(file);
+      });
+      const base64 = String(dataUrl).split(',')[1];
+      const r = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getAdminToken() },
+        body: JSON.stringify({ mime: file.type, data: base64, name: file.name })
+      });
+      const j = await r.json().catch(function () { return {}; });
+      if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+      const url = (j.url && j.url.indexOf('http') === 0) ? j.url : (location.origin + '/assets/uploads/' + j.fileName);
+      const alt = (file.name || 'image').replace(/\.[^.]+$/, '');
+      insertImageMd(editor, url, alt);
+    } catch (e) {
+      window.alert('上传失败：' + (e && e.message ? e.message : e));
+      const url = window.prompt('上传失败。如需改用手动外链，请粘贴图片网址：');
+      if (url) insertImageMd(editor, url, 'image');
+    } finally {
+      if (btn) btn.textContent = oldLabel || '🖼';
+    }
   }
 
   window.MarkdownEditor = {

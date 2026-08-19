@@ -86,8 +86,19 @@ function sleep(ms) {
   });
 }
 
-// 把文件写回 GitHub 仓库（创建或更新），EdgeOne 检测到 push 后自动重新部署
-export async function githubWrite(env, filePath, contentStr) {
+// 字节 -> 标准 Base64（用于图片等二进制，不能用 utf8ToBase64）
+export function bytesToBase64(bytes) {
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+// 把已经 base64 编码的内容写入 GitHub 仓库（创建或更新），含 409 重试
+// 文本与二进制均复用本函数（文本先 utf8ToBase64，二进制用 bytesToBase64）
+export async function githubPut(env, filePath, base64Content) {
   const token = env.GITHUB_TOKEN;
   const repo = env.GITHUB_REPO;
   const branch = env.GITHUB_BRANCH || 'main';
@@ -126,8 +137,8 @@ export async function githubWrite(env, filePath, contentStr) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const sha = await getSha();
     const body = {
-      message: `CMS 更新 ${filePath} @ ${new Date().toISOString()}`,
-      content: utf8ToBase64(contentStr),
+      message: `CMS 写入 ${filePath} @ ${new Date().toISOString()}`,
+      content: base64Content,
       branch
     };
     if (sha) body.sha = sha;
@@ -149,6 +160,11 @@ export async function githubWrite(env, filePath, contentStr) {
     throw new Error(`写入 GitHub 失败 ${putRes.status}: ${txt}`);
   }
   throw lastErr || new Error('写入 GitHub 失败：重试后仍冲突');
+}
+
+// 文本写入（供 /api/save 复用），等价于 githubPut(env, filePath, utf8ToBase64(contentStr))
+export async function githubWrite(env, filePath, contentStr) {
+  return githubPut(env, filePath, utf8ToBase64(contentStr));
 }
 
 // 兼容多种 Pages Functions 调用约定，尽可能拿到 request 与 env：
