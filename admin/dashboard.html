@@ -145,16 +145,31 @@
       checkAuth();
       document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
 
-      // 加载统计数据
-      document.getElementById('statServices').textContent = DataStore.getServices().length || 0;
-      document.getElementById('statBlogs').textContent = DataStore.getBlog().length || 0;
-      document.getElementById('statCases').textContent = DataStore.getCases().length || 0;
+      // 加载统计数据（DataStore getter 为异步，需 await 后再取 .length）
+      Promise.all([
+        DataStore.getServices(),
+        DataStore.getBlog(),
+        DataStore.getCases()
+      ]).then(function (res) {
+        var services = res[0] || [], blogs = res[1] || [], cases = res[2] || [];
+        document.getElementById('statServices').textContent = services.length || 0;
+        document.getElementById('statBlogs').textContent = blogs.length || 0;
+        document.getElementById('statCases').textContent = cases.length || 0;
+      }).catch(function () {});
       document.getElementById('statAds').textContent = localStorage.getItem('fsb_ad_slot') ? 1 : 0;
 
-      // 加载站点信息
-      const siteCfg = getSiteConfig();
-      document.getElementById('infoSiteName').textContent = siteCfg.siteName || '烽审榜';
-      document.getElementById('infoSiteUrl').textContent = siteCfg.siteUrl || '未设置（请在站点设置中配置）';
+      // 加载站点信息：走 DataStore.getConfig() 异步拉取远程 data/config.json，
+      // 保证与「站点设置」完全一致（设置页保存即写回 config.json）；
+      // 失败时回退到本地 getSiteConfig()，避免白屏。
+      DataStore.getConfig().then(function (siteCfg) {
+        siteCfg = siteCfg || {};
+        document.getElementById('infoSiteName').textContent = siteCfg.siteName || '烽审榜';
+        document.getElementById('infoSiteUrl').textContent = siteCfg.siteUrl || '未设置（请在站点设置中配置）';
+      }).catch(function () {
+        var sc = getSiteConfig() || {};
+        document.getElementById('infoSiteName').textContent = sc.siteName || '烽审榜';
+        document.getElementById('infoSiteUrl').textContent = sc.siteUrl || '未设置（请在站点设置中配置）';
+      });
   </script>
   <script src="../assets/js/analytics.js"></script>
 </body>
