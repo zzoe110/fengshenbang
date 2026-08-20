@@ -56,6 +56,18 @@ SITE.friendLinks = readJson('data/friendlinks.json') || []; // 友情链接（�
 // 站点级 JSON-LD（Organization + Person 双实体），静态写进每个详情页 <head>，
 // 让不执行 JS 的 AI 爬虫（百度 / ChatGPT / 文心 / 豆包 / DeepSeek）也能读取实体关系。
 // 与 main.js injectJSONLD 结构一致，但用绝对 URL（schema.org 最佳实践）。
+
+// 字节跳动 TTZZ 收录辅助（push.js）：注入每个详情页 <head>，浏览时自动被蜘蛛爬取，提升收录概率。
+const TTZZ_SCRIPT = `<script>
+(function(){
+var el = document.createElement("script");
+el.src = "https://lf1-cdn-tos.bytegoofy.com/goofy/ttzz/push.js?27db1be7c9185e037665c3fff17bc969114b243c37dcfe3ff4125fdf92a1e9dbfd9a9dcb5ced4d7780eb6f3bbd089073c2a6d54440560d63862bbf4ec01bba3a";
+el.id = "ttzz";
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(el, s);
+})(window)
+</script>`;
+
 const SITE_JSONLD = `<script type="application/ld+json" id="fsb-static-jsonld">
 {
   "@context": "https://schema.org",
@@ -314,6 +326,7 @@ function renderCasePage(item) {
   <link rel="stylesheet" href="${base}assets/css/theme.css">
   <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
+  ${TTZZ_SCRIPT}
 </head>
 <body data-nav="cases">
   <header class="header">
@@ -395,6 +408,7 @@ function renderBlogPage(item) {
   <link rel="stylesheet" href="${base}assets/css/theme.css">
   <script src="${base}assets/js/theme.js"></script>
   ${SITE_JSONLD}
+  ${TTZZ_SCRIPT}
 </head>
 <body data-nav="blog">
   <header class="header">
