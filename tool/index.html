@@ -7,7 +7,7 @@
 <meta name="description" content="烽审榜数据清洗工具：从京州口腔系统导出JSON，一键清洗为可粘贴的Excel表格。">
 <meta name="author" content="兴义市烽审榜技术咨询服务行">
 
-<!-- 与主站一致的基础样式，保证导航/页脚统一样式 -->
+<!-- 基础样式（独立工具页，不引入主站导航/页脚组件） -->
 <link rel="stylesheet" href="../assets/css/variables.css">
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/responsive.css">
@@ -17,7 +17,7 @@
 
 <style>
 /* 工具页独有样式（与主站 .card 区分，避免潜在冲突） */
-.tool-intro { text-align: center; margin: 0 auto; max-width: 800px; padding: 110px 24px 8px; }
+.tool-intro { text-align: center; margin: 0 auto; max-width: 800px; padding: 48px 24px 8px; }
 .tool-intro h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
 .tool-intro p { color: #636e72; font-size: 14px; }
 .tool-wrap { max-width: 800px; margin: 0 auto 60px; padding: 24px; }
@@ -62,22 +62,6 @@ s.parentNode.insertBefore(el, s);
 </head>
 <body data-nav="tool">
 
-  <!-- 顶部导航（统一组件占位：改 nav 只改 assets/js/components.js 一处） -->
-  <header class="header">
-    <div class="container header-inner">
-      <a href="../index.html" class="logo">
-        <img src="../assets/images/logo.png" alt="烽审榜 Logo">
-        <span class="logo-text">技术咨询服务行</span>
-      </a>
-      <div id="site-nav"></div>
-      <div id="theme-toggle-mount" class="theme-toggle-mount theme-toggle-mount--header"></div>
-      <button class="menu-toggle" aria-label="菜单">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-  </header>
 
   <div class="tool-intro">
     <h1>🛠️ 烽审榜 · 数据清洗工具</h1>
@@ -102,11 +86,5 @@ s.parentNode.insertBefore(el, s);
     </a>
   </div>
 
-  <!-- 页脚（统一组件占位） -->
-  <div id="site-footer"></div>
-
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/components.js"></script>
-  <script src="../assets/js/main.js"></script>
 </body>
 </html>
