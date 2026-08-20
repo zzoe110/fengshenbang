@@ -446,21 +446,25 @@ function renderBlogPage(item) {
 
 // ---------- sitemap ----------
 function buildSitemap(cases, blogs) {
+  // 固定栏目页（含 about/contact；tool/ 内部员工工具按定位有意不收录）
   const urls = [
-    { loc: '/', pri: '1.0' },
-    { loc: '/services.html', pri: '0.9' },
-    { loc: '/blog.html', pri: '0.8' },
-    { loc: '/cases.html', pri: '0.8' }
+    { loc: '/', pri: '1.0', cf: 'daily' },
+    { loc: '/services.html', pri: '0.9', cf: 'daily' },
+    { loc: '/blog.html', pri: '0.8', cf: 'weekly' },
+    { loc: '/cases.html', pri: '0.8', cf: 'weekly' },
+    { loc: '/about.html', pri: '0.7', cf: 'monthly' },
+    { loc: '/contact.html', pri: '0.6', cf: 'monthly' }
   ];
-  cases.forEach(c => urls.push({ loc: '/cases/' + c.id + '.html', pri: '0.7' }));
-  blogs.forEach(b => urls.push({ loc: '/blog/' + b.id + '.html', pri: '0.7' }));
+  // 文章/案例详情页：由 data/*.json 自动生成，发新内容即自动入 sitemap（无需手动改）
+  cases.forEach(c => urls.push({ loc: '/cases/' + c.id + '.html', pri: '0.7', cf: 'monthly' }));
+  blogs.forEach(b => urls.push({ loc: '/blog/' + b.id + '.html', pri: '0.7', cf: 'monthly' }));
 
   const today = new Date().toISOString().slice(0, 10);
   const items = urls.map(u =>
     '  <url>\n' +
     '    <loc>' + DOMAIN + u.loc + '</loc>\n' +
     '    <lastmod>' + today + '</lastmod>\n' +
-    '    <changefreq>weekly</changefreq>\n' +
+    '    <changefreq>' + u.cf + '</changefreq>\n' +
     '    <priority>' + u.pri + '</priority>\n' +
     '  </url>'
   ).join('\n');
