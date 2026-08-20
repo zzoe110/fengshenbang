@@ -1,0 +1,23 @@
+name: sitemap-consistency-check
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # UTC 18:00 = 北京时间次日 02:00，每日扫一次线上作为兜底保险
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 校验 sitemap 一致性（含等待部署完成）
+        run: node scripts/check-sitemap.mjs
