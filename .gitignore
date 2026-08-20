@@ -8,3 +8,7 @@ server/.env
 # 系统 / 缓存
 .DS_Store
 *.log
+
+# 本地工具/项目内部数据（非网站代码，切勿提交到网站仓库）
+.workbuddy/
+ppt/
