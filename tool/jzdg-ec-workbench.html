@@ -246,16 +246,18 @@ a{color:var(--brand);text-decoration:none;}
 /* ============ 通用/个人标记 ============ */
 .badge-common{background:var(--blue-light);color:#1E40AF;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid #BFDBFE;}
 .badge-personal{background:var(--bg);color:var(--ink-3);font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid var(--line);}
-/* 角色固定任务双栏布局 */
-.roletasks-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-.roletasks-col{background:#fff;border-radius:14px;border:1.5px solid var(--line-light);padding:16px;transition:var(--transition);}
+/* 角色固定任务 —— 自适应 grid，按内容动态列数 */
+.roletasks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px;}
+/* 仅剩单个区块（如客服角色只看到“我的任务”）时自动占满整行，避免右侧空一半 */
+.roletasks-grid>.roletasks-col:only-child{grid-column:1/-1;}
+.roletasks-col{background:#fff;border-radius:14px;border:1.5px solid var(--line-light);padding:16px;transition:var(--transition);min-width:0;}
 .roletasks-col:hover{border-color:var(--line);box-shadow:var(--shadow-sm);}
 .roletasks-col h4{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--line-light);display:flex;align-items:center;gap:8px;}
 .roletasks-col .col-summary{font-size:12px;color:var(--ink-3);margin-bottom:10px;}
-@media(max-width:768px){.roletasks-grid{grid-template-columns:1fr;}}
-
-/* ============ 角色固定任务 ============ */
-.role-task-list{display:flex;flex-direction:column;gap:8px;}
+/* 任务项容器：横向 grid 自适应，能放 2 个就 2 个，3 个就 3 个 */
+.role-task-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;align-content:start;}
+/* 窄屏时强制 1 列（任务项一行一个），避免文字被压太窄 */
+@media(max-width:640px){.role-task-list{grid-template-columns:1fr;}.roletasks-grid{grid-template-columns:1fr;}}
 .role-task-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:10px;border:1.5px solid var(--line);cursor:pointer;transition:var(--transition);user-select:none;}
 .role-task-item:hover{border-color:var(--green);background:#F0FDF4;transform:translateX(2px);}
 .role-task-item.checked{opacity:.65;background:var(--line-light);}
@@ -853,7 +855,7 @@ function renderRoleTasks(){
       return (roleOrder[a.role]||0)-(roleOrder[b.role]||0)||a.display_name.localeCompare(b.display_name);
     });
     othersHtml=`
-      <div class="roletasks-col" style="grid-column:span 2;">
+      <div class="roletasks-col">
         <h4>👥 全员任务 <span class="badge" style="font-size:11px;background:#DBEAFE;color:#1E40AF">${allTasks.length}条任务 · ${sortedEmps.length}人</span></h4>
         <div class="role-task-list">
           ${sortedEmps.map(emp=>{
