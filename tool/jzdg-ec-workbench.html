@@ -613,7 +613,7 @@ function relTime(s){
 }
 
 // ============ 全局状态 ============
-const state={users:[],todos:[],meetings:[],commonLinks:[],userLinks:[],roleTasks:[],currentUser:null,reminderTimer:null};
+const state={users:[],todos:[],meetings:[],commonLinks:[],userLinks:[],roleTasks:[],currentUser:null,reminderTimer:null,myChecks:{},empChecks:{},checksCloud:false};
 
 // ============ 数据加载 ============
 async function loadAll(){
@@ -626,6 +626,21 @@ async function loadAll(){
     req('GET','role_tasks','select=*&order=sort.asc')
   ]);
   state.users=u;state.todos=t;state.meetings=m;state.commonLinks=cl;state.userLinks=ul;state.roleTasks=rt;
+  // 任务勾选状态：云端优先（每人独立），表不存在/失败时降级本地（按用户+日期隔离）
+  try{
+    const ck=await req('GET','role_task_checks',`check_date=eq.${getTodayKey()}&select=user_id,task_id`);
+    state.myChecks={};state.empChecks={};
+    ck.forEach(r=>{
+      if(r.user_id===state.currentUser.id) state.myChecks[r.task_id]=true;
+      state.empChecks[r.user_id]=state.empChecks[r.user_id]||{};
+      state.empChecks[r.user_id][r.task_id]=true;
+    });
+    state.checksCloud=true;
+  }catch(e){
+    state.checksCloud=false;
+    state.myChecks=loadLocalChecks();
+    state.empChecks={};
+  }
 }
 async function ensureAdmin(){
   const u=await req('GET','users','username=eq.admin&select=*');
@@ -762,9 +777,11 @@ const ROLE_LABEL={operator:'运营',service:'客服',admin:'管理员'};
 const ROLE_CLASS={operator:'operator',service:'service',admin:'admin'};
 function getRoleKey(role){return role==='admin'?'operator':role;} // 管理员显示运营清单
 function getTodayKey(){return fmtDate(new Date());} // '2026-08-21'
-function getCheckedTasks(){try{return JSON.parse(localStorage.getItem('jzqg_rt_'+getTodayKey())||'{}');}catch(e){return {};}}
-function setCheckedTasks(hashes){localStorage.setItem('jzqg_rt_'+getTodayKey(),JSON.stringify(hashes));}
-function taskHash(task){return btoa(unescape(encodeURIComponent(task.title+task.role))).slice(0,12);}
+function getCheckedTasks(){return state.myChecks;}
+// 勾选状态本地缓存（按 用户id+日期 隔离；云端表不可用时兜底）
+function localChecksKey(){const uid=state.currentUser?state.currentUser.id:'anon';return 'jzqg_rt_'+uid+'_'+getTodayKey();}
+function loadLocalChecks(){try{return JSON.parse(localStorage.getItem(localChecksKey())||'{}');}catch(e){return {};}}
+function saveLocalChecks(c){try{localStorage.setItem(localChecksKey(),JSON.stringify(c));}catch(e){}}
 
 function renderRoleTasks(){
   const me=state.currentUser;
@@ -782,14 +799,13 @@ function renderRoleTasks(){
   const el=document.getElementById('roleTaskList');
   if(!el) return;
   // 渲染自己的任务（左栏）
-  const myDone=myTasks.filter(t=>checked[taskHash(t)]).length;
+  const myDone=myTasks.filter(t=>checked[t.id]).length;
   const myHtml=myTasks.length?`
     <div class="roletasks-col">
       <h4>📋 我的任务 <span class="badge" style="font-size:11px;background:var(--brand-light);color:var(--brand)">${myDone}/${myTasks.length}</span></h4>
       <div class="role-task-list">
         ${myTasks.map(t=>{
-          const h=taskHash(t);
-          const isDone=checked[h];
+          const isDone=checked[t.id];
           return `<div class="role-task-item ${isDone?'checked':''}" onclick="toggleRoleTask('${t.id}')">
             <div class="role-task-check">${isDone?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
             <span class="role-task-title">${escapeHtml(t.title)}</span>
@@ -841,7 +857,8 @@ function renderRoleTasks(){
         <h4>👥 全员任务 <span class="badge" style="font-size:11px;background:#DBEAFE;color:#1E40AF">${allTasks.length}条任务 · ${sortedEmps.length}人</span></h4>
         <div class="role-task-list">
           ${sortedEmps.map(emp=>{
-            const empDone=emp.tasks.filter(t=>checked[taskHash(t)]).length;
+            const empChecks=state.empChecks[emp.id]||{};
+            const empDone=emp.tasks.filter(t=>empChecks[t.id]).length;
             const empTotal=emp.tasks.length;
             const canCheck=emp.id===me.id||isAdmin;
             return `
@@ -854,8 +871,7 @@ function renderRoleTasks(){
               </div>
               <div class="role-task-list" style="padding-left:12px;">
                 ${emp.tasks.length?emp.tasks.map(t=>{
-                  const h=taskHash(t);
-                  const isDone=checked[h];
+                  const isDone=empChecks[t.id];
                   const taskEmpId=t.assigned_to||emp.id;
                   const isMyTask=taskEmpId===me.id;
                   return `<div class="role-task-item ${isDone?'checked':''} ${isMyTask?'':'disabled'}"
@@ -872,26 +888,37 @@ function renderRoleTasks(){
       </div>`;
   }
   el.innerHTML=myHtml+(othersHtml||'');
-  // 更新进度卡
-  const done=allTasks.filter(t=>checked[taskHash(t)]).length;
-  const pct=allTasks.length?Math.round(done/allTasks.length*100):0;
+  // 更新进度卡（统计我自己的任务完成度）
+  const myTotal=myTasks.length;
+  const done=myTasks.filter(t=>checked[t.id]).length;
+  const pct=myTotal?Math.round(done/myTotal*100):0;
   document.getElementById('rtProgressWrap').innerHTML=`
     <div class="rt-progress">
-      <div class="rt-label">📊 今日固定任务进度（共 ${allTasks.length} 条，已完成 ${done} 条）</div>
+      <div class="rt-label">📊 我的今日任务进度（共 ${myTotal} 条，已完成 ${done} 条）</div>
       <div class="rt-bar"><div class="rt-fill" style="width:${pct}%"></div></div>
-      <div class="rt-text">${done}/${allTasks.length} 已完成 (${pct}%)</div>
+      <div class="rt-text">${done}/${myTotal} 已完成 (${pct}%)</div>
     </div>`;
 }
 async function toggleRoleTask(taskId){
   const task=state.roleTasks.find(t=>t.id===taskId);
   if(!task) return;
-  const checked=getCheckedTasks();
-  const h=taskHash(task);
-  if(checked[h]) delete checked[h]; else checked[h]=true;
-  setCheckedTasks(checked);
+  const checked=state.myChecks;
+  const wasChecked=!!checked[taskId];
+  if(wasChecked) delete checked[taskId]; else checked[taskId]=true;
+  state.myChecks=checked;
+  saveLocalChecks(checked); // 本地缓存（离线/云端失败兜底）
   renderRoleTasks();
-  // 更新 sec-today 的进度
   renderToday();
+  // 云端同步（每人独立；表不存在或失败则静默，本地已兜底）
+  if(state.checksCloud){
+    try{
+      if(!wasChecked){
+        await req('POST','role_task_checks',{user_id:state.currentUser.id,task_id:taskId,check_date:getTodayKey()});
+      }else{
+        await req('DELETE','role_task_checks',`user_id=eq.${state.currentUser.id}&task_id=eq.${taskId}&check_date=eq.${getTodayKey()}`);
+      }
+    }catch(e){toast('云端同步失败（已保存在本地）','err');}
+  }
 }
 
 // ============ 连接 ============
