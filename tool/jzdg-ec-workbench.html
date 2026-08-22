@@ -149,6 +149,8 @@ a{color:var(--brand);text-decoration:none;}
 .today-item .title{flex:1;font-size:14px;color:var(--ink);font-weight:500;min-width:0;}
 .today-item .tag{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--brand-light);color:var(--brand);font-weight:600;flex-shrink:0;}
 .today-item .time{font-size:12px;color:var(--ink-3);flex-shrink:0;font-weight:500;}
+@keyframes flashRow{0%,100%{box-shadow:none;}25%,60%{box-shadow:0 0 0 3px rgba(196,30,42,.35);}}
+.today-item.flash,.row.flash{animation:flashRow 1.8s ease 2;}
 
 /* ============ 连接（链接）板块 ============ */
 .links-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
@@ -735,7 +737,7 @@ function renderToday(){
   const list=document.getElementById('todayList');
   if(!items.length){list.innerHTML='<div class="empty">🎉 暂无待处理事项</div>';return;}
   list.innerHTML=items.slice(0,15).map(i=>`
-    <div class="today-item ${i.overdue?'overdue':''}">
+    <div class="today-item ${i.overdue?'overdue':''}" role="button" tabindex="0" onclick="gotoTarget('${i.type}','${i.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();gotoTarget('${i.type}','${i.id}');}">
       <span class="dot"></span>
       <span class="title">${escapeHtml(i.title)}</span>
       <span class="tag">${i.type==='todo'?'待办':'会议'}</span>
@@ -743,6 +745,17 @@ function renderToday(){
     </div>`).join('');
 }
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+// 今日待办点击 → 页内跳转到对应待办/会议行并高亮
+function gotoTarget(type,id){
+  const prefix=type==='meeting'?'mtg-row-':'todo-row-';
+  let el=document.getElementById(prefix+id);
+  // 兜底：目标行不在当前可见列表（如被筛选隐藏），跳到对应区块顶部
+  if(!el) el=document.getElementById(type==='meeting'?'sec-meetings':'sec-todos');
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),3800);
+}
 
 // ============ 角色固定每日任务 ============
 const ROLE_LABEL={operator:'运营',service:'客服',admin:'管理员'};
@@ -964,7 +977,7 @@ function renderTodos(){
     const isCommon=t.visibility==='common';
     const canDelete=isCommon||t.user_id===me.id;
     return `
-    <div class="row ${t.status}">
+    <div class="row ${t.status}" id="todo-row-${t.id}">
       <div class="check" onclick="toggleTodo('${t.id}')">${t.status==='done'?'✓':''}</div>
       <div class="body">
         <div class="title">${escapeHtml(t.title)}${isCommon?' <span class="badge-common">通用</span>':' <span class="badge-personal">个人</span>'}</div>
@@ -1055,7 +1068,7 @@ function renderMeetings(){
     const isCommon=m.visibility==='common';
     const canDelete=isCommon||m.user_id===me.id;
     return `
-    <div class="row">
+    <div class="row" id="mtg-row-${m.id}">
       <div class="check" style="background:var(--brand-light);border-color:var(--brand);color:var(--brand)">📅</div>
       <div class="body">
         <div class="title">${escapeHtml(m.title)}${isCommon?' <span class="badge-common">通用</span>':' <span class="badge-personal">个人</span>'}</div>
