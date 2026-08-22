@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>京州口腔·电商部门工作台</title>
+<link rel="icon" type="image/png" href="./logo.png">
+<!-- 本工作台通过 Supabase BaaS 搭建与存储 -->
+<style>
+:root{
+  --brand:#C41E2A;       /* 京州红 - 更沉稳的专业红 */
+  --brand-dark:#9A1820;
+  --brand-light:#FDF2F3;
+  --brand-subtle:#FEF8F8;
+  --bg:#F8F9FA;          /* 更柔和的灰背景 */
+  --card:#FFFFFF;
+  --ink:#111827;         /* 更深的文字色 */
+  --ink-2:#374151;
+  --ink-3:#6B7280;
+  --ink-4:#9CA3AF;
+  --line:#E5E7EB;
+  --line-light:#F3F4F6;
+  --green:#059669;       /* 更专业的绿 */
+  --green-light:#ECFDF5;
+  --orange:#D97706;
+  --orange-light:#FFFBEB;
+  --red:#DC2626;
+  --red-light:#FEF2F2;
+  --blue:#2563EB;
+  --blue-light:#EFF6FF;
+  --purple:#7C3AED;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.06),0 10px 24px rgba(0,0,0,.08);
+  --r:12px;
+  --r-lg:16px;
+  --transition:all .2s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+button{font-family:inherit;cursor:pointer;border:0;background:transparent;}
+input,select,textarea{font-family:inherit;font-size:14px;}
+a{color:var(--brand);text-decoration:none;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:#9ca3af;}
+
+/* 动画定义 */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+@keyframes checkPop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* ============ 登录页 ============ */
+#loginGate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#C41E2A 0%,#8B1520 100%);padding:20px;z-index:200;}
+#loginGate::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.login-card{background:#fff;border-radius:20px;padding:40px 32px;width:100%;max-width:400px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);animation:fadeIn .4s ease;position:relative;z-index:1;}
+.login-logo{display:flex;justify-content:center;margin-bottom:24px;}
+.login-logo img{height:64px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.1));}
+.login-title{text-align:center;font-size:22px;font-weight:700;color:var(--ink);margin:0 0 6px;letter-spacing:-.3px;}
+.login-sub{text-align:center;font-size:12px;color:var(--ink-4);margin:0 0 28px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:6px;font-weight:500;}
+.field input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;outline:none;transition:var(--transition);background:var(--bg);}
+.field input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(196,30,42,.1);background:#fff;}
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;padding:13px;border-radius:10px;font-weight:600;font-size:15px;transition:var(--transition);box-shadow:0 4px 12px rgba(196,30,42,.25);margin-top:4px;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(196,30,42,.35);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.login-hint{text-align:center;font-size:11px;color:var(--ink-4);margin-top:20px;line-height:1.7;padding:12px;background:var(--bg);border-radius:8px;}
+.login-err{color:var(--red);font-size:13px;text-align:center;min-height:20px;margin-top:10px;font-weight:500;}
+
+/* ============ App 骨架 ============ */
+#app{display:none;}
+#app.show{display:block;animation:fadeIn .3s ease;}
+.topbar{position:sticky;top:0;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;display:flex;align-items:center;padding:0 24px;height:64px;box-shadow:0 2px 12px rgba(196,30,42,.2);z-index:50;}
+.topbar-logo{height:34px;width:auto;filter:brightness(0) invert(1);drop-shadow:0 1px 2px rgba(0,0,0,.1);}
+.topbar-title{margin-left:16px;font-weight:600;font-size:16px;letter-spacing:.3px;}
+.topbar-spacer{flex:1;}
+.topbar-user{display:flex;align-items:center;gap:12px;font-size:13px;}
+.topbar-user .name-text{font-weight:500;}
+.topbar-user .badge{background:rgba(255,255,255,.2);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;backdrop-filter:blur(4px);}
+.topbar-user .badge.admin{background:#FBBF24;color:#7c2d12;}
+.btn-ghost{color:#fff;background:rgba(255,255,255,.15);padding:7px 14px;border-radius:8px;font-size:13px;transition:var(--transition);font-weight:500;}
+.btn-ghost:hover{background:rgba(255,255,255,.25);transform:translateY(-1px);}
+.btn-ghost:active{transform:translateY(0);}
+
+.topbar-sync{display:flex;align-items:center;gap:8px;margin-right:8px;}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.9);background:rgba(255,255,255,.12);padding:5px 10px;border-radius:20px;white-space:nowrap;backdrop-filter:blur(4px);}
+.sync .dot{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 0 2px rgba(52,211,153,.3);animation:pulse 2s infinite;}
+.sync.syncing .dot{background:#fbbf24;animation:pulse 1s infinite;}
+.sync.err .dot{background:#f87171;animation:none;}
+.sync.offline .dot{background:#9ca3af;animation:none;box-shadow:none;}
+.btn-ghost.sync-btn{padding:6px 12px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.12);}
+.btn-ghost.sync-btn:hover{background:rgba(255,255,255,.22);}
+
+/* ============ 仪表盘容器 ============ */
+.dash{max-width:1140px;margin:0 auto;padding:24px 28px 110px;}
+.section{scroll-margin-top:76px;margin-bottom:28px;animation:fadeIn .4s ease both;}
+.section:nth-child(2){animation-delay:.05s;}
+.section:nth-child(3){animation-delay:.1s;}
+.section:nth-child(4){animation-delay:.15s;}
+.section:nth-child(5){animation-delay:.2s;}
+.section:nth-child(6){animation-delay:.25s;}
+
+/* ============ 今日处理 Hero + 统计卡 ============ */
+.hero{background:linear-gradient(135deg,#ffffff 0%,var(--brand-subtle) 50%,var(--brand-light) 100%);border-radius:var(--r-lg);padding:24px 28px;margin-bottom:24px;border:1px solid rgba(196,30,42,.08);box-shadow:var(--shadow-md);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--brand) 0%,var(--orange) 50%,var(--brand) 100%);background-size:200% 100%;animation:slideIn 1s ease;}
+.hero-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.hero h2{margin:0;font-size:22px;color:var(--ink);display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.3px;}
+.hero h2::before{content:'📅';font-size:20px;}
+.hero .sub{font-size:13px;color:var(--ink-3);font-weight:400;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 6px;}
+@media(max-width:768px){.stat-grid{grid-template-columns:repeat(2,1fr);gap:10px;}}
+.stat-card{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid var(--line);box-shadow:var(--shadow-sm);transition:var(--transition);position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent-color,var(--brand));opacity:.8;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:transparent;}
+.stat-card .stat-num{font-size:28px;font-weight:800;color:var(--ink);line-height:1.1;letter-spacing:-.5px;}
+.stat-card .stat-num.red{color:var(--red);}
+.stat-card .stat-num.brand{color:var(--brand);}
+.stat-card .stat-num.blue{color:var(--blue);}
+.stat-card .stat-num.orange{color:var(--orange);}
+.stat-card .stat-label{font-size:12px;color:var(--ink-3);margin-top:6px;font-weight:500;}
+.stat-card.accent-red{--accent-color:var(--red);}
+.stat-card.accent-brand{--accent-color:var(--brand);}
+.stat-card.accent-blue{--accent-color:var(--blue);}
+.stat-card.accent-orange{--accent-color:var(--orange);}
+
+/* ============ 模块卡片 / 版块头 ============ */
+.module-card{background:var(--card);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--line-light);transition:var(--transition);}
+.module-card:hover{box-shadow:var(--shadow-md);border-color:var(--line);}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid var(--line-light);}
+.section-head h2{margin:0;font-size:17px;color:var(--ink);display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.2px;}
+.section-head h2::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--brand) 0%,var(--brand-dark) 100%);border-radius:2px;flex-shrink:0;}
+.section-head .count{font-size:11px;color:var(--ink-3);background:var(--bg);padding:3px 10px;border-radius:12px;font-weight:600;margin-left:8px;border:1px solid var(--line);}
+.btn-add{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:var(--transition);box-shadow:0 2px 8px rgba(196,30,42,.2);white-space:nowrap;}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,30,42,.3);}
+.btn-add:active{transform:translateY(0);}
+
+/* ============ 今日要处理 列表 ============ */
+.today-list{display:flex;flex-direction:column;gap:10px;}
+.today-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-radius:12px;border:1.5px solid var(--line);transition:var(--transition);cursor:pointer;}
+.today-item:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(196,30,42,.08);transform:translateX(2px);}
+.today-item.overdue{border-color:var(--red);background:var(--red-light);}
+.today-item.overdue:hover{border-color:var(--red);box-shadow:0 2px 8px rgba(220,38,38,.12);}
+.today-item .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);flex-shrink:0;box-shadow:0 0 0 3px rgba(196,30,42,.15);}
+.today-item.overdue .dot{background:linear-gradient(135deg,var(--red) 0%,#B91C1C 100%);box-shadow:0 0 0 3px rgba(220,38,38,.15);}
+.today-item .title{flex:1;font-size:14px;color:var(--ink);font-weight:500;min-width:0;}
+.today-item .tag{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--brand-light);color:var(--brand);font-weight:600;flex-shrink:0;}
+.today-item .time{font-size:12px;color:var(--ink-3);flex-shrink:0;font-weight:500;}
+
+/* ============ 连接（链接）板块 ============ */
+.links-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:768px){.links-grid{grid-template-columns:1fr;}.link-list{grid-template-columns:1fr;}}
+.link-card{background:var(--card);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow);border:1px solid var(--line-light);transition:var(--transition);}
+.link-card:hover{box-shadow:var(--shadow-md);border-color:var(--line);}
+.link-card h3{margin:0 0 14px;font-size:15px;color:var(--ink);display:flex;align-items:center;gap:10px;font-weight:600;}
+.link-card h3 .badge-c{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;letter-spacing:.3px;}
+.link-card h3 .badge-u{background:linear-gradient(135deg,#374151 0%,#1F2937 100%);color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;letter-spacing:.3px;}
+.link-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;}
+.link-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;position:relative;transition:var(--transition);}
+.link-row:hover{background:var(--brand-subtle);border-radius:10px;}
+.link-row .cat{font-size:10px;color:var(--ink-2);background:var(--bg);padding:3px 8px;border-radius:6px;flex-shrink:0;font-weight:600;line-height:1.4;border:1px solid var(--line);}
+.link-row .anchor{flex:1;font-size:13px;color:var(--ink);text-decoration:none;border-bottom:1.5px dashed transparent;transition:var(--transition);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.link-row .anchor:hover{color:var(--brand);border-bottom-color:var(--brand);}
+.link-row .ops{display:none;gap:4px;flex-shrink:0;}
+.link-row:hover .ops{display:flex;}
+.link-row .ops button{width:24px;height:24px;border-radius:6px;background:var(--bg);font-size:12px;color:var(--ink-3);transition:var(--transition);display:flex;align-items:center;justify-content:center;}
+.link-row .ops button:hover{background:var(--brand);color:#fff;}
+.link-add-row{display:flex;align-items:center;gap:10px;padding:10px 12px;color:var(--ink-3);cursor:pointer;border-radius:10px;border:1.5px dashed var(--line);font-size:13px;margin-top:6px;transition:var(--transition);grid-column:1/-1;font-weight:500;}
+.link-add-row:hover{color:var(--brand);border-color:var(--brand);background:var(--brand-subtle);}
+
+/* ============ 行（待办/会议） ============ */
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fff;transition:var(--transition);position:relative;}
+.row:hover{border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.row.done{opacity:.6;background:var(--bg);border-color:var(--line);}
+.row.doing{border-left:4px solid var(--orange);background:var(--orange-light);border-color:transparent;}
+.row .check{width:22px;height:22px;border:2px solid var(--ink-3);border-radius:7px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:var(--transition);background:#fff;}
+.row.done .check{background:var(--green);border-color:var(--green);color:#fff;animation:checkPop .2s ease;}
+.row .check:hover{border-color:var(--brand);background:var(--brand-light);}
+.row .body{flex:1;min-width:0;}
+.row .title{font-size:14px;color:var(--ink);font-weight:600;line-height:1.4;}
+.row.done .title{text-decoration:line-through;color:var(--ink-3);}
+.row .meta{font-size:12px;color:var(--ink-3);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;}
+.row .meta .pill{background:var(--bg);padding:2px 8px;border-radius:6px;font-weight:500;border:1px solid var(--line);}
+.row .meta .pill.p0{background:#FEE2E2;color:#991B1B;font-weight:600;border-color:#FECACA;}
+.row .meta .pill.p1{background:#FEF3C7;color:#92400E;font-weight:600;border-color:#FDE68A;}
+.row .meta .pill.p2{background:#DBEAFE;color:#1E40AF;font-weight:500;border-color:#BFDBFE;}
+.row .meta .pill.overdue{background:var(--red);color:#fff;border-color:var(--red);}
+.row .meta .pill.soon{background:var(--orange);color:#fff;border-color:var(--orange);}
+.row .ops{display:flex;gap:6px;flex-shrink:0;opacity:0;transition:var(--transition);}
+.row:hover .ops{opacity:1;}
+.row .ops button{font-size:12px;padding:5px 10px;border-radius:7px;color:var(--ink-3);background:var(--bg);border:1px solid var(--line);transition:var(--transition);font-weight:500;}
+.row .ops button:hover{background:var(--brand-light);color:var(--brand-dark);border-color:var(--brand-light);}
+.row .ops button.del:hover{background:#FEE2E2;color:var(--red);border-color:#FECACA;}
+
+/* ============ 表单弹窗 ============ */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal.show{display:flex;animation:fadeIn .2s ease;}
+.modal-box{background:#fff;border-radius:18px;padding:28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);animation:slideIn .3s ease;}
+.modal-box h3{margin:0 0 20px;font-size:18px;color:var(--ink);font-weight:700;letter-spacing:-.3px;}
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:6px;font-weight:600;}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;outline:none;transition:var(--transition);background:var(--bg);}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(196,30,42,.08);background:#fff;}
+.form-row textarea{resize:vertical;min-height:70px;}
+.modal-ops{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line-light);}
+.modal-ops button{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;transition:var(--transition);}
+.btn-cancel{background:var(--bg);color:var(--ink-2);border:1.5px solid var(--line);}
+.btn-cancel:hover{background:#fff;border-color:var(--ink-3);}
+.btn-save{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;border:none;box-shadow:0 2px 8px rgba(196,30,42,.2);}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,30,42,.3);}
+
+/* ============ 用户后台 ============ */
+.user-list{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--line-light);}
+.user-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line-light);transition:var(--transition);}
+.user-row:last-child{border-bottom:0;}
+.user-row:hover{background:var(--brand-subtle);}
+.user-row .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;box-shadow:0 2px 8px rgba(196,30,42,.2);}
+.user-row .body{flex:1;}
+.user-row .uname{font-weight:600;color:var(--ink);font-size:14px;}
+.user-row .urole{font-size:12px;color:var(--ink-3);margin-top:2px;}
+.user-row .urole .tag{background:var(--bg);color:var(--ink-2);font-size:10px;padding:2px 8px;border-radius:6px;margin-left:6px;font-weight:600;border:1px solid var(--line);}
+.user-row .urole .tag.admin{background:#FEF3C7;color:#92400E;border-color:#FDE68A;}
+.user-row .urole .tag.operator{background:#FEF3C7;color:#92400E;border-color:#FDE68A;}
+.user-row .urole .tag.service{background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE;}
+.user-row .ops{display:flex;gap:6px;}
+.user-row .ops button{font-size:12px;padding:6px 12px;border-radius:7px;background:var(--bg);color:var(--ink-3);border:1px solid var(--line);transition:var(--transition);font-weight:500;}
+.user-row .ops button:hover{background:var(--brand-light);color:var(--brand-dark);border-color:var(--brand-light);}
+.user-row .ops button.del:hover{background:#FEE2E2;color:var(--red);border-color:#FECACA;}
+
+/* ============ 个人中心 ============ */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:768px){.profile-grid{grid-template-columns:1fr;}}
+.profile-tip{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.7;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line-light);}
+
+/* ============ Toast ============ */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1F2937;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:300;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.2);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.ok{background:var(--green);}
+#toast.err{background:var(--red);}
+
+/* ============ 通用/个人标记 ============ */
+.badge-common{background:var(--blue-light);color:#1E40AF;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid #BFDBFE;}
+.badge-personal{background:var(--bg);color:var(--ink-3);font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid var(--line);}
+/* 角色固定任务双栏布局 */
+.roletasks-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.roletasks-col{background:#fff;border-radius:14px;border:1.5px solid var(--line-light);padding:16px;transition:var(--transition);}
+.roletasks-col:hover{border-color:var(--line);box-shadow:var(--shadow-sm);}
+.roletasks-col h4{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--line-light);display:flex;align-items:center;gap:8px;}
+.roletasks-col .col-summary{font-size:12px;color:var(--ink-3);margin-bottom:10px;}
+@media(max-width:768px){.roletasks-grid{grid-template-columns:1fr;}}
+
+/* ============ 角色固定任务 ============ */
+.role-task-list{display:flex;flex-direction:column;gap:8px;}
+.role-task-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:10px;border:1.5px solid var(--line);cursor:pointer;transition:var(--transition);user-select:none;}
+.role-task-item:hover{border-color:var(--green);background:#F0FDF4;transform:translateX(2px);}
+.role-task-item.checked{opacity:.65;background:var(--line-light);}
+.role-task-item.checked .role-task-title{text-decoration:line-through;color:var(--ink-3);}
+.role-task-check{width:22px;height:22px;border:2px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition);background:#fff;}
+.role-task-item:hover .role-task-check{border-color:var(--green);}
+.role-task-item.checked .role-task-check{background:var(--green);border-color:var(--green);color:#fff;animation:checkPop .2s ease;}
+.role-task-check svg{width:13px;height:13px;}
+.role-task-title{flex:1;font-size:14px;color:var(--ink);font-weight:500;}
+.role-task-cat{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid transparent;}
+.role-task-cat.operator{background:#FEF3C7;color:#92400E;border-color:#FDE68A;}
+.role-task-cat.service{background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE;}
+.role-tasks-section{margin-top:20px;}
+.role-tasks-section h3{font-size:14px;font-weight:600;color:var(--ink-2);margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+.role-tasks-section h3 .cat-badge{font-size:11px;padding:2px 8px;border-radius:12px;}
+/* 员工分组样式 */
+.employee-group{margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed var(--line);}
+.employee-group:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.employee-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:10px;}
+.employee-name{font-size:14px;font-weight:700;color:var(--ink);}
+.employee-stats{font-size:12px;color:var(--ink-3);font-weight:500;}
+.admin-status{font-size:11px;color:var(--green);margin-left:auto;font-weight:600;padding:2px 8px;background:#D1FAE5;border-radius:10px;}
+.admin-status.unchecked{color:var(--orange);background:#FEF3C7;}
+.rt-progress{margin-bottom:18px;padding:14px 16px;background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border-radius:12px;border:1px solid #A7F3D0;}
+.rt-progress .rt-label{font-size:13px;color:#065F46;margin-bottom:8px;font-weight:600;}
+.rt-progress .rt-bar{height:10px;background:#D1FAE5;border-radius:5px;overflow:hidden;}
+.rt-progress .rt-fill{height:100%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:5px;transition:width .4s ease;}
+.rt-progress .rt-text{font-size:12px;color:#059669;margin-top:6px;text-align:right;font-weight:600;}
+/* 后台角色任务管理 */
+.rt-group{margin-bottom:20px;}
+.rt-group h4{font-size:13px;font-weight:600;color:var(--ink-2);margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+.rt-edit-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;border:1px solid var(--line);}
+.rt-edit-row .rt-title-input{flex:1;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;}
+.rt-edit-row .rt-sort{width:40px;font-size:12px;text-align:center;color:var(--ink-3);}
+/* 顶栏角色标签 */
+.badge.operator{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
+.badge.service{background:#DBEAFE;color:#1E40AF;border:1px solid #BFDBFE;}
+.badge.admin{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
+
+/* ============ 底部锚点导航（移动端） ============ */
+.bottomtab{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:none;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:40;box-shadow:0 -2px 12px rgba(0,0,0,.06);}
+.bottomtab .bnav{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;color:var(--ink-4);font-size:10px;cursor:pointer;border:0;transition:var(--transition);font-weight:500;}
+.bottomtab .bnav:hover{color:var(--brand);}
+.bottomtab .bnav.active{color:var(--brand);font-weight:700;}
+.bottomtab .bnav svg{width:22px;height:22px;transition:var(--transition);}
+.bottomtab .bnav.active svg{transform:scale(1.1);}
+
+/* ============ Toast 通知 ============ */
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;box-shadow:0 10px 40px rgba(0,0,0,.2);backdrop-filter:blur(8px);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.ok{background:var(--green);box-shadow:0 4px 12px rgba(5,150,105,.3);}
+#toast.err{background:var(--red);box-shadow:0 4px 12px rgba(220,38,38,.3);}
+
+/* ============ 空状态 ============ */
+.empty{padding:40px 20px;text-align:center;color:var(--ink-4);font-size:14px;}
+.empty svg{width:56px;height:56px;color:var(--line);margin-bottom:12px;opacity:.6;}
+
+/* ============ 响应式 ============ */
+@media(max-width:768px){
+  .dash{padding:16px 16px 100px;}
+  .topbar-title{display:none;}
+  .topbar-user .name-text{display:none;}
+  .hero h2{font-size:18px;}
+  .hero{padding:18px 20px;}
+  .sync{display:none;}
+  .bottomtab{display:flex;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .section-head h2{font-size:15px;}
+  .module-card{padding:16px;}
+}
+@media(max-width:380px){
+  .topbar-logo{height:26px;}
+  .topbar-user{gap:6px;}
+  .btn-ghost{padding:5px 10px;font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 登录页 ============ -->
+<div id="loginGate">
+  <div class="login-card">
+    <div class="login-logo"><img src="./logo.png" alt="京州口腔"></div>
+    <h1 class="login-title">电商部门工作台</h1>
+    <p class="login-sub">JINGZHOU DENTAL · E-COMMERCE</p>
+    <div class="field">
+      <label>用户名</label>
+      <input id="loginUser" type="text" autocomplete="username" placeholder="请输入用户名">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input id="loginPwd" type="password" autocomplete="current-password" placeholder="请输入密码">
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-primary" id="btnLogin">登录</button>
+    <div class="login-hint">初始管理员：admin / 123456<br>登录后请立刻修改密码</div>
+  </div>
+</div>
+
+<!-- ============ 主 App（单页仪表盘） ============ -->
+<div id="app">
+  <header class="topbar">
+    <img class="topbar-logo" src="./logo.png" alt="京州口腔">
+    <span class="topbar-title">电商部门工作台</span>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-sync">
+      <span class="sync" id="syncState" title="数据同步状态"><span class="dot"></span><span id="syncText">已同步</span></span>
+      <button class="btn-ghost sync-btn" id="btnSync" title="立即强制同步到云端">⇄ 同步</button>
+    </div>
+    <div class="topbar-user">
+      <span class="name-text" id="topUserName">用户</span>
+      <span class="badge admin" id="topUserRole" style="display:none">管理员</span>
+      <button class="btn-ghost" id="btnProfile">我的</button>
+      <button class="btn-ghost" id="btnAdmin" style="display:none">后台</button>
+      <button class="btn-ghost" id="btnLogout">退出</button>
+    </div>
+  </header>
+
+  <div class="dash">
+
+    <!-- ① 今日处理 -->
+    <section class="section" id="sec-today">
+      <div class="hero">
+        <div class="hero-head">
+          <h2>今日处理</h2>
+          <span class="sub">一眼掌握今天要跟进的事</span>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+        <div id="rtProgressWrap"></div>
+        <div class="today-list" id="todayList" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <!-- ② 角色固定每日任务（按角色自动显示） -->
+    <section class="section" id="sec-roletasks">
+      <div class="section-head">
+        <h2>今日固定任务</h2>
+        <span class="sub">每日必做，勾选完成即可</span>
+      </div>
+      <div class="roletasks-grid" id="roleTaskList"></div>
+    </section>
+
+    <!-- ③ 连接（部门 + 自己） -->
+    <section class="section" id="sec-links">
+      <div class="section-head">
+        <h2>连接 <span class="count">部门 + 自己</span></h2>
+      </div>
+      <div class="links-grid">
+        <div class="link-card">
+          <h3><span class="badge-c">通用</span>部门共享报表</h3>
+          <div class="link-list" id="commonLinkList"></div>
+        </div>
+        <div class="link-card">
+          <h3><span class="badge-u">个人</span>我的常用链接</h3>
+          <div class="link-list" id="userLinkList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 待办事项 -->
+    <section class="section" id="sec-todos">
+      <div class="module-card">
+        <div class="section-head" style="margin-bottom:14px">
+          <h2>待办事项 <span class="count" id="todoCount">0</span></h2>
+          <button class="btn-add" onclick="openTodoForm()">+ 新增待办</button>
+        </div>
+        <div id="todoList"></div>
+      </div>
+    </section>
+
+    <!-- ⑤ 固定会议 -->
+    <section class="section" id="sec-meetings">
+      <div class="module-card">
+        <div class="section-head" style="margin-bottom:14px">
+          <h2>固定会议 <span class="count" id="meetingCount">0</span></h2>
+          <button class="btn-add" onclick="openMeetingForm()">+ 新增会议</button>
+        </div>
+        <div id="meetingList"></div>
+      </div>
+    </section>
+
+    <!-- ⑤ 个人中心 -->
+    <section class="section" id="sec-profile">
+      <div class="section-head"><h2>个人中心</h2></div>
+      <div class="profile-grid">
+        <div class="module-card">
+          <div class="section-head"><h2 style="font-size:16px">修改密码</h2></div>
+          <div class="form-row"><label>当前密码</label><input id="oldPwd" type="password"></div>
+          <div class="form-row"><label>新密码（至少 6 位）</label><input id="newPwd" type="password"></div>
+          <div class="form-row"><label>确认新密码</label><input id="newPwd2" type="password"></div>
+          <button class="btn-save" style="padding:10px 24px;border-radius:8px" onclick="changeMyPwd()">修改密码</button>
+        </div>
+        <div class="module-card">
+          <div class="section-head"><h2 style="font-size:16px">通知与提醒设置</h2></div>
+          <button class="btn-save" style="padding:9px 18px;border-radius:8px" onclick="requestNotifyPerm()">开启浏览器通知</button>
+          <button class="btn-cancel" style="padding:9px 18px;border-radius:8px;margin-left:8px" onclick="playDing(true)">测试提示音</button>
+          <div class="profile-tip">
+            声音提醒需要页面保持打开；通知需授权浏览器；测试音可在不授权通知时单独验证声音
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑥ 用户后台（仅管理员） -->
+    <section class="section" id="sec-admin" style="display:none">
+      <div class="module-card">
+        <div class="section-head">
+          <h2>用户管理 <span class="count" id="userCount">0</span></h2>
+          <button class="btn-add" onclick="openUserForm()">+ 新增用户</button>
+        </div>
+        <div class="user-list" id="userList"></div>
+      </div>
+      <div class="module-card" style="margin-top:16px">
+        <div class="section-head">
+          <h2 style="font-size:16px">通用链接（部门共享）</h2>
+          <button class="btn-add" onclick="openCommonLinkForm()">+ 新增通用链接</button>
+        </div>
+        <div class="link-list" id="adminCommonLinkList"></div>
+      </div>
+
+      <!-- 角色固定任务管理（仅管理员可见） -->
+      <div class="module-card" style="margin-top:16px">
+        <div class="section-head">
+          <h2 style="font-size:16px">角色固定每日任务</h2>
+          <button class="btn-add" onclick="openRoleTaskForm('operator')">+ 新增运营任务</button>
+          <button class="btn-add" style="margin-left:8px;background:var(--blue)">+ 新增客服任务</button>
+        </div>
+        <div id="adminRoleTaskList"></div>
+      </div>
+
+      <!-- 通用待办管理（仅管理员可见） -->
+      <div class="module-card" style="margin-top:16px">
+        <div class="section-head">
+          <h2 style="font-size:16px">通用待办（全员可见）</h2>
+          <button class="btn-add" onclick="openTodoForm()">+ 新增通用待办</button>
+        </div>
+        <div id="adminCommonTodoList"></div>
+      </div>
+
+      <!-- 通用会议管理（仅管理员可见） -->
+      <div class="module-card" style="margin-top:16px">
+        <div class="section-head">
+          <h2 style="font-size:16px">通用会议（全员可见）</h2>
+          <button class="btn-add" onclick="openMeetingForm()">+ 新增通用会议</button>
+        </div>
+        <div id="adminCommonMeetingList"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 移动端底部锚点导航 -->
+  <nav class="bottomtab">
+    <button class="bnav active" data-anchor="sec-today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>今日</span></button>
+    <button class="bnav" data-anchor="sec-roletasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>任务</span></button>
+    <button class="bnav" data-anchor="sec-links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>连接</span></button>
+    <button class="bnav" data-anchor="sec-todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>待办</span></button>
+    <button class="bnav" data-anchor="sec-meetings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>会议</span></button>
+    <button class="bnav" data-anchor="sec-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>我的</span></button>
+  </nav>
+</div>
+
+<!-- ============ 表单弹窗 ============ -->
+<div class="modal" id="formModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">新增</h3>
+    <div id="modalBody"></div>
+    <div class="modal-ops">
+      <button class="btn-cancel" onclick="closeFormModal()">取消</button>
+      <button class="btn-save" id="modalSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Toast ============ -->
+<div id="toast"></div>
+
+<script>
+// ============ 配置 ============
+const SB='https://agodkbhgxfviqmnplupo.supabase.co/rest/v1/';
+const KEY='sb_publishable_Gz0BkrBa5sYM12SDVu1m6A_VaUIJ7vG';
+const SALT='jzqg-ec-2026';
+const H=new Headers({'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=representation'});
+
+// ============ 工具 ============
+async function hashPwd(p){const d=new TextEncoder().encode(SALT+p);const b=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function playDing(testOnly){
+  try{
+    const n=testOnly?1:3; // 测试只响1声；到点提醒连响3声，避免短促漏听
+    _playBeeps(n);
+    if(testOnly) setTimeout(()=>toast('提示音 OK ✓','ok'),100);
+  }catch(e){if(testOnly) toast('当前浏览器不支持音频','err');}
+}
+function _playBeeps(n){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const gap=0.75; // 两次"叮"之间的间隔（秒）
+    for(let i=0;i<n;i++){
+      const start=ctx.currentTime+i*gap;
+      const o=ctx.createOscillator();const g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(880,start);
+      o.frequency.exponentialRampToValueAtTime(1320,start+0.08);
+      g.gain.setValueAtTime(0.001,start);
+      g.gain.exponentialRampToValueAtTime(0.25,start+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,start+0.55);
+      o.start(start);o.stop(start+0.6);
+    }
+  }catch(e){}
+}
+async function notify(title,body){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){try{await Notification.requestPermission();}catch(e){}}
+  if(Notification.permission==='granted'){try{new Notification(title,{body,icon:'./logo.png',badge:'./logo.png'});}catch(e){}}
+}
+function toast(msg,cls=''){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+cls;clearTimeout(t._tm);t._tm=setTimeout(()=>{t.className='';},2400);}
+async function req(method,table,a,b){
+  let q='', body=undefined;
+  if(method==='POST'){ body=a; }
+  else { q=a||''; if(method==='PATCH') body=b; }
+  const url=SB+table+(q?'?'+q:'');
+  const opt={method,headers:H};
+  if(body!==undefined) opt.body=JSON.stringify(body);
+  const r=await fetch(url,opt);
+  if(!r.ok){const t=await r.text();throw new Error(t||r.status);}
+  if(method==='DELETE') return null;
+  return r.json();
+}
+function fmtDT(s){if(!s) return '';const d=new Date(s);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+function fmtDate(s){if(!s) return '';const d=new Date(s);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+function fmtTime(s){if(!s) return '';const d=new Date(s);const p=n=>String(n).padStart(2,'0');return `${p(d.getHours())}:${p(d.getMinutes())}`;}
+function relTime(s){
+  if(!s) return '';
+  const diff=new Date(s).getTime()-Date.now();
+  const past=diff<0;
+  const m=Math.round(Math.abs(diff)/60000);
+  if(m<1) return '刚刚';
+  if(m<60) return past?`${m}分钟前`:`${m}分钟后`;
+  const h=Math.round(m/60);
+  if(h<24) return past?`${h}小时前`:`${h}小时后`;
+  const d=Math.round(h/24);
+  if(d<30) return past?`${d}天前`:`${d}天后`;
+  return fmtDate(s);
+}
+
+// ============ 全局状态 ============
+const state={users:[],todos:[],meetings:[],commonLinks:[],userLinks:[],roleTasks:[],currentUser:null,reminderTimer:null};
+
+// ============ 数据加载 ============
+async function loadAll(){
+  const [u,t,m,cl,ul,rt]=await Promise.all([
+    req('GET','users','select=*'),
+    req('GET','todos','select=*&order=created_at.desc'),
+    req('GET','meetings','select=*&order=start_at.asc'),
+    req('GET','common_links','select=*&order=sort.asc'),
+    req('GET','user_links','select=*&order=sort.asc'),
+    req('GET','role_tasks','select=*&order=sort.asc')
+  ]);
+  state.users=u;state.todos=t;state.meetings=m;state.commonLinks=cl;state.userLinks=ul;state.roleTasks=rt;
+}
+async function ensureAdmin(){
+  const u=await req('GET','users','username=eq.admin&select=*');
+  if(!u.length){
+    await req('POST','users',{username:'admin',pass_hash:await hashPwd('123456'),pass_hint:'默认密码',role:'admin',display_name:'系统管理员'});
+    console.log('[init] admin/123456 已创建');
+  }
+}
+
+// ============ 登录 ============
+async function doLogin(){
+  const username=document.getElementById('loginUser').value.trim();
+  const pwd=document.getElementById('loginPwd').value;
+  if(!username||!pwd){document.getElementById('loginErr').textContent='请输入用户名和密码';return;}
+  document.getElementById('btnLogin').disabled=true;
+  document.getElementById('loginErr').textContent='登录中...';
+  try{
+    const u=await req('GET','users',`username=eq.${encodeURIComponent(username)}&select=*`);
+    if(!u.length){document.getElementById('loginErr').textContent='用户不存在';return;}
+    const hash=await hashPwd(pwd);
+    if(hash!==u[0].pass_hash){document.getElementById('loginErr').textContent='密码错误';return;}
+    state.currentUser=u[0];
+    localStorage.setItem('jzqg_ec_user',JSON.stringify({id:u[0].id,username:u[0].username,role:u[0].role,display_name:u[0].display_name}));
+    document.getElementById('loginGate').style.display='none';
+    document.getElementById('app').classList.add('show');
+    await loadAll();
+    renderAll();
+    startReminder();
+    setSync('ok');
+    startAutoSync();
+    requestNotifyPerm(true);
+  }catch(e){document.getElementById('loginErr').textContent='登录失败：'+e.message;}
+  finally{document.getElementById('btnLogin').disabled=false;}
+}
+function doLogout(){
+  state.currentUser=null;
+  localStorage.removeItem('jzqg_ec_user');
+  if(state.reminderTimer) clearInterval(state.reminderTimer);
+  if(_autoSyncTimer) clearInterval(_autoSyncTimer);
+  setSync('offline');
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('loginGate').style.display='flex';
+  document.getElementById('loginPwd').value='';
+  document.getElementById('loginErr').textContent='';
+}
+async function autoLogin(){
+  const s=localStorage.getItem('jzqg_ec_user');
+  if(!s) return;
+  try{
+    const u=JSON.parse(s);
+    const r=await req('GET','users',`id=eq.${u.id}&select=*`);
+    if(r.length){state.currentUser=r[0];document.getElementById('loginGate').style.display='none';document.getElementById('app').classList.add('show');await loadAll();renderAll();startReminder();setSync('ok');startAutoSync();}
+    else localStorage.removeItem('jzqg_ec_user');
+  }catch(e){localStorage.removeItem('jzqg_ec_user');}
+}
+
+// ============ 渲染 ============
+function renderAll(){
+  renderTopbar();
+  renderToday();
+  renderRoleTasks();
+  renderLinks();
+  renderTodos();
+  renderMeetings();
+  renderProfile();
+  renderAdmin();
+}
+function renderTopbar(){
+  const u=state.currentUser;
+  document.getElementById('topUserName').textContent=u.display_name||u.username;
+  const isAdmin=u.role==='admin';
+  document.getElementById('topUserRole').style.display=isAdmin?'':'none';
+  document.getElementById('btnAdmin').style.display=isAdmin?'':'none';
+  document.getElementById('sec-admin').style.display=isAdmin?'':'none';
+}
+function renderToday(){
+  const me=state.currentUser;
+  const today=new Date();today.setHours(0,0,0,0);
+  const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+  // —— 统计卡 ——
+  const myActive=state.todos.filter(t=>t.user_id===me.id && t.status!=='done');
+  const dueToday=myActive.filter(t=>t.due_at&&(()=>{const d=new Date(t.due_at);return d>=today&&d<tomorrow;})());
+  const overdue=myActive.filter(t=>t.due_at&&new Date(t.due_at)<today);
+  const myMeetingsToday=state.meetings.filter(m=>m.user_id===me.id&&m.start_at&&(()=>{const d=new Date(m.start_at);return d>=today&&d<tomorrow;})());
+  const stats=[
+    {num:dueToday.length,label:'今日待办',cls:'brand',accent:'accent-brand'},
+    {num:myMeetingsToday.length,label:'今日会议',cls:'blue',accent:'accent-blue'},
+    {num:overdue.length,label:'逾期事项',cls:overdue.length?'red':'',accent:'accent-red'},
+    {num:myActive.length,label:'待办总数',cls:'',accent:'accent-orange'}
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card ${s.accent}">
+      <div class="stat-num ${s.cls}">${s.num}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`).join('');
+
+  // —— 今日要处理清单 ——
+  const items=[];
+  myActive.forEach(t=>{
+    const due=new Date(t.due_at);
+    items.push({type:'todo',id:t.id,title:t.title,time:fmtDT(t.due_at),sort:due.getTime(),overdue:due<today,soon:due>=today&&due<tomorrow});
+  });
+  state.meetings.filter(m=>m.user_id===me.id &&m.start_at).forEach(m=>{
+    const due=new Date(m.start_at);
+    if(due<new Date(Date.now()-3600000)) return;
+    items.push({type:'meeting',id:m.id,title:m.title,time:fmtDT(m.start_at),sort:due.getTime(),overdue:due<new Date()&&due>=today,soon:due>=today&&due<tomorrow});
+  });
+  items.sort((a,b)=>a.sort-b.sort);
+  const list=document.getElementById('todayList');
+  if(!items.length){list.innerHTML='<div class="empty">🎉 暂无待处理事项</div>';return;}
+  list.innerHTML=items.slice(0,15).map(i=>`
+    <div class="today-item ${i.overdue?'overdue':''}">
+      <span class="dot"></span>
+      <span class="title">${escapeHtml(i.title)}</span>
+      <span class="tag">${i.type==='todo'?'待办':'会议'}</span>
+      <span class="time">${i.time} · ${relTime(new Date(i.sort).toISOString())}</span>
+    </div>`).join('');
+}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ============ 角色固定每日任务 ============
+const ROLE_LABEL={operator:'运营',service:'客服',admin:'管理员'};
+const ROLE_CLASS={operator:'operator',service:'service',admin:'admin'};
+function getRoleKey(role){return role==='admin'?'operator':role;} // 管理员显示运营清单
+function getTodayKey(){return fmtDate(new Date());} // '2026-08-21'
+function getCheckedTasks(){try{return JSON.parse(localStorage.getItem('jzqg_rt_'+getTodayKey())||'{}');}catch(e){return {};}}
+function setCheckedTasks(hashes){localStorage.setItem('jzqg_rt_'+getTodayKey(),JSON.stringify(hashes));}
+function taskHash(task){return btoa(unescape(encodeURIComponent(task.title+task.role))).slice(0,12);}
+
+function renderRoleTasks(){
+  const me=state.currentUser;
+  const isAdmin=me.role==='admin';
+  const isOperator=me.role==='operator';
+  // 可见角色范围
+  const visibleRoles=isAdmin||isOperator?['operator','service']:getRoleKey(me.role);
+  // 自己的角色
+  const myRole=getRoleKey(me.role);
+  // 筛选任务
+  const allTasks=state.roleTasks.filter(t=>visibleRoles.includes(t.role)).sort((a,b)=>a.sort-b.sort);
+  const myTasks=allTasks.filter(t=>t.role===myRole);
+  const othersTasks=allTasks.filter(t=>t.role!==myRole);
+  const checked=getCheckedTasks();
+  const el=document.getElementById('roleTaskList');
+  if(!el) return;
+  // 渲染自己的任务（左栏）
+  const myDone=myTasks.filter(t=>checked[taskHash(t)]).length;
+  const myHtml=myTasks.length?`
+    <div class="roletasks-col">
+      <h4>📋 我的任务 <span class="badge" style="font-size:11px;background:var(--brand-light);color:var(--brand)">${myDone}/${myTasks.length}</span></h4>
+      <div class="role-task-list">
+        ${myTasks.map(t=>{
+          const h=taskHash(t);
+          const isDone=checked[h];
+          return `<div class="role-task-item ${isDone?'checked':''}" onclick="toggleRoleTask('${t.id}')">
+            <div class="role-task-check">${isDone?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+            <span class="role-task-title">${escapeHtml(t.title)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:'<div class="roletasks-col"><h4>📋 我的任务</h4><div class="empty">暂无任务</div></div>';
+
+  // 渲染全员任务（右栏，按员工分组显示）
+  let othersHtml='';
+  if(othersTasks.length||isAdmin){
+    // 构建员工分组数据
+    const employeeMap=new Map();
+    // 1. 先添加所有可见员工（按角色）
+    const visibleUsers=state.users.filter(u=>visibleRoles.includes(getRoleKey(u.role)));
+    visibleUsers.forEach(u=>{
+      const key=u.id;
+      if(!employeeMap.has(key)){
+        employeeMap.set(key,{
+          id:u.id,
+          display_name:u.display_name,
+          role:u.role,
+          roleLabel:ROLE_LABEL[u.role]||u.role,
+          roleClass:ROLE_CLASS[u.role]||'operator',
+          tasks:[]
+        });
+      }
+    });
+    // 2. 添加有 assigned_to 的任务到对应员工
+    allTasks.filter(t=>t.assigned_to).forEach(t=>{
+      const emp=employeeMap.get(t.assigned_to);
+      if(emp) emp.tasks.push(t);
+    });
+    // 3. 添加无 assigned_to 的任务到同岗位所有员工
+    allTasks.filter(t=>!t.assigned_to).forEach(t=>{
+      visibleUsers.filter(u=>getRoleKey(u.role)===t.role).forEach(u=>{
+        const emp=employeeMap.get(u.id);
+        if(emp) emp.tasks.push(t);
+      });
+    });
+    // 4. 渲染每个员工分组
+    const sortedEmps=[...employeeMap.values()].sort((a,b)=>{
+      // 按角色排序：运营在前，客服在后
+      const roleOrder={operator:0,service:1};
+      return (roleOrder[a.role]||0)-(roleOrder[b.role]||0)||a.display_name.localeCompare(b.display_name);
+    });
+    othersHtml=`
+      <div class="roletasks-col" style="grid-column:span 2;">
+        <h4>👥 全员任务 <span class="badge" style="font-size:11px;background:#DBEAFE;color:#1E40AF">${allTasks.length}条任务 · ${sortedEmps.length}人</span></h4>
+        <div class="role-task-list">
+          ${sortedEmps.map(emp=>{
+            const empDone=emp.tasks.filter(t=>checked[taskHash(t)]).length;
+            const empTotal=emp.tasks.length;
+            const canCheck=emp.id===me.id||isAdmin;
+            return `
+            <div class="employee-group">
+              <div class="employee-header">
+                <span class="role-task-cat ${emp.roleClass}">${emp.roleLabel}</span>
+                <span class="employee-name">👤 ${escapeHtml(emp.display_name)}</span>
+                <span class="employee-stats">${empDone}/${empTotal} 已完成</span>
+                ${isAdmin?`<span class="admin-status ${empDone===empTotal?'':'unchecked'}">${empDone===empTotal?'✓ 全部完成':'○ 未完成'}</span>`:''}
+              </div>
+              <div class="role-task-list" style="padding-left:12px;">
+                ${emp.tasks.length?emp.tasks.map(t=>{
+                  const h=taskHash(t);
+                  const isDone=checked[h];
+                  const taskEmpId=t.assigned_to||emp.id;
+                  const isMyTask=taskEmpId===me.id;
+                  return `<div class="role-task-item ${isDone?'checked':''} ${isMyTask?'':'disabled'}"
+                    ${canCheck&&isMyTask?`onclick="toggleRoleTask('${t.id}')"`:''}>
+                    <div class="role-task-check">${isDone?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+                    <span class="role-task-title">${escapeHtml(t.title)}</span>
+                    ${t.assigned_to?`<span class="role-task-cat ${emp.roleClass}" style="font-size:10px">指定</span>`:''}
+                  </div>`;
+                }).join(''):'<div style="font-size:12px;color:var(--ink-3);padding:8px 0">暂无任务</div>'}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+  el.innerHTML=myHtml+(othersHtml||'');
+  // 更新进度卡
+  const done=allTasks.filter(t=>checked[taskHash(t)]).length;
+  const pct=allTasks.length?Math.round(done/allTasks.length*100):0;
+  document.getElementById('rtProgressWrap').innerHTML=`
+    <div class="rt-progress">
+      <div class="rt-label">📊 今日固定任务进度（共 ${allTasks.length} 条，已完成 ${done} 条）</div>
+      <div class="rt-bar"><div class="rt-fill" style="width:${pct}%"></div></div>
+      <div class="rt-text">${done}/${allTasks.length} 已完成 (${pct}%)</div>
+    </div>`;
+}
+async function toggleRoleTask(taskId){
+  const task=state.roleTasks.find(t=>t.id===taskId);
+  if(!task) return;
+  const checked=getCheckedTasks();
+  const h=taskHash(task);
+  if(checked[h]) delete checked[h]; else checked[h]=true;
+  setCheckedTasks(checked);
+  renderRoleTasks();
+  // 更新 sec-today 的进度
+  renderToday();
+}
+
+// ============ 连接 ============
+function renderLinks(){
+  const cl=document.getElementById('commonLinkList');
+  cl.innerHTML=renderLinkItems(state.commonLinks,'common');
+  const ul=document.getElementById('userLinkList');
+  const myUL=state.userLinks.filter(l=>l.user_id===state.currentUser.id);
+  ul.innerHTML=renderLinkItems(myUL,'user');
+}
+function renderLinkItems(list,kind){
+  const isAdmin=state.currentUser.role==='admin';
+  const canEdit=(kind==='common'&&isAdmin)||kind==='user';
+  let h=list.map(l=>`
+    <div class="link-row" onclick="openLink('${escapeHtml(l.url)}')">
+      <span class="cat">${escapeHtml(l.category||'通用')}</span>
+      <a class="anchor" href="${escapeHtml(l.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(l.title)}</a>
+      ${canEdit?`<div class="ops">
+        <button onclick="event.stopPropagation();editLink('${kind}','${l.id}')" title="编辑">✎</button>
+        <button onclick="event.stopPropagation();delLink('${kind}','${l.id}')" title="删除">×</button>
+      </div>`:''}
+    </div>`).join('');
+  if(canEdit){
+    h+=`<div class="link-add-row" onclick="openLinkForm('${kind}')">+ 添加链接</div>`;
+  }
+  return h;
+}
+function openLink(url){window.open(url,'_blank','noopener');}
+async function delLink(kind,id){
+  if(!confirm('确定删除？')) return;
+  await req('DELETE',kind==='common'?'common_links':'user_links',`id=eq.${id}`);
+  await loadAll();
+  renderLinks();
+  if(state.currentUser.role==='admin') renderAdmin();
+  toast('已删除','ok');
+}
+function editLink(kind,id){
+  const table=kind==='common'?'common_links':'user_links';
+  const item=(kind==='common'?state.commonLinks:state.userLinks).find(l=>l.id===id);
+  if(!item) return;
+  openModal('编辑链接',`
+    <div class="form-row"><label>名称</label><input id="lf_t" value="${escapeHtml(item.title)}"></div>
+    <div class="form-row"><label>分类</label><input id="lf_c" value="${escapeHtml(item.category||'')}"></div>
+    <div class="form-row"><label>链接</label><input id="lf_u" value="${escapeHtml(item.url)}"></div>
+  `,async()=>{
+    const title=document.getElementById('lf_t').value.trim();
+    const url=document.getElementById('lf_u').value.trim();
+    const category=document.getElementById('lf_c').value.trim()||'通用';
+    if(!title||!url){toast('名称和链接必填','err');return;}
+    await req('PATCH',table,`id=eq.${id}`,{title,url,category,updated_at:new Date().toISOString()});
+    await loadAll();renderLinks();if(state.currentUser.role==='admin') renderAdmin();closeFormModal();toast('已更新','ok');
+  });
+}
+function openLinkForm(kind){
+  openModal('新增链接',`
+    <div class="form-row"><label>名称</label><input id="lf_t" placeholder="如：日报表"></div>
+    <div class="form-row"><label>分类</label><input id="lf_c" placeholder="如：报表/工具"></div>
+    <div class="form-row"><label>链接</label><input id="lf_u" placeholder="https://..."></div>
+  `,async()=>{
+    const title=document.getElementById('lf_t').value.trim();
+    const url=document.getElementById('lf_u').value.trim();
+    const category=document.getElementById('lf_c').value.trim()||'通用';
+    if(!title||!url){toast('名称和链接必填','err');return;}
+    const table=kind==='common'?'common_links':'user_links';
+    const body={title,url,category,sort:Math.floor(Date.now()/1000)};
+    if(kind==='user') body.user_id=state.currentUser.id;
+    await req('POST',table,body);
+    await loadAll();renderLinks();if(state.currentUser.role==='admin') renderAdmin();closeFormModal();toast('已添加','ok');
+  });
+}
+
+function renderTodos(){
+  const me=state.currentUser;
+  const isAdmin=me.role==='admin';
+  // 显示：个人的 + 通用的 + 其他人的个人待办（管理员可见）
+  const mine=state.todos.filter(t=>t.user_id===me.id||t.visibility==='common'||isAdmin);
+  document.getElementById('todoCount').textContent=mine.filter(t=>t.status!=='done').length;
+  const list=document.getElementById('todoList');
+  if(!mine.length){list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div>暂无待办，点击右上角新增</div></div>';return;}
+  list.innerHTML=mine.map(t=>{
+    const overdue=t.status!=='done'&&t.due_at&&new Date(t.due_at)<new Date();
+    const soon=t.status!=='done'&&t.due_at&&!overdue&&new Date(t.due_at)-new Date()<3600000;
+    const isCommon=t.visibility==='common';
+    const canDelete=isCommon||t.user_id===me.id;
+    return `
+    <div class="row ${t.status}">
+      <div class="check" onclick="toggleTodo('${t.id}')">${t.status==='done'?'✓':''}</div>
+      <div class="body">
+        <div class="title">${escapeHtml(t.title)}${isCommon?' <span class="badge-common">通用</span>':' <span class="badge-personal">个人</span>'}</div>
+        <div class="meta">
+          <span class="pill ${t.priority.toLowerCase()}">${t.priority}</span>
+          <span class="pill">${t.status==='done'?'已完成':t.status==='doing'?'进行中':'待办'}</span>
+          ${t.due_at?`<span class="pill ${overdue?'overdue':soon?'soon':''}">${overdue?'已逾期 ':''}${fmtDT(t.due_at)} (${relTime(t.due_at)})</span>`:''}
+          ${t.note?`<span class="pill">📝 ${escapeHtml(t.note)}</span>`:''}
+          ${!isCommon&&t.user_id!==me.id?`<span class="pill">👤 ${escapeHtml(state.users.find(u=>u.id===t.user_id)?.display_name||'?')}</span>`:''}
+        </div>
+      </div>
+      <div class="ops">
+        ${isAdmin&&isCommon?`<button onclick="delTodo('${t.id}')" class="del">删除</button>`:''}
+        <button onclick="cycleTodo('${t.id}')">${t.status==='todo'?'开始':t.status==='doing'?'完成':'重做'}</button>
+        <button onclick="openTodoForm('${t.id}')">编辑</button>
+        ${canDelete&&!isCommon?`<button class="del" onclick="delTodo('${t.id}')">删除</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+async function toggleTodo(id){
+  const t=state.todos.find(x=>x.id===id);if(!t) return;
+  const newStatus=t.status==='done'?'todo':'done';
+  await req('PATCH','todos',`id=eq.${id}`,{status:newStatus,updated_at:new Date().toISOString()});
+  await loadAll();renderAll();toast(newStatus==='done'?'已完成 ✓':'已恢复','ok');
+}
+async function cycleTodo(id){
+  const t=state.todos.find(x=>x.id===id);if(!t) return;
+  const next=t.status==='todo'?'doing':t.status==='doing'?'done':'todo';
+  await req('PATCH','todos',`id=eq.${id}`,{status:next,updated_at:new Date().toISOString()});
+  await loadAll();renderAll();toast('状态已更新','ok');
+}
+async function delTodo(id){
+  if(!confirm('删除？')) return;
+  await req('DELETE','todos',`id=eq.${id}`);
+  await loadAll();renderAll();toast('已删除','ok');
+}
+function openTodoForm(id){
+  const t=id?state.todos.find(x=>x.id===id):null;
+  const isAdmin=state.currentUser.role==='admin';
+  const isCommon=t?.visibility==='common';
+  openModal(id?'编辑待办':'新增待办',`
+    <div class="form-row"><label>标题</label><input id="tf_t" value="${escapeHtml(t?.title||'')}"></div>
+    <div class="form-row"><label>优先级</label><select id="tf_p"><option value="P0" ${t?.priority==='P0'?'selected':''}>P0 紧急</option><option value="P1" ${t?.priority==='P1'||!t?'selected':''}>P1 重要</option><option value="P2" ${t?.priority==='P2'?'selected':''}>P2 一般</option></select></div>
+    <div class="form-row"><label>截止时间</label><input id="tf_d" type="datetime-local" value="${t?.due_at?new Date(t.due_at).toISOString().slice(0,16):''}"></div>
+    <div class="form-row"><label>提前提醒（分钟）</label><input id="tf_r" type="number" min="0" value="${t?.remind_before_min||5}"></div>
+    <div class="form-row"><label>备注</label><textarea id="tf_n">${escapeHtml(t?.note||'')}</textarea></div>
+    ${isAdmin?`<div class="form-row"><label>可见范围</label><select id="tf_v"><option value="personal" ${(!t||t?.visibility==='personal')?'selected':''}>个人（仅自己可见）</option><option value="common" ${isCommon?'selected':''}>通用（全员可见）</option></select></div>`:''}
+  `,async()=>{
+    const title=document.getElementById('tf_t').value.trim();
+    if(!title){toast('标题必填','err');return;}
+    const body={
+      title,
+      priority:document.getElementById('tf_p').value,
+      due_at:document.getElementById('tf_d').value||null,
+      remind_before_min:parseInt(document.getElementById('tf_r').value)||0,
+      note:document.getElementById('tf_n').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    if(isAdmin){
+      body.visibility=document.getElementById('tf_v').value;
+    }else{
+      body.visibility='personal';
+    }
+    if(t){
+      await req('PATCH','todos',`id=eq.${id}`,body);
+    }else{
+      body.user_id=state.currentUser.id;
+      body.status='todo';
+      await req('POST','todos',body);
+    }
+    await loadAll();renderAll();closeFormModal();toast('已保存','ok');
+  });
+}
+
+function renderMeetings(){
+  const me=state.currentUser;
+  const isAdmin=me.role==='admin';
+  // 显示：个人的 + 通用的 + 其他人的个人会议（管理员可见）
+  const mine=state.meetings.filter(m=>m.user_id===me.id||m.visibility==='common'||isAdmin);
+  document.getElementById('meetingCount').textContent=mine.length;
+  const list=document.getElementById('meetingList');
+  if(!mine.length){list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div>暂无固定会议，点击右上角新增</div></div>';return;}
+  list.innerHTML=mine.map(m=>{
+    const repeatMap={none:'不循环',daily:'每天',weekly:'每周',monthly:'每月'};
+    const soon=m.start_at&&new Date(m.start_at)-new Date()<3600000&&new Date(m.start_at)>new Date();
+    const overdue=m.start_at&&new Date(m.start_at)<new Date();
+    const isCommon=m.visibility==='common';
+    const canDelete=isCommon||m.user_id===me.id;
+    return `
+    <div class="row">
+      <div class="check" style="background:var(--brand-light);border-color:var(--brand);color:var(--brand)">📅</div>
+      <div class="body">
+        <div class="title">${escapeHtml(m.title)}${isCommon?' <span class="badge-common">通用</span>':' <span class="badge-personal">个人</span>'}</div>
+        <div class="meta">
+          <span class="pill">${repeatMap[m.repeat_rule]||'不循环'}</span>
+          <span class="pill ${soon?'soon':overdue?'overdue':''}">${fmtDT(m.start_at)} (${relTime(m.start_at)})</span>
+          <span class="pill">提前 ${m.remind_before_min||10} 分钟提醒</span>
+          ${m.location?`<span class="pill">📍 ${escapeHtml(m.location)}</span>`:''}
+          ${m.attendees?`<span class="pill">👥 ${escapeHtml(m.attendees)}</span>`:''}
+          ${!isCommon&&m.user_id!==me.id?`<span class="pill">👤 ${escapeHtml(state.users.find(u=>u.id===m.user_id)?.display_name||'?')}</span>`:''}
+        </div>
+      </div>
+      <div class="ops">
+        ${isAdmin&&isCommon?`<button onclick="delMeeting('${m.id}')" class="del">删除</button>`:''}
+        <button onclick="openMeetingForm('${m.id}')">编辑</button>
+        ${canDelete&&!isCommon?`<button class="del" onclick="delMeeting('${m.id}')">删除</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+async function delMeeting(id){
+  if(!confirm('删除？')) return;
+  await req('DELETE','meetings',`id=eq.${id}`);
+  await loadAll();renderAll();toast('已删除','ok');
+}
+function openMeetingForm(id){
+  const m=id?state.meetings.find(x=>x.id===id):null;
+  const isAdmin=state.currentUser.role==='admin';
+  const isCommon=m?.visibility==='common';
+  openModal(id?'编辑会议':'新增会议',`
+    <div class="form-row"><label>会议主题</label><input id="mf_t" value="${escapeHtml(m?.title||'')}"></div>
+    <div class="form-row"><label>开始时间</label><input id="mf_d" type="datetime-local" value="${m?.start_at?new Date(m.start_at).toISOString().slice(0,16):''}"></div>
+    <div class="form-row"><label>循环</label><select id="mf_r"><option value="none" ${m?.repeat_rule==='none'||!m?'selected':''}>不循环</option><option value="daily" ${m?.repeat_rule==='daily'?'selected':''}>每天</option><option value="weekly" ${m?.repeat_rule==='weekly'?'selected':''}>每周</option><option value="monthly" ${m?.repeat_rule==='monthly'?'selected':''}>每月</option></select></div>
+    <div class="form-row"><label>提前提醒（分钟）</label><input id="mf_b" type="number" min="0" value="${m?.remind_before_min||10}"></div>
+    <div class="form-row"><label>地点</label><input id="mf_l" value="${escapeHtml(m?.location||'')}"></div>
+    <div class="form-row"><label>参会人</label><input id="mf_a" value="${escapeHtml(m?.attendees||'')}" placeholder="如：张三、李四"></div>
+    <div class="form-row"><label>备注</label><textarea id="mf_n">${escapeHtml(m?.note||'')}</textarea></div>
+    ${isAdmin?`<div class="form-row"><label>可见范围</label><select id="mf_v"><option value="personal" ${(!m||m?.visibility==='personal')?'selected':''}>个人（仅自己可见）</option><option value="common" ${isCommon?'selected':''}>通用（全员可见）</option></select></div>`:''}
+  `,async()=>{
+    const title=document.getElementById('mf_t').value.trim();
+    if(!title){toast('主题必填','err');return;}
+    const body={
+      title,
+      start_at:document.getElementById('mf_d').value?new Date(document.getElementById('mf_d').value).toISOString():null,
+      repeat_rule:document.getElementById('mf_r').value,
+      remind_before_min:parseInt(document.getElementById('mf_b').value)||10,
+      location:document.getElementById('mf_l').value.trim(),
+      attendees:document.getElementById('mf_a').value.trim(),
+      note:document.getElementById('mf_n').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    if(isAdmin){
+      body.visibility=document.getElementById('mf_v').value;
+    }else{
+      body.visibility='personal';
+    }
+    if(m){
+      await req('PATCH','meetings',`id=eq.${id}`,body);
+    }else{
+      body.user_id=state.currentUser.id;
+      await req('POST','meetings',body);
+    }
+    await loadAll();renderAll();closeFormModal();toast('已保存','ok');
+  });
+}
+
+function renderProfile(){}
+async function changeMyPwd(){
+  const oldP=document.getElementById('oldPwd').value;
+  const newP=document.getElementById('newPwd').value;
+  const newP2=document.getElementById('newPwd2').value;
+  if(!oldP||!newP){toast('请填写完整','err');return;}
+  if(newP.length<6){toast('新密码至少 6 位','err');return;}
+  if(newP!==newP2){toast('两次新密码不一致','err');return;}
+  const u=state.users.find(x=>x.id===state.currentUser.id);
+  if(!u||(await hashPwd(oldP))!==u.pass_hash){toast('当前密码错误','err');return;}
+  await req('PATCH','users',`id=eq.${u.id}`,{pass_hash:await hashPwd(newP),pass_hint:'',updated_at:new Date().toISOString()});
+  document.getElementById('oldPwd').value=document.getElementById('newPwd').value=document.getElementById('newPwd2').value='';
+  toast('密码已修改','ok');
+}
+function requestNotifyPerm(silent){
+  if(!('Notification' in window)){if(!silent) toast('当前浏览器不支持通知','err');return;}
+  if(Notification.permission==='granted'){if(!silent) toast('通知已开启','ok');}
+  else if(Notification.permission==='denied'){if(!silent) toast('通知被拒绝，请在浏览器设置中开启','err');}
+  else{Notification.requestPermission().then(p=>{toast(p==='granted'?'通知已开启':'未授权','ok');});}
+}
+
+function renderAdmin(){
+  if(state.currentUser.role!=='admin') return;
+  document.getElementById('userCount').textContent=state.users.length;
+  const ul=document.getElementById('userList');
+  ul.innerHTML=state.users.map(u=>`
+    <div class="user-row">
+      <div class="avatar">${(u.display_name||u.username)[0].toUpperCase()}</div>
+      <div class="body">
+        <div class="uname">${escapeHtml(u.display_name||u.username)} <span style="font-size:11px;color:var(--ink-3);font-weight:normal">@${escapeHtml(u.username)}</span></div>
+        <div class="urole">${escapeHtml(u.pass_hint||'')}<span class="tag ${u.role==='admin'?'admin':u.role==='operator'?'operator':u.role==='service'?'service':''}">${ROLE_LABEL[u.role]||u.role}</span></div>
+      </div>
+      <div class="ops">
+        <button onclick="resetPwd('${u.id}')">重置密码</button>
+        <button onclick="openUserForm('${u.id}')">编辑</button>
+        ${u.id!==state.currentUser.id?`<button class="del" onclick="delUser('${u.id}')">删除</button>`:''}
+      </div>
+    </div>`).join('');
+  const cl=document.getElementById('adminCommonLinkList');
+  cl.innerHTML=renderLinkItems(state.commonLinks,'common');
+  // 渲染角色固定任务管理
+  renderAdminRoleTasks();
+  // 渲染通用待办管理
+  renderAdminCommonTodos();
+  // 渲染通用会议管理
+  renderAdminCommonMeetings();
+}
+function renderAdminRoleTasks(){
+  const rt=document.getElementById('adminRoleTaskList');
+  if(!rt) return;
+  const operators=state.roleTasks.filter(t=>t.role==='operator').sort((a,b)=>a.sort-b.sort);
+  const services=state.roleTasks.filter(t=>t.role==='service').sort((a,b)=>a.sort-b.sort);
+  const renderGroup=(tasks,role,title,color)=>`
+    <div class="rt-group">
+      <h4><span class="role-task-cat ${color}" style="font-size:12px">${title}</span>（共 ${tasks.length} 条）</h4>
+      ${tasks.length?tasks.map(t=>`
+        <div class="rt-edit-row">
+          <span style="font-size:11px;color:var(--ink-3);width:20px">${t.sort}</span>
+          <input class="rt-title-input" value="${escapeHtml(t.title)}" onchange="updateRoleTask('${t.id}','title',this.value)">
+          <button style="font-size:11px;padding:2px 6px;background:var(--red);color:#fff;border-radius:4px" onclick="delRoleTask('${t.id}')">删除</button>
+        </div>`).join(''):'<div style="font-size:12px;color:var(--ink-3);padding:8px">暂无任务</div>'}
+    </div>`;
+  rt.innerHTML=renderGroup(operators,'operator','👨‍💼 运营固定任务','operator')+renderGroup(services,'service','👩‍💼 客服固定任务','service');
+}
+function openRoleTaskForm(role){
+  // 1. 先输入任务内容
+  const title=prompt(`请输入新的【${ROLE_LABEL[role]||role}】固定任务内容：`);
+  if(!title||!title.trim()) return;
+  // 2. 询问是否指定具体员工（可选）
+  const assignOptions=state.users.filter(u=>getRoleKey(u.role)===role).map(u=>`${u.display_name}(${u.username})`).join('\n') || '无';
+  const assignChoice=prompt(`请输入要分配给的具体员工（留空则分配给所有${ROLE_LABEL[role]}）：\n当前${ROLE_LABEL[role]}列表：\n${assignOptions}`, '');
+  // 3. 确定 assigned_to
+  let assigned_to=null;
+  if(assignChoice&&assignChoice.trim()){
+    const targetUser=state.users.find(u=>
+      u.username===assignChoice.trim()||
+      u.display_name===assignChoice.trim()||
+      (u.display_name+'('+u.username+')')===assignChoice.trim()
+    );
+    if(targetUser&&getRoleKey(targetUser.role)===role){
+      assigned_to=targetUser.id;
+    }else{
+      toast('未找到该员工，已分配给全体'+ROLE_LABEL[role],'err');
+    }
+  }
+  // 4. 创建任务
+  const maxSort=state.roleTasks.filter(t=>t.role===role).reduce((m,t)=>Math.max(m,t.sort),0);
+  req('POST','role_tasks',{role,title:title.trim(),sort:maxSort+1,assigned_to}).then(()=>{loadAll();renderAll();toast('已添加','ok');}).catch(e=>toast('添加失败：'+e.message,'err'));
+}
+async function updateRoleTask(id,field,value){
+  await req('PATCH','role_tasks',`id=eq.${id}`,{[field]:value,updated_at:new Date().toISOString()});
+  await loadAll();renderAll();toast('已更新','ok');
+}
+async function delRoleTask(id){
+  if(!confirm('确定删除该固定任务？')) return;
+  await req('DELETE','role_tasks',`id=eq.${id}`);
+  await loadAll();renderAll();toast('已删除','ok');
+}
+function renderAdminCommonTodos(){
+  const el=document.getElementById('adminCommonTodoList');
+  if(!el) return;
+  const commons=state.todos.filter(t=>t.visibility==='common').sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
+  if(!commons.length){el.innerHTML='<div style="font-size:12px;color:var(--ink-3);padding:8px">暂无通用待办</div>';return;}
+  el.innerHTML=commons.map(t=>`
+    <div class="rt-edit-row">
+      <span style="font-size:11px;color:var(--ink-3);width:60px;flex-shrink:0">${t.priority}</span>
+      <span style="flex:1;font-size:13px">${escapeHtml(t.title)}</span>
+      <button style="font-size:11px;padding:2px 6px;background:var(--red);color:#fff;border-radius:4px" onclick="delCommonTodo('${t.id}')">删除</button>
+    </div>`).join('');
+}
+async function delCommonTodo(id){
+  if(!confirm('确定删除该通用待办？')) return;
+  await req('DELETE','todos',`id=eq.${id}`);
+  await loadAll();renderAll();toast('已删除','ok');
+}
+function renderAdminCommonMeetings(){
+  const el=document.getElementById('adminCommonMeetingList');
+  if(!el) return;
+  const commons=state.meetings.filter(m=>m.visibility==='common').sort((a,b)=>(a.start_at||'').localeCompare(b.start_at||''));
+  if(!commons.length){el.innerHTML='<div style="font-size:12px;color:var(--ink-3);padding:8px">暂无通用会议</div>';return;}
+  el.innerHTML=commons.map(m=>`
+    <div class="rt-edit-row">
+      <span style="font-size:11px;color:var(--ink-3);width:80px;flex-shrink:0">${fmtDate(m.start_at)}</span>
+      <span style="flex:1;font-size:13px">${escapeHtml(m.title)}</span>
+      <button style="font-size:11px;padding:2px 6px;background:var(--red);color:#fff;border-radius:4px" onclick="delCommonMeeting('${m.id}')">删除</button>
+    </div>`).join('');
+}
+async function delCommonMeeting(id){
+  if(!confirm('确定删除该通用会议？')) return;
+  await req('DELETE','meetings',`id=eq.${id}`);
+  await loadAll();renderAll();toast('已删除','ok');
+}
+function openUserForm(id){
+  const u=id?state.users.find(x=>x.id===id):null;
+  openModal(id?'编辑用户':'新增用户',`
+    <div class="form-row"><label>登录用户名（不可改）</label><input id="uf_u" value="${escapeHtml(u?.username||'')}" ${u?'disabled':''}></div>
+    <div class="form-row"><label>显示名称</label><input id="uf_n" value="${escapeHtml(u?.display_name||'')}"></div>
+    <div class="form-row"><label>角色</label><select id="uf_r"><option value="user" ${u?.role==='user'||!u?'selected':''}>普通用户</option><option value="operator" ${u?.role==='operator'?'selected':''}>运营</option><option value="service" ${u?.role==='service'?'selected':''}>客服</option><option value="admin" ${u?.role==='admin'?'selected':''}>管理员</option></select></div>
+    ${u?'':'<div class="form-row"><label>初始密码（至少 6 位）</label><input id="uf_p" type="password" placeholder="默认 123456"></div>'}
+  `,async()=>{
+    const username=document.getElementById('uf_u').value.trim();
+    const display_name=document.getElementById('uf_n').value.trim();
+    const role=document.getElementById('uf_r').value;
+    if(!username){toast('用户名必填','err');return;}
+    if(u){
+      await req('PATCH','users',`id=eq.${u.id}`,{display_name,role,updated_at:new Date().toISOString()});
+    }else{
+      const pwd=document.getElementById('uf_p').value||'123456';
+      if(pwd.length<6){toast('密码至少 6 位','err');return;}
+      await req('POST','users',{username,display_name,role,pass_hash:await hashPwd(pwd),pass_hint:'初始密码：'+pwd});
+    }
+    await loadAll();renderAdmin();closeFormModal();toast('已保存','ok');
+  });
+}
+async function resetPwd(id){
+  const newP=prompt('请输入新密码（至少 6 位）','123456');
+  if(!newP) return;
+  if(newP.length<6){toast('密码至少 6 位','err');return;}
+  await req('PATCH','users',`id=eq.${id}`,{pass_hash:await hashPwd(newP),pass_hint:'',updated_at:new Date().toISOString()});
+  await loadAll();renderAdmin();toast('密码已重置','ok');
+}
+async function delUser(id){
+  if(!confirm('确定删除该用户？该用户的待办、会议、个人链接将一并删除')) return;
+  await req('DELETE','users',`id=eq.${id}`);
+  await loadAll();renderAdmin();toast('已删除','ok');
+}
+function openCommonLinkForm(){
+  openLinkForm('common');
+}
+
+// ============ 提醒 ============
+function startReminder(){
+  if(state.reminderTimer) clearInterval(state.reminderTimer);
+  checkReminder();
+  state.reminderTimer=setInterval(checkReminder,30000);
+}
+async function checkReminder(){
+  if(!state.currentUser) return;
+  const me=state.currentUser;
+  const now=Date.now();
+  const todosToRemind=[];
+  state.todos.filter(t=>t.user_id===me.id&&t.status!=='done'&&t.due_at).forEach(t=>{
+    const due=new Date(t.due_at).getTime();
+    const mins=(due-now)/60000;
+    const alreadyReminded=t.reminded_at&&new Date(t.reminded_at).getTime()>due-60000;
+    if(mins<=t.remind_before_min&&mins>=-120&&!alreadyReminded){
+      todosToRemind.push(t);
+    }
+  });
+  for(const t of todosToRemind){
+    await notify('⏰ 待办提醒',`${t.title}\n${fmtDT(t.due_at)}`);
+    await req('PATCH','todos',`id=eq.${t.id}`,{reminded_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+  }
+  const meetingsToRemind=[];
+  state.meetings.filter(m=>m.user_id===me.id&&m.start_at).forEach(m=>{
+    const start=new Date(m.start_at).getTime();
+    const mins=(start-now)/60000;
+    const alreadyReminded=m.reminded_at&&new Date(m.reminded_at).getTime()>start-60000;
+    if(mins<=m.remind_before_min&&mins>=-30&&!alreadyReminded){
+      meetingsToRemind.push(m);
+    }
+  });
+  for(const m of meetingsToRemind){
+    await notify('📅 会议提醒',`${m.title}\n${fmtDT(m.start_at)}${m.location?'\n📍 '+m.location:''}`);
+    await req('PATCH','meetings',`id=eq.${m.id}`,{reminded_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+  }
+  if(todosToRemind.length||meetingsToRemind.length){
+    playDing(); // 单次提醒事件整体连响3声，避免短促漏听
+    await loadAll();renderAll();
+  }
+}
+
+// ============ 同步（强制按钮 + 后台自动） ============
+function setSync(s){
+  const el=document.getElementById('syncState');
+  const txt=document.getElementById('syncText');
+  if(!el) return;
+  el.classList.remove('syncing','err','offline');
+  if(s==='syncing'){el.classList.add('syncing');txt.textContent='同步中…';}
+  else if(s==='err'){el.classList.add('err');txt.textContent='同步失败';}
+  else if(s==='offline'){el.classList.add('offline');txt.textContent='离线';}
+  else {txt.textContent='已同步';}
+}
+let _autoSyncTimer=null;
+async function syncPull(silent){
+  if(!state.currentUser) return;
+  setSync('syncing');
+  try{
+    await loadAll();
+    renderAll();
+    setSync('ok');
+    if(!silent) toast('已同步到云端 ✓','ok');
+  }catch(e){
+    setSync('err');
+    if(!silent) toast('同步失败：'+(e&&e.message?e.message:e),'err');
+    console.error('[同步失败]',e);
+  }
+}
+function manualSync(){return syncPull(false);}
+function startAutoSync(){
+  if(_autoSyncTimer) clearInterval(_autoSyncTimer);
+  _autoSyncTimer=setInterval(()=>{syncPull(true);},30000);
+}
+
+// ============ 弹窗 ============
+function openModal(title,html,onSave){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=html;
+  const btn=document.getElementById('modalSaveBtn');
+  const newBtn=btn.cloneNode(true);btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.addEventListener('click',async()=>{newBtn.disabled=true;try{await onSave();}catch(e){toast('操作失败：'+(e&&e.message?e.message:e),'err');console.error('[表单保存失败]',e);}finally{newBtn.disabled=false;}});
+  document.getElementById('formModal').classList.add('show');
+}
+function closeFormModal(){document.getElementById('formModal').classList.remove('show');}
+document.getElementById('formModal').addEventListener('click',e=>{if(e.target.id==='formModal') closeFormModal();});
+
+// ============ 事件 ============
+document.getElementById('btnLogin').addEventListener('click',doLogin);
+document.getElementById('loginPwd').addEventListener('keypress',e=>{if(e.key==='Enter') doLogin();});
+document.getElementById('btnLogout').addEventListener('click',doLogout);
+document.getElementById('btnSync').addEventListener('click',manualSync);
+document.getElementById('btnAdmin').addEventListener('click',()=>document.getElementById('sec-admin').scrollIntoView({behavior:'smooth'}));
+document.getElementById('btnProfile').addEventListener('click',()=>document.getElementById('sec-profile').scrollIntoView({behavior:'smooth'}));
+// 移动端底部锚点导航
+document.querySelectorAll('.bottomtab .bnav').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const a=el.dataset.anchor;
+    const target=document.getElementById(a);
+    if(target) target.scrollIntoView({behavior:'smooth'});
+  });
+});
+// 滚动高亮底部导航
+window.addEventListener('scroll',()=>{
+  const secs=['sec-today','sec-links','sec-todos','sec-meetings','sec-profile'];
+  let active='sec-today';
+  for(const id of secs){
+    const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<=120) active=id;
+  }
+  document.querySelectorAll('.bottomtab .bnav').forEach(b=>b.classList.toggle('active',b.dataset.anchor===active));
+},{passive:true});
+
+// ============ 启动 ============
+(async function init(){
+  try{
+    await ensureAdmin();
+    await autoLogin();
+  }catch(e){console.error(e);}
+})();
+</script>
+</body>
+</html>
