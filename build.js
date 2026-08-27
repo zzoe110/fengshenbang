@@ -252,10 +252,21 @@ function renderFooter(base) {
     if (it.email) return '<a href="' + it.href + '" data-site-email>' + esc(it.label) + '</a>';
     return '<a href="' + base + it.href + '">' + esc(it.label) + '</a>';
   }).join('');
-  const fl = (SITE.friendLinks && SITE.friendLinks.length)
-    ? '<details class="fl-details"><summary>友情链接</summary><div class="fl-list">' +
+  // 友情链接：下拉 <select>（后台 data/friendlinks.json 可图形管理增删）+ 隐藏 SEO 锚点
+  const flHas = SITE.friendLinks && SITE.friendLinks.length;
+  const flSelect = flHas
+    ? '<select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,\'_blank\',\'noopener\');}">' +
+        '<option value="">友情链接 ▾</option>' +
+        SITE.friendLinks.map(l => '<option value="' + esc(l.url) + '">' + esc(l.name) + '</option>').join('') +
+      '</select>'
+    : '';
+  const flSeo = flHas
+    ? '<div class="fl-seo" aria-hidden="true">' +
         SITE.friendLinks.map(l => '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>').join('') +
-      '</div></details>'
+      '</div>'
+    : '';
+  const flCol = flHas
+    ? '<div class="footer-col footer-friendlinks-col"><h4>友情链接</h4>' + flSelect + flSeo + '</div>'
     : '';
   return '' +
     '<footer class="footer"><div class="container">' +
@@ -267,8 +278,8 @@ function renderFooter(base) {
         '<div class="footer-col"><h4>导航</h4>' + navLinks + '</div>' +
         '<div class="footer-col"><h4>服务</h4>' + svc + '</div>' +
         '<div class="footer-col"><h4>联系</h4>' + con + '</div>' +
+        flCol +
       '</div>' +
-      '<div class="footer-friendlinks">' + fl + '</div>' +
       '<div class="footer-bottom">' +
         '<p>© ' + year + ' ' + esc(SITE.fullName) + ' · ' + esc(SITE.name) + '®注册商标 · All Rights Reserved</p>' +
         '<p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">' + esc(SITE.icp) + '</a></p>' +

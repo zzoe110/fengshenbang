@@ -99,8 +99,8 @@
             '<div class="footer-col"><h4>导航</h4>' + navLinks + '</div>' +
             '<div class="footer-col"><h4>服务</h4>' + serviceLinks + '</div>' +
             '<div class="footer-col"><h4>联系</h4>' + contactLinks + '</div>' +
+            '<div class="footer-col footer-friendlinks-col"><h4>友情链接</h4><div id="footer-friendlinks" class="fl-mount"></div></div>' +
           '</div>' +
-          '<div class="footer-friendlinks" id="footer-friendlinks"></div>' +
           '<div class="footer-bottom">' +
             '<p>© ' + year + ' 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p>' +
             '<p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p>' +
@@ -109,17 +109,33 @@
       '</footer>';
   }
 
-  // 异步加载友情链接并注入页脚（数据来自 data/friendlinks.json，后台可管理增删）
+  // 异步加载友情链接并以「下拉 <select>」注入页脚（数据来自 data/friendlinks.json，后台可图形管理增删）
   function loadFriendLinks(base) {
     fetch(base + 'data/friendlinks.json')
       .then(function (r) { return r.ok ? r.json() : []; })
       .then(function (list) {
         var mount = document.getElementById('footer-friendlinks');
-        if (!mount || !list || !list.length) return;
-        var items = list.map(function (l) {
-          return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>';
-        }).join('');
-        mount.innerHTML = '<details class="fl-details"><summary>友情链接</summary><div class="fl-list">' + items + '</div></details>';
+        if (!mount) return;
+        if (!list || !list.length) {
+          // 无链接时隐藏整列，保持页脚布局整洁
+          var col = mount.closest('.footer-friendlinks-col');
+          if (col) col.style.display = 'none';
+          return;
+        }
+        var select = '<select class="fl-select" aria-label="友情链接" ' +
+          'onchange="var v=this.value; if(v){ window.open(v, \'_blank\', \'noopener\'); }">' +
+          '<option value="">友情链接 ▾</option>' +
+          list.map(function (l) {
+            return '<option value="' + esc(l.url) + '">' + esc(l.name) + '</option>';
+          }).join('') +
+          '</select>';
+        // 隐藏的 SEO 锚点：<select> 的 <option> 不被搜索引擎 / AI 爬虫索引，此处补一组可抓取的 <a>
+        var seo = '<div class="fl-seo" aria-hidden="true">' +
+          list.map(function (l) {
+            return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>';
+          }).join('') +
+          '</div>';
+        mount.innerHTML = select + seo;
       })
       .catch(function () {});
   }

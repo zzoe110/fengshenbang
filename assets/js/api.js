@@ -33,9 +33,9 @@ const API = {
   // 鉴权：返回 { token, username, expireMinutes }
   login: (username, password) => apiSend('/api/login', 'POST', { username, password }),
 
-  // 远程读取静态 JSON。type: services | blog | cases | seo | config
+  // 远程读取静态 JSON。type: services | blog | cases | seo | config | friendlinks
   getRemote: async (type) => {
-    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json', seo: 'seo.json', config: 'config.json' };
+    const fileMap = { services: 'services.json', blog: 'blog.json', cases: 'cases.json', seo: 'seo.json', config: 'config.json', friendlinks: 'friendlinks.json' };
     const file = fileMap[type];
     if (!file) throw new Error('未知数据类型: ' + type);
     const r = await apiGet('/data/' + file);

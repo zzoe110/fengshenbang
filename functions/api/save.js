@@ -1,7 +1,7 @@
 // ============================================
 // POST /api/save
 // 鉴权后将数据写回 GitHub 仓库对应 JSON 文件，触发重新部署
-// body: { type: 'services'|'blog'|'cases'|'seo'|'config', data: [...] }
+// body: { type: 'services'|'blog'|'cases'|'seo'|'config'|'friendlinks', data: [...] }
 // ============================================
 import { jsonResponse, verifyToken, githubWrite, resolveContext } from '../_shared.js';
 
@@ -11,7 +11,9 @@ const TYPE_FILE = {
   cases: 'data/cases.json',
   seo: 'data/seo.json',
   // 站点设置：扁平对象直接写入（与 config.js 读取 /data/config.json 保持一致）
-  config: 'data/config.json'
+  config: 'data/config.json',
+  // 友情链接：扁平数组直接写入（与页脚 fetch /data/friendlinks.json 保持一致）
+  friendlinks: 'data/friendlinks.json'
 };
 
 export async function onRequestPost(request, context) {
@@ -29,7 +31,7 @@ export async function onRequestPost(request, context) {
     const type = body.type;
     const data = body.data;
     if (!type || !TYPE_FILE[type]) {
-      return jsonResponse({ error: '无效的 type（支持：services / blog / cases / seo / config）' }, 400);
+      return jsonResponse({ error: '无效的 type（支持：services / blog / cases / seo / config / friendlinks）' }, 400);
     }
     // seo、config 为对象（非数组），其余类型必须为数组
     if (!Array.isArray(data) && type !== 'seo' && type !== 'config') {
@@ -39,7 +41,7 @@ export async function onRequestPost(request, context) {
     // 3. 写回 GitHub
     // config 为扁平对象，直接写入 /data/config.json（不包 {config:...} 外壳，与前台读取一致）
     // 其余类型结构为 { [type]: data }，与前台读取保持一致
-    const contentStr = (type === 'config')
+    const contentStr = (type === 'config' || type === 'friendlinks')
       ? JSON.stringify(data, null, 2)
       : JSON.stringify({ [type]: data }, null, 2);
     await githubWrite(env, TYPE_FILE[type], contentStr);
