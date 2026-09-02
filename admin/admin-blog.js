@@ -3,15 +3,8 @@ let editingId = null;
 let blogs = [];
 let blogSnapshot = '';
 
-// Markdown 编辑器相关
+// 正文编辑器（FsEditor：所见即所得 ⇄ Markdown 源码 双模式）
 let contentEditor = null;
-let emojiPanel = null;
-let turndownService = null;
-
-const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '😎', '🤩', '🤔', '🙏',
-  '👍', '👏', '💪', '🔥', '✨', '⭐', '💡', '📈', '📉', '🎯',
-  '✅', '❌', '❓', '💰', '🚀', '🎉', '❤️', '🦷', '📝', '⏰',
-  '🤝', '😅', '🥳', '💯', '🌟', '👀', '📌', '📚', '🏆', '🌈'];
 
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
@@ -21,93 +14,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   await loadData();
 });
 
-// 初始化 Markdown 编辑器（EasyMDE）+ HTML→MD 转换器 + emoji 面板
-// 用文字/emoji 直接标注工具栏按钮（不依赖 Font Awesome）
-function labelToolbarIcons() {
-  const map = {
-    'tb-bold': 'B', 'tb-italic': 'I', 'tb-h': 'H', 'tb-quote': '❝',
-    'tb-code': '</>', 'tb-ul': '•≡', 'tb-ol': '1.', 'tb-link': '🔗',
-    'tb-image': '🖼', 'tb-preview': '👁', 'tb-side': '▏▕', 'tb-full': '⛶', 'tb-emoji': '😀'
-  };
-  document.querySelectorAll('.editor-toolbar button').forEach(function (btn) {
-    Object.keys(map).forEach(function (cls) {
-      if (btn.classList.contains(cls)) btn.textContent = map[cls];
-    });
-  });
-}
-
-// 自定义工具栏（不依赖 Font Awesome，图标用文字/emoji 渲染）
-function buildToolbar() {
-  return [
-    { name: 'bold', action: EasyMDE.toggleBold, className: 'tb-ico tb-bold', title: '加粗' },
-    { name: 'italic', action: EasyMDE.toggleItalic, className: 'tb-ico tb-italic', title: '斜体' },
-    { name: 'heading', action: EasyMDE.toggleHeadingSmaller, className: 'tb-ico tb-h', title: '标题' },
-    '|',
-    { name: 'quote', action: EasyMDE.toggleBlockquote, className: 'tb-ico tb-quote', title: '引用' },
-    { name: 'code', action: EasyMDE.toggleCodeBlock, className: 'tb-ico tb-code', title: '代码块' },
-    '|',
-    { name: 'unordered-list', action: EasyMDE.toggleUnorderedList, className: 'tb-ico tb-ul', title: '无序列表' },
-    { name: 'ordered-list', action: EasyMDE.toggleOrderedList, className: 'tb-ico tb-ol', title: '有序列表' },
-    '|',
-    { name: 'link', action: EasyMDE.drawLink, className: 'tb-ico tb-link', title: '链接' },
-    { name: 'image', action: EasyMDE.drawImage, className: 'tb-ico tb-image', title: '图片' },
-    '|',
-    { name: 'preview', action: EasyMDE.togglePreview, className: 'tb-ico tb-preview', title: '预览' },
-    { name: 'side-by-side', action: EasyMDE.toggleSideBySide, className: 'tb-ico tb-side', title: '分屏' },
-    { name: 'fullscreen', action: EasyMDE.toggleFullScreen, className: 'tb-ico tb-full', title: '全屏' },
-    '|',
-    { name: 'emoji', action: toggleEmojiPanel, className: 'tb-ico tb-emoji', title: '插入表情' }
-  ];
-}
-
-// emoji 浮动面板
-function initEmojiPanel() {
-  emojiPanel = document.createElement('div');
-  emojiPanel.className = 'emoji-panel';
-  emojiPanel.style.display = 'none';
-
-  EMOJIS.forEach(function (e) {
-    const span = document.createElement('span');
-    span.className = 'emoji-item';
-    span.textContent = e;
-    span.addEventListener('click', function () {
-      if (contentEditor) contentEditor.codemirror.replaceSelection(e);
-      emojiPanel.style.display = 'none';
-      contentEditor.codemirror.focus();
-    });
-    emojiPanel.appendChild(span);
-  });
-
-  document.body.appendChild(emojiPanel);
-
-  document.addEventListener('click', function (ev) {
-    if (emojiPanel.style.display !== 'none' &&
-      !emojiPanel.contains(ev.target) &&
-      !(ev.target.closest && ev.target.closest('.tb-emoji'))) {
-      emojiPanel.style.display = 'none';
-    }
-  });
-}
-
-function toggleEmojiPanel(editor) {
-  if (!emojiPanel) return;
-  if (emojiPanel.style.display === 'none') {
-    const rect = editor.codemirror.getWrapperElement().getBoundingClientRect();
-    emojiPanel.style.top = (rect.bottom + 6) + 'px';
-    emojiPanel.style.left = rect.left + 'px';
-    emojiPanel.style.display = 'grid';
-  } else {
-    emojiPanel.style.display = 'none';
-  }
-}
-
-// 存储的是 HTML；编辑时转回 Markdown（纯文本/已是 Markdown 则原样返回）
-function toMarkdown(html) {
-  if (/<[a-z][\s\S]*>/i.test(html)) {
-    try { return turndownService.turndown(html); } catch (e) { return html; }
-  }
-  return html;
-}
+// 说明：正文编辑器已升级为 FsEditor（admin/rich-editor.js）。
+// 工具栏、emoji 面板、图片上传、字数统计、源码模式切换均由编辑器内置，无需在此重复实现。
 
 function bindEvents() {
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); logout(); });
@@ -225,31 +133,18 @@ function openModal(id) {
 
   // 3) 弹窗已可见，懒初始化编辑器（首次打开才创建）
   if (!contentEditor) {
-    turndownService = new TurndownService({
-      headingStyle: 'atx',
-      codeBlockStyle: 'fenced',
-      bulletListMarker: '-'
-    });
-    contentEditor = new EasyMDE({
-      element: document.getElementById('f_content'),
-      autoDownloadFontAwesome: false,
-      spellChecker: false,
+    contentEditor = FsEditor.create('f_content', {
+      format: 'markdown',          // 源码模式为 Markdown，与原存储格式一致
       minHeight: '340px',
-      toolbar: buildToolbar(),
-      status: false,
-      placeholder: '支持 Markdown 语法，可实时预览；也可直接书写 HTML。点击 😀 插入表情。'
+      placeholder: '正文内容。可直接在上面可视化排版；点 </> 可切换到 Markdown 源码模式。支持粘贴/拖拽截图。',
+      onChange: function () { autoSaveBlogDraft(); }
     });
-    labelToolbarIcons();
-    initEmojiPanel();
-    if (contentEditor && contentEditor.codemirror) {
-      contentEditor.codemirror.on('change', autoSaveBlogDraft);
-    }
   }
 
   // 4) 编辑器就绪后填充正文
   if (id) {
     const blog = blogs.find(b => b.id === id);
-    if (blog && contentEditor) contentEditor.value(toMarkdown(blog.content || ''));
+    if (blog && contentEditor) contentEditor.value(toEditorSource(blog.content || ''));
   } else {
     if (contentEditor) contentEditor.value('');
     // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
@@ -260,18 +155,15 @@ function openModal(id) {
     }
   }
 
-  // 安全网：创建后强制刷新一次 CodeMirror 布局（此时弹窗已可见）
-  if (contentEditor) refreshEditor(contentEditor);
   blogSnapshot = collectBlogForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
 }
 
-// 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
-function refreshEditor(editor) {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      try { editor.codemirror.refresh(); } catch (e) {}
-    });
-  });
+// 兼容历史数据：早期正文可能存成 HTML，统一转成 Markdown 源码再交给编辑器；
+// 已是 Markdown / 纯文本则原样返回。
+function toEditorSource(content) {
+  if (!content) return '';
+  if (!/<[a-z][\s\S]*>/i.test(content)) return content;
+  try { return FsEditor.htmlToMd(content); } catch (e) { return content; }
 }
 
 // 收集博客表单数据（用于脏检测与草稿）

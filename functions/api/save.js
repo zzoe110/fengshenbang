@@ -3,7 +3,7 @@
 // 鉴权后将数据写回 GitHub 仓库对应 JSON 文件，触发重新部署
 // body: { type: 'services'|'blog'|'cases'|'seo'|'config'|'friendlinks', data: [...] }
 // ============================================
-import { jsonResponse, verifyToken, githubWrite, resolveContext } from '../_shared.js';
+import { jsonResponse, verifyToken, githubWrite, resolveContext, sanitizeRecords } from '../_shared.js';
 
 const TYPE_FILE = {
   services: 'data/services.json',
@@ -14,6 +14,16 @@ const TYPE_FILE = {
   config: 'data/config.json',
   // 友情链接：扁平数组直接写入（与页脚 fetch /data/friendlinks.json 保持一致）
   friendlinks: 'data/friendlinks.json'
+};
+
+// 各类型需要服务端最终消毒的「富文本字段」（防存储型 XSS，参考万盈后台做法）
+// 说明：cases/services 的 summary 是 WYSIWYG 产出的 HTML，是最主要的 XSS 攻击面；
+// blog.summary 同理。blog.content 是 Markdown 格式，HTML 消毒器会把正常的「a < b」
+// 误判为标签而破坏正文，故只对 blog.summary 消毒（content 由编辑器客户端已消毒）。
+const RICH_FIELDS = {
+  blog: ['summary'],
+  cases: ['summary'],
+  services: ['summary']
 };
 
 export async function onRequestPost(request, context) {
@@ -38,7 +48,12 @@ export async function onRequestPost(request, context) {
       return jsonResponse({ error: 'data 必须是数组' }, 400);
     }
 
-    // 3. 写回 GitHub
+    // 3. 富文本字段服务端消毒（最终防线，防存储型 XSS，落库前必经）
+    if (Array.isArray(data) && RICH_FIELDS[type]) {
+      data = sanitizeRecords(data, RICH_FIELDS[type]);
+    }
+
+    // 4. 写回 GitHub
     // config 为扁平对象，直接写入 /data/config.json（不包 {config:...} 外壳，与前台读取一致）
     // 其余类型结构为 { [type]: data }，与前台读取保持一致
     const contentStr = (type === 'config' || type === 'friendlinks')

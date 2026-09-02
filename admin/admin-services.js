@@ -130,19 +130,18 @@ function openModal(id) {
 
   // 3) 弹窗已可见，懒初始化编辑器（首次打开才创建）
   if (!serviceEditor) {
-    serviceEditor = MarkdownEditor.create('f_summary', {
+    serviceEditor = FsEditor.create('f_summary', {
+      format: 'html',           // 业务简介沿用 HTML 存储，与原数据一致
       minHeight: '240px',
-      placeholder: '业务简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+      placeholder: '业务简介。可直接可视化排版；点 </> 切到 HTML 源码模式；支持粘贴/拖拽截图。',
+      onChange: function () { autoSaveServiceDraft(); }
     });
-    if (serviceEditor && serviceEditor.codemirror) {
-      serviceEditor.codemirror.on('change', autoSaveServiceDraft);
-    }
   }
 
   // 4) 编辑器就绪后填充正文
   if (id) {
     const svc = services.find(s => s.id === id);
-    if (svc && serviceEditor) serviceEditor.value(MarkdownEditor.toMd(svc.summary || ''));
+    if (svc && serviceEditor) serviceEditor.value(svc.summary || '');
   } else {
     if (serviceEditor) serviceEditor.value('');
     // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
@@ -153,18 +152,7 @@ function openModal(id) {
     }
   }
 
-  // 安全网：创建后强制刷新一次 CodeMirror 布局（此时弹窗已可见）
-  if (serviceEditor) refreshEditor(serviceEditor);
   serviceSnapshot = collectServiceForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
-}
-
-// 等弹窗显示并完成布局后再刷新 CodeMirror（安全网，懒初始化后一般不需要）
-function refreshEditor(editor) {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      try { editor.codemirror.refresh(); } catch (e) {}
-    });
-  });
 }
 
 function closeModal(skipConfirm) {
@@ -191,7 +179,7 @@ async function saveService() {
     title: document.getElementById('f_title').value.trim(),
     subtitle: document.getElementById('f_subtitle').value.trim(),
     icon: document.getElementById('f_icon').value.trim() || '🎯',
-    summary: MarkdownEditor.toHtml(serviceEditor ? serviceEditor.value() : document.getElementById('f_summary').value),
+    summary: serviceEditor ? serviceEditor.value() : val('f_summary'),
     features: document.getElementById('f_features').value.split('\n').map(s => s.trim()).filter(Boolean),
     caseCount: parseInt(document.getElementById('f_caseCount').value) || 0,
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]

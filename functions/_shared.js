@@ -167,6 +167,130 @@ export async function githubWrite(env, filePath, contentStr) {
   return githubPut(env, filePath, utf8ToBase64(contentStr));
 }
 
+// ============================================
+// 6. 富文本 HTML 白名单消毒（服务端最终防线）
+// --------------------------------------------
+// 背景：后台富文本编辑器产出的是 HTML，落库后前台会「原样渲染」。
+// 若有人在源码模式里贴入 <script>、onerror=、javascript: 等，
+// 就会被存进 data/*.json 并在访客浏览器执行 —— 这是存储型 XSS。
+// 客户端编辑器已做第一道消毒，但那只是体验层（可被绕过），
+// 本函数是服务端最终防线，落库前必须过一遍。
+//
+// 约束：EdgeOne Functions 是纯 V8 环境，没有 DOM，只能用正则实现。
+// ============================================
+
+const ALLOWED_TAGS = new Set(['p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'del', 'ins', 'sub', 'sup',
+  'ul', 'ol', 'li', 'a', 'img', 'span', 'div', 'blockquote', 'pre', 'code',
+  'hr', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
+  'figure', 'figcaption']);
+
+// 整块（含内部内容）移除的危险元素
+const DROP_BLOCK = ['script', 'style', 'iframe', 'object', 'embed', 'svg',
+  'math', 'template', 'noscript', 'form', 'input', 'button', 'select',
+  'textarea', 'link', 'meta', 'base', 'frame', 'frameset', 'applet'];
+
+const ALLOWED_ATTR = new Set(['href', 'src', 'alt', 'title', 'width', 'height',
+  'target', 'rel', 'colspan', 'rowspan', 'class', 'id', 'style', 'loading', 'dir']);
+
+function isSafeUrl(v) {
+  const s = String(v).trim().toLowerCase();
+  // 允许：http(s)、mailto、tel、站内相对路径、锚点、图片 base64
+  if (/^(https?:\/\/|mailto:|tel:|\/|#|\.\/|\.\.\/)/.test(s)) return true;
+  if (/^data:image\/(png|jpe?g|gif|webp|avif);base64,[a-z0-9+/=\s]+$/i.test(s)) return true;
+  return false;
+}
+
+function escapeAttr(v) {
+  return String(v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function sanitizeAttrs(tag, attrStr) {
+  if (!attrStr) return '';
+  const out = [];
+  // 匹配 name="value" / name='value' / name=value
+  const re = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'`=<>]+))/g;
+  let m;
+  while ((m = re.exec(attrStr)) !== null) {
+    const name = m[1].toLowerCase();
+    const val = m[3] !== undefined ? m[3] : (m[4] !== undefined ? m[4] : (m[5] || ''));
+
+    if (name.indexOf('on') === 0) continue;               // 事件属性一律丢弃
+    if (!ALLOWED_ATTR.has(name)) continue;                // 非白名单属性丢弃
+
+    // style 内禁止 JS 表达式
+    if (name === 'style') {
+      const sv = String(val);
+      if (/javascript:|expression\(|url\s*\(\s*['"]?\s*javascript:/i.test(sv)) continue;
+      out.push('style="' + escapeAttr(sv) + '"');
+      continue;
+    }
+
+    // 链接/资源协议白名单
+    if (name === 'href' || name === 'src') {
+      if (!isSafeUrl(val)) continue;
+    }
+
+    out.push(name + '="' + escapeAttr(val) + '"');
+  }
+
+  // 外链强制加 rel，防反向标签页劫持
+  if (tag === 'a') {
+    const hasRel = out.some(a => a.indexOf('rel=') === 0);
+    if (!hasRel) out.push('rel="noopener"');
+  }
+  return out.length ? ' ' + out.join(' ') : '';
+}
+
+export function sanitizeHtml(input) {
+  if (typeof input !== 'string' || !input) return '';
+  let html = input;
+
+  // 1) 去掉 HTML 注释
+  html = html.replace(/<!--[\s\S]*?-->/g, '');
+
+  // 2) 整块移除危险元素（含其内部内容）
+  for (const t of DROP_BLOCK) {
+    html = html.replace(new RegExp('<\\s*' + t + '\\b[\\s\\S]*?<\\s*\\/\\s*' + t + '\\s*>', 'gi'), '');
+    html = html.replace(new RegExp('<\\s*\\/?\\s*' + t + '\\b[^>]*>', 'gi'), '');
+  }
+
+  // 3) 标签白名单 + 属性白名单
+  //    不在白名单的标签：只删标签本身、保留文字内容，避免内容丢失
+  html = html.replace(/<\s*(\/)?\s*([a-zA-Z][a-zA-Z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)\s*(\/)?>/g,
+    function (m, close, tag, attrs, selfClose) {
+      const t = String(tag).toLowerCase();
+      if (!ALLOWED_TAGS.has(t)) return '';
+      if (close) return '</' + t + '>';
+      const clean = sanitizeAttrs(t, attrs);
+      return '<' + t + clean + (selfClose ? ' />' : '>');
+    });
+
+  // 4) 兜底：清掉可能残留在纯文本里的事件属性与伪协议
+  html = html.replace(/\son[a-zA-Z-]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  html = html.replace(/javascript:/gi, '');
+
+  return html;
+}
+
+// 递归消毒：对数组/对象里指定的富文本字段做消毒
+// richFields: ['content'] 表示对数组中每个元素的 .content 字段消毒
+export function sanitizeRecords(data, richFields) {
+  if (!Array.isArray(data) || !richFields || !richFields.length) return data;
+  return data.map(function (item) {
+    if (!item || typeof item !== 'object') return item;
+    const copy = Object.assign({}, item);
+    richFields.forEach(function (f) {
+      if (typeof copy[f] === 'string') copy[f] = sanitizeHtml(copy[f]);
+    });
+    return copy;
+  });
+}
+
 // 兼容多种 Pages Functions 调用约定，尽可能拿到 request 与 env：
 //   - 单参数 context 风格（Cloudflare/EdgeOne 推荐）：onRequest(context) -> context.request / context.env
 //   - 双参数风格：onRequest(request, envOrContext)，第二参可能是 env 对象本身，也可能是 { env }

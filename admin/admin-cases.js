@@ -7,8 +7,7 @@ let caseSnapshot = '';
 document.addEventListener('DOMContentLoaded', async function () {
   checkAuth();
   bindEvents();
-  // 编辑器改为懒初始化：不在页面加载时创建（此时弹窗 display:none 会导致
-  // EasyMDE/CodeMirror 隐藏容器初始化塌陷），而是首次打开弹窗时再创建。
+  // 编辑器（FsEditor）懒初始化：首次打开弹窗时才创建，避免不必要的初始化开销。
   await DataStore.hydrateSEO();
   await loadData();
 });
@@ -134,19 +133,18 @@ function openModal(id) {
 
   // 3) 弹窗已可见，懒初始化编辑器（首次打开才创建）
   if (!caseEditor) {
-    caseEditor = MarkdownEditor.create('f_summary', {
+    caseEditor = FsEditor.create('f_summary', {
+      format: 'html',           // 案例简介沿用 HTML 存储，与原数据一致
       minHeight: '240px',
-      placeholder: '案例简介，支持 Markdown 语法，可实时预览，点击工具栏 😀 插入表情。'
+      placeholder: '案例简介。可直接可视化排版；点 </> 切到 HTML 源码模式；支持粘贴/拖拽截图。',
+      onChange: function () { autoSaveCaseDraft(); }
     });
-    if (caseEditor && caseEditor.codemirror) {
-      caseEditor.codemirror.on('change', autoSaveCaseDraft);
-    }
   }
 
   // 4) 编辑器就绪后填充正文
   if (id) {
     const c = cases.find(x => x.id === id);
-    if (c && caseEditor) caseEditor.value(MarkdownEditor.toMd(c.summary || ''));
+    if (c && caseEditor) caseEditor.value(c.summary || '');
   } else {
     if (caseEditor) caseEditor.value('');
     // 新增：自动恢复上次未保存的草稿（防误关/刷新清零）
@@ -157,18 +155,7 @@ function openModal(id) {
     }
   }
 
-  // 安全网：创建后强制刷新一次 CodeMirror 布局（此时弹窗已可见）
-  if (caseEditor) refreshEditor(caseEditor);
   caseSnapshot = collectCaseForm(); // 记录初始快照（填充+恢复草稿后），用于"未保存确认"脏检测
-}
-
-// 等弹窗显示并完成布局后再刷新 CodeMirror，修复隐藏初始化导致的编辑区塌陷
-function refreshEditor(editor) {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      try { editor.codemirror.refresh(); } catch (e) {}
-    });
-  });
 }
 
 // 收集案例表单数据（用于脏检测与草稿）
@@ -247,7 +234,7 @@ async function saveCase() {
     client: document.getElementById('f_client').value.trim(),
     industry: document.getElementById('f_industry').value.trim(),
     serviceId: document.getElementById('f_serviceId').value,
-    summary: MarkdownEditor.toHtml(caseEditor ? caseEditor.value() : document.getElementById('f_summary').value),
+    summary: caseEditor ? caseEditor.value() : val('f_summary'),
     metrics,
     publishDate: document.getElementById('f_publishDate').value || new Date().toISOString().split('T')[0]
   };
