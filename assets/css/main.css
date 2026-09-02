@@ -438,6 +438,14 @@ button {
   display: inline-block;
   filter: drop-shadow(0 0 12px rgba(184, 146, 74, 0.4));
 }
+/* 业务图标支持图片（后台可上传图片图标，URL 模式） */
+.service-icon img, .service-detail-icon img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 16px;
+  filter: none;
+}
 
 .service-title {
   font-size: var(--fs-2xl);

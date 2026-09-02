@@ -218,7 +218,7 @@ async function loadServices() {
 
     grid.innerHTML = services.map((svc, i) => `
       <article class="service-card fade-in fade-in-delay-${(i % 6) + 1}" data-id="${svc.id}">
-        <div class="service-icon">${svc.icon}</div>
+        <div class="service-icon">${svc.icon && (/^https?:\/\//i.test(svc.icon) || svc.icon.charAt(0) === '/') ? '<img src="' + svc.icon.replace(/"/g, '%22') + '" alt="" class="service-icon-img">' : (svc.icon || '')}</div>
         <h3 class="service-title">${svc.title}</h3>
         <div class="service-subtitle">${svc.subtitle}</div>
         <div class="service-summary">${svc.summary}</div>

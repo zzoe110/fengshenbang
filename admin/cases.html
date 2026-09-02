@@ -139,7 +139,16 @@
         </div>
         <div class="form-group">
           <label class="form-label">OG 分享图</label>
-          <input type="text" class="form-input" id="f_seo_ogImage" placeholder="分享图URL">
+          <div class="fsb-img" data-input="f_seo_ogImage">
+            <div class="fsb-img-prev"></div>
+            <div class="fsb-img-row">
+              <button type="button" class="fsb-img-btn">📤 上传图片</button>
+              <button type="button" class="fsb-img-clear">清除</button>
+              <span class="fsb-img-name"></span>
+            </div>
+            <input type="file" accept="image/*" class="fsb-img-file" hidden>
+            <input type="text" class="form-input" id="f_seo_ogImage" placeholder="https://… 或 /assets/uploads/xxx.jpg（可直接上传，也可粘贴外链）">
+          </div>
         </div>
         <div class="seo-badge" id="seoScoreBadge">SEO 评分: 0</div>
       </div>
@@ -159,6 +168,7 @@
   <script src="../assets/vendor/turndown.min.js"></script>
   <script src="rich-editor.js"></script>
   <script src="admin.js"></script>
+  <script src="image-field.js"></script>
   <script src="admin-cases.js"></script>
   <script src="../assets/js/analytics.js"></script>
 </body>

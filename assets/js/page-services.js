@@ -20,7 +20,7 @@ async function renderServicesDetail() {
   list.innerHTML = services.map((svc, i) => `
     <article class="service-detail fade-in fade-in-delay-${(i % 6) + 1}" id="${svc.id}">
       <div class="service-detail-header">
-        <div class="service-detail-icon">${svc.icon}</div>
+        <div class="service-detail-icon">${svc.icon && (/^https?:\/\//i.test(svc.icon) || svc.icon.charAt(0) === '/') ? '<img src="' + svc.icon.replace(/"/g, '%22') + '" alt="" class="service-icon-img">' : (svc.icon || '')}</div>
         <div class="service-detail-info">
           <h2 class="service-detail-title">${svc.title}</h2>
           <div class="service-detail-subtitle">${svc.subtitle}</div>

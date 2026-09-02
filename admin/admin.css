@@ -1158,3 +1158,45 @@ body {
   .fsb-ed-select { height: 25px; font-size: 11px; }
   .fsb-ed-emoji { width: 260px; grid-template-columns: repeat(8, 1fr); }
 }
+
+/* ============ 图片上传字段组件（封面图 / 图标 / OG 分享图）============ */
+.fsb-img { display: flex; flex-direction: column; gap: 8px; }
+.fsb-img-prev {
+  width: 100%;
+  min-height: 56px;
+  max-height: 220px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+.fsb-img-prev.has img { max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); object-fit: contain; }
+.fsb-img-prev.has .fsb-img-emoji { font-size: 2.4rem; line-height: 1; }
+.fsb-img-ph { color: var(--color-text-secondary); font-size: 13px; opacity: 0.7; }
+.fsb-img-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fsb-img-btn, .fsb-img-clear {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid var(--color-gold-primary);
+  background: transparent;
+  color: var(--color-gold-secondary);
+  transition: all 0.15s ease;
+}
+.fsb-img-btn:hover, .fsb-img-clear:hover { background: rgba(184, 146, 74, 0.14); }
+.fsb-img-clear { border-color: var(--color-border); color: var(--color-text-secondary); }
+.fsb-img-clear:hover { color: #b3261e; border-color: #b3261e; }
+.fsb-img-name {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}

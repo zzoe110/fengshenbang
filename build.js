@@ -150,6 +150,7 @@ const CASE_STYLE = `
 const ARTICLE_STYLE = `
     .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
     .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+    .article-cover { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 2rem; background: var(--color-bg-secondary); }
     .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
     .article-back:hover { color: var(--color-gold-highlight); }
     .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
@@ -435,6 +436,7 @@ function renderBlogPage(item) {
 
   <main class="article-container">
     <a href="${base}blog.html" class="article-back">← 返回博客列表</a>
+    ${item.coverImage ? '<img class="article-cover" src="' + toAbs(item.coverImage) + '" alt="' + esc(item.title) + '">' : ''}
     <article>
       <div class="article-header">
         <span class="article-category ${esc(item.category || 'tech')}">${catLabel}</span>

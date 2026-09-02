@@ -92,8 +92,17 @@
           <input type="text" class="form-input" id="f_subtitle" placeholder="例如：Brand Operations">
         </div>
         <div class="form-group">
-          <label class="form-label">图标（Emoji 或图片URL）</label>
-          <input type="text" class="form-input" id="f_icon" placeholder="例如：🏛️">
+          <label class="form-label">图标（Emoji 或上传图片）</label>
+          <div class="fsb-img" data-input="f_icon">
+            <div class="fsb-img-prev"></div>
+            <div class="fsb-img-row">
+              <button type="button" class="fsb-img-btn">📤 上传图片图标</button>
+              <button type="button" class="fsb-img-clear">清除</button>
+              <span class="fsb-img-name"></span>
+            </div>
+            <input type="file" accept="image/*" class="fsb-img-file" hidden>
+            <input type="text" class="form-input" id="f_icon" placeholder="例如：🏛️（或上传图片自动填 URL）">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">业务简介（支持 Markdown / HTML，实时预览）</label>
@@ -131,8 +140,17 @@
           <input type="text" class="form-input" id="f_seo_keywords" placeholder="关键词1,关键词2,关键词3">
         </div>
         <div class="form-group">
-          <label class="form-label">OG 分享图（URL）</label>
-          <input type="text" class="form-input" id="f_seo_ogImage" placeholder="社交分享时的图片URL">
+          <label class="form-label">OG 分享图</label>
+          <div class="fsb-img" data-input="f_seo_ogImage">
+            <div class="fsb-img-prev"></div>
+            <div class="fsb-img-row">
+              <button type="button" class="fsb-img-btn">📤 上传图片</button>
+              <button type="button" class="fsb-img-clear">清除</button>
+              <span class="fsb-img-name"></span>
+            </div>
+            <input type="file" accept="image/*" class="fsb-img-file" hidden>
+            <input type="text" class="form-input" id="f_seo_ogImage" placeholder="https://… 或 /assets/uploads/xxx.jpg（可直接上传，也可粘贴外链）">
+          </div>
         </div>
         <div class="seo-badge" id="seoScoreBadge">SEO 评分: 0</div>
       </div>
@@ -152,6 +170,7 @@
   <script src="../assets/vendor/turndown.min.js"></script>
   <script src="rich-editor.js"></script>
   <script src="admin.js"></script>
+  <script src="image-field.js"></script>
   <script src="admin-services.js"></script>
   <script src="../assets/js/analytics.js"></script>
 </body>
