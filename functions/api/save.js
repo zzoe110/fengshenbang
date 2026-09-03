@@ -40,7 +40,7 @@ export async function onRequestPost(request, context) {
     // 2. 解析参数
     const body = await req.json().catch(() => ({}));
     const type = body.type;
-    const data = body.data;
+    let data = body.data;
     if (!type || !TYPE_FILE[type]) {
       return jsonResponse({ error: '无效的 type（支持：services / blog / cases / seo / config / friendlinks）' }, 400);
     }
