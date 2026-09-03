@@ -4,6 +4,7 @@
 // body: { type: 'services'|'blog'|'cases'|'seo'|'config'|'friendlinks', data: [...] }
 // ============================================
 import { jsonResponse, verifyToken, githubWrite, resolveContext, sanitizeRecords } from '../_shared.js';
+// redeploy-nudge 2026-09-03（触发 EdgeOne 重新构建函数，使 /api/save 上线）
 
 const TYPE_FILE = {
   services: 'data/services.json',

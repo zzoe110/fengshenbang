@@ -95,6 +95,19 @@
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    // 统一把保存失败的原因显示出来（之前静默吞错，导致「保存不了」却无任何提示）
+    function flShowErr(e) {
+      var msg = (e && e.message) ? e.message : String(e);
+      if (/401/.test(msg)) {
+        tip.textContent = '登录已过期，请重新登录后再保存。';
+      } else if (/404/.test(msg)) {
+        tip.textContent = '保存接口未部署（/api/save 返回 404）：需到 EdgeOne 控制台重新部署函数，或等待本次推送生效后重试。';
+      } else {
+        tip.textContent = '保存失败：' + msg;
+      }
+      tip.style.color = '#e74c3c';
+    }
+
     function render(list) {
       if (!list || !list.length) {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-text-muted);padding:1.5rem;">暂无友情链接，请在上方添加。</td></tr>';
@@ -109,11 +122,17 @@
       }).join('');
       tbody.querySelectorAll('[data-i]').forEach(function (b) {
         b.addEventListener('click', async function () {
-          var idx = +this.getAttribute('data-i');
-          var cur = await DataStore.getFriendLinks() || [];
-          cur.splice(idx, 1);
-          await DataStore.saveFriendLinks(cur);
-          await load();
+          try {
+            var idx = +this.getAttribute('data-i');
+            var cur = await DataStore.getFriendLinks() || [];
+            cur.splice(idx, 1);
+            await DataStore.saveFriendLinks(cur);
+            tip.textContent = '已删除并保存。';
+            tip.style.color = '';
+            await load();
+          } catch (e) {
+            flShowErr(e);
+          }
         });
       });
     }
@@ -136,14 +155,29 @@
         tip.style.color = '#e74c3c';
         return;
       }
-      var cur = await DataStore.getFriendLinks() || [];
-      cur.push({ name: name, url: url });
-      await DataStore.saveFriendLinks(cur);
-      nameI.value = '';
-      urlI.value = '';
-      tip.textContent = '已添加，已自动保存并上线。';
+      addBtn.disabled = true;
+      tip.textContent = '保存中…';
       tip.style.color = '';
-      await load();
+      try {
+        var cur = await DataStore.getFriendLinks() || [];
+        // 去重：同名或同链接不重复添加
+        if (cur.some(function (l) { return l.name === name || l.url === url; })) {
+          tip.textContent = '该链接已存在，未重复添加。';
+          tip.style.color = '#e67e22';
+          return;
+        }
+        cur.push({ name: name, url: url });
+        await DataStore.saveFriendLinks(cur);
+        nameI.value = '';
+        urlI.value = '';
+        tip.textContent = '已添加，已写入仓库，约 1-2 分钟后全站生效。';
+        tip.style.color = '';
+        await load();
+      } catch (e) {
+        flShowErr(e);
+      } finally {
+        addBtn.disabled = false;
+      }
     });
 
     load();

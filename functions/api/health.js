@@ -3,6 +3,7 @@
 // 部署后可访问该地址验证函数是否正常工作
 // ============================================
 import { jsonResponse, resolveContext } from '../_shared.js';
+// redeploy-nudge 2026-09-03（触发 EdgeOne 重新构建函数，使 /api/health 上线）
 
 export async function onRequestGet(request, context) {
   const { env } = resolveContext(request, context);

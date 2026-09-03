@@ -5,6 +5,7 @@
 // 限制：仅 PNG/JPEG/WebP/GIF，解码后 ≤ 2MB
 // ============================================
 import { jsonResponse, verifyToken, githubPut, bytesToBase64, resolveContext } from '../_shared.js';
+// redeploy-nudge 2026-09-03（触发 EdgeOne 重新构建函数，使 /api/upload 上线）
 
 const ALLOWED = {
   'image/png': 'png',
