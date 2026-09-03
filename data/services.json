@@ -96,5 +96,22 @@
       "caseCount": 24,
       "publishDate": "2026-06-29"
     }
+    ,
+    {
+      "id": "foreign-trade",
+      "title": "外贸出海数字基建",
+      "subtitle": "Global Trade Digital",
+      "summary": "外贸独立站建站、独立企业邮箱、谷歌SEO与海外GEO（AI搜索）优化，四件套打通从「被找到」到「被信任」的出海数字地基。",
+      "icon": "🌐",
+      "color": "#b8924a",
+      "features": [
+        "外贸独立站建站（多语言/响应式）",
+        "独立企业邮箱（专属域名/多人收发）",
+        "谷歌SEO（收录/关键词/技术优化）",
+        "海外GEO优化（AI搜索内容布局）"
+      ],
+      "caseCount": 1,
+      "publishDate": "2026-09-03"
+    }
   ]
 }

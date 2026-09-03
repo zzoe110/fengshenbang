@@ -37,7 +37,8 @@
     { label: '企业品牌运营', href: 'services.html#brand-operations' },
     { label: '口腔运营',     href: 'services.html#dental-operations' },
     { label: '口腔GEO',      href: 'services.html#dental-geo' },
-    { label: 'AI落地赋能',    href: 'services.html#ai-empowerment' }
+    { label: 'AI落地赋能',    href: 'services.html#ai-empowerment' },
+    { label: '外贸出海',    href: 'services.html#foreign-trade' }
   ];
 
   // 根据当前页面位置推算相对基准路径（支持子目录如 tool/）

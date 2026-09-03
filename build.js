@@ -42,7 +42,8 @@ const SITE = {
     { label: '企业品牌运营', href: 'services.html#brand-operations' },
     { label: '口腔运营', href: 'services.html#dental-operations' },
     { label: '口腔GEO', href: 'services.html#dental-geo' },
-    { label: 'AI落地赋能', href: 'services.html#ai-empowerment' }
+    { label: 'AI落地赋能', href: 'services.html#ai-empowerment' },
+    { label: '外贸出海', href: 'services.html#foreign-trade' }
   ],
   footerContact: [
     { label: '邮箱咨询', href: 'mailto:contact@fengshenbang.com', email: true },
