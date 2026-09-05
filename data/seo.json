@@ -98,8 +98,7 @@
         "ogImage": ""
       },
       "updatedAt": 1787393743484
-    }
-    ,
+    },
     "case_wanying-metal": {
       "data": {
         "title": "万盈五金外贸出海案例：外贸独立站+企业邮箱+海外SEO/GEO全链路 | 外行澯烽哥",
@@ -108,8 +107,7 @@
         "ogImage": ""
       },
       "updatedAt": 1788425180140
-    }
-    ,
+    },
     "case_jinghong-pins": {
       "data": {
         "title": "东莞景渱模具厂外贸升级：jinghongpins.com 独立站+四件套全上线 | 外行澯烽哥",
@@ -118,6 +116,15 @@
         "ogImage": ""
       },
       "updatedAt": 1788425180140
+    },
+    "blog_kouqiang-geo-5steps": {
+      "data": {
+        "title": "口腔GEO第一人公开的五步自查法：你的机构在AI里交白卷了吗？| 外行澯烽哥",
+        "description": "患者直接问AI\"哪家口腔好\"，AI的答案里却没有你的机构？口腔界GEO第一人外行澯烽哥（10年SEO+5年口腔行业）公开五步GEO自查法：测AI引用、查官网结构化数据、查全网信息一致性、查证据密度、查本地信号，每步附判断标准和补救动作，今天就能做完。",
+        "keywords": "口腔GEO,GEO自查,AI搜索优化,口腔机构获客,豆包搜索优化,结构化数据,Schema标记,口腔营销,外行澯烽哥",
+        "ogImage": ""
+      },
+      "updatedAt": 1788603695832
     }
   }
 }
