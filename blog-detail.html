@@ -3,230 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文章详情 - 烽审榜</title>
-  <meta name="robots" content="index, follow">
-  <meta property="og:type" content="article">
-  <link rel="canonical" href="https://www.fsbtop.top/blog-detail.html">
-  <link rel="icon" type="image/png" href="assets/images/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="assets/css/variables.css">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/responsive.css">
-  <style>
-    .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
-    .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
-    .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
-    .article-back:hover { color: var(--color-gold-highlight); }
-    .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
-    .article-category.tech { background: rgba(76,175,80,0.15); color: #4caf50; }
-    .article-category.business { background: rgba(33,150,243,0.15); color: #2196f3; }
-    .article-title { font-size: var(--fs-3xl); font-weight: 800; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 1rem; }
-    .article-meta { display: flex; gap: 1.5rem; color: var(--color-text-tertiary); font-size: var(--fs-sm); flex-wrap: wrap; }
-    .article-meta span { display: flex; align-items: center; gap: 0.35rem; }
-    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-    .article-tag { padding: 0.2rem 0.6rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 4px; font-size: var(--fs-xs); color: var(--color-text-tertiary); }
-    .article-content { font-size: var(--fs-base); line-height: 1.8; color: var(--color-text-secondary); }
-    .article-content p { margin-bottom: 1.25rem; }
-    .article-content h2 { font-size: var(--fs-2xl); margin: 2rem 0 1rem; color: var(--color-text-primary); }
-    .article-content h3 { font-size: var(--fs-lg); margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
-    .article-content ul, .article-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-    .article-content li { margin-bottom: 0.5rem; }
-    .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
-    .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-    /* Markdown 表格样式（marked 转出的 <table> 此前无样式，导致"显示不了表格"） */
-    .article-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--fs-sm); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
-    .article-content thead { background: var(--color-bg-secondary); }
-    .article-content th, .article-content td { border: 1px solid var(--color-border); padding: 0.6rem 0.9rem; text-align: left; min-width: 90px; line-height: 1.5; }
-    .article-content th { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
-    .article-content tbody tr:nth-child(even) { background: var(--color-bg-secondary); }
-    .article-content tbody tr:hover { background: rgba(201,162,77,0.08); }
-    .article-empty { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
-    .article-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
-    .article-loading { text-align: center; padding: 4rem 0; color: var(--color-text-tertiary); }
-  </style>
-  <link rel="stylesheet" href="assets/css/theme.css">
-  <script src="assets/js/theme.js"></script>
-
-<!-- 字节跳动 TTZZ 收录辅助 -->
-<script>
-(function(){
-var el = document.createElement("script");
-el.src = "https://lf1-cdn-tos.bytegoofy.com/goofy/ttzz/push.js?27db1be7c9185e037665c3fff17bc969114b243c37dcfe3ff4125fdf92a1e9dbfd9a9dcb5ced4d7780eb6f3bbd089073c2a6d54440560d63862bbf4ec01bba3a";
-el.id = "ttzz";
-var s = document.getElementsByTagName("script")[0];
-s.parentNode.insertBefore(el, s);
-})(window)
-</script>
-</head>
-<body data-nav="blog">
-  <!-- 顶部导航 -->
-  <header class="header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <img src="assets/images/logo.png" alt="烽审榜 Logo">
-        <span class="logo-text">技术咨询服务行</span>
-      </a>
-      <div id="site-nav"></div>
-      <div id="theme-toggle-mount" class="theme-toggle-mount theme-toggle-mount--header"></div>
-      <button class="menu-toggle" aria-label="菜单">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <main class="article-container" id="articleMain">
-    <a href="blog.html" class="article-back">← 返回博客列表</a>
-    <div class="article-loading" id="loadingState">加载中...</div>
-    <div class="article-empty" id="emptyState" style="display:none;">
-      <div class="article-empty-icon">📄</div>
-      <p>文章不存在或已被删除</p>
-      <a href="blog.html" class="btn btn-primary" style="display:inline-flex;margin-top:1rem;">返回博客</a>
-    </div>
-    <article id="articleContent" style="display:none;">
-      <div class="article-header">
-        <span class="article-category" id="artCategory"></span>
-        <h1 class="article-title" id="artTitle"></h1>
-        <div class="article-meta">
-          <span>✍️ <span id="artAuthor"></span></span>
-          <span>📅 <span id="artDate"></span></span>
-          <span>⏱ <span id="artReadTime"></span> 分钟</span>
-        </div>
-        <div class="article-tags" id="artTags"></div>
-      </div>
-      <div class="article-content" id="artContent"></div>
-    </article>
-  </main>
-
-  <!-- 页脚 -->
-  <div id="site-footer"></div>
-
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/components.js"></script>
-  <script src="assets/js/data.js"></script>
+  <title>文章详情页已迁移……</title>
+  <!-- 旧动态详情页：内容已由 build.js 生成的静态页 /blog/<id>.html 承载。
+       本页仅做跳转，消除重复内容并回收旧链接权重；canonical 指向列表页兜底。 -->
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://www.fsbtop.top/blog.html">
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      loadArticle();
-    });
-
-    // 设置/创建普通 meta 标签（不存在则创建），用于 description / keywords
-    function setMeta(name, content) {
-      if (!content) return;
-      let el = document.head.querySelector('meta[name="' + name + '"]');
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute('name', name);
-        document.head.appendChild(el);
-      }
-      el.setAttribute('content', content);
-    }
-
-    // 设置/创建 Open Graph meta 标签（property 形式）
-    function setOg(prop, content) {
-      if (!content) return;
-      let el = document.head.querySelector('meta[property="' + prop + '"]');
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute('property', prop);
-        document.head.appendChild(el);
-      }
-      el.setAttribute('content', content);
-    }
-
-    async function loadArticle() {
-      const loading = document.getElementById('loadingState');
-      const empty = document.getElementById('emptyState');
-      const content = document.getElementById('articleContent');
-
-      // 从 URL 获取文章 ID
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-
-      if (!id) {
-        loading.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-      }
-
-      // 查找文章：优先从静态 JSON（后台保存后约 1-2 分钟更新），其次内置数据
-      let article = null;
-      try {
-        const res = await fetch('/data/blog.json', { cache: 'no-store' });
-        const data = await res.json();
-        if (Array.isArray(data.blog)) {
-          article = data.blog.find(b => b.id === id);
-        }
-      } catch (e) { /* ignore */ }
-
-      if (!article && window.FSB_DATA) {
-        article = window.FSB_DATA.blog.find(b => b.id === id);
-      }
-
-      if (!article) {
-        loading.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-      }
-
-      // 渲染文章
-      loading.style.display = 'none';
-      content.style.display = 'block';
-
-      // 分类标签
-      const catEl = document.getElementById('artCategory');
-      catEl.textContent = article.category === 'tech' ? '💻 技术' : '📈 业务';
-      catEl.className = 'article-category ' + (article.category || 'tech');
-
-      document.getElementById('artTitle').textContent = article.title;
-      document.getElementById('artAuthor').textContent = article.author || '烽审榜';
-      document.getElementById('artDate').textContent = article.publishDate || '';
-      document.getElementById('artReadTime').textContent = article.readTime || 5;
-
-      // 标签
-      const tagsEl = document.getElementById('artTags');
-      if (article.tags && article.tags.length > 0) {
-        tagsEl.innerHTML = article.tags.map(t => `<span class="article-tag">#${t}</span>`).join('');
-      }
-
-      // 正文内容（支持 HTML）
-      const contentEl = document.getElementById('artContent');
-      if (article.content && article.content !== '完整内容（后台编辑）') {
-        contentEl.innerHTML = article.content;
+    (function () {
+      var id = new URLSearchParams(window.location.search).get('id');
+      if (id && /^[A-Za-z0-9_-]+$/.test(id)) {
+        window.location.replace('/blog/' + encodeURIComponent(id) + '.html');
       } else {
-        contentEl.innerHTML = `<p style="color:var(--color-text-tertiary);padding:2rem 0;text-align:center;">完整内容请登录后台编辑发布。</p>`;
+        window.location.replace('/blog.html');
       }
-
-      // 更新页面标题和 SEO（优先使用后台独立 SEO 设置，缺失时回退文章字段）
-      // 读取独立存储的 SEO（与正文分离，存于 /data/seo.json）
-      let seo = {};
-      try {
-        const seoRes = await fetch('/data/seo.json', { cache: 'no-store' });
-        if (seoRes.ok) {
-          const seoData = (await seoRes.json()).seo || {};
-          const entry = seoData['blog_' + id];
-          seo = (entry && entry.data) || entry || {};
-        }
-      } catch (e) { /* SEO 文件尚未生成时回退默认 */ }
-
-      const seoTitle = seo.title || (article.title + ' - 烽审榜');
-      const seoDesc = seo.description || article.summary || '';
-      const seoKeywords = seo.keywords || (article.tags || []).join(',') || '';
-
-      document.title = seoTitle;
-      setMeta('description', seoDesc);
-      setMeta('keywords', seoKeywords);
-      setOg('og:type', 'article');
-      setOg('og:title', seoTitle);
-      setOg('og:description', seoDesc);
-      if (seo.ogImage) setOg('og:image', seo.ogImage);
-      setOg('og:url', 'https://www.fsbtop.top/blog/' + encodeURIComponent(id) + '.html');
-      // 规范链接带上文章 id，保证每篇文章唯一 canonical（利于 GEO/SEO）
-      const canon = document.querySelector('link[rel="canonical"]');
-      if (canon) canon.href = 'https://www.fsbtop.top/blog/' + encodeURIComponent(id) + '.html';
-    }
+    })();
   </script>
-  <script src="assets/js/analytics.js"></script>
+</head>
+<body>
+  <p style="font-family:sans-serif;text-align:center;margin-top:40vh;">
+    正在跳转到文章页…… 若未自动跳转，请<a href="/blog.html">返回博客列表</a>。
+  </p>
 </body>
 </html>

@@ -37,7 +37,7 @@ async function renderBlog() {
   };
 
   grid.innerHTML = blogs.map((blog, i) => `
-    <article class="blog-card fade-in fade-in-delay-${(i % 6) + 1}" data-id="${blog.id}" onclick="location.href='blog-detail.html?id=${blog.id}'" style="cursor:pointer;">
+    <article class="blog-card fade-in fade-in-delay-${(i % 6) + 1}" data-id="${blog.id}" onclick="location.href='blog/${blog.id}.html'" style="cursor:pointer;">
       <div class="blog-card-cover">${catIcons[blog.category] || '📝'}</div>
       <div class="blog-card-body">
         <div class="blog-card-meta">
