@@ -167,20 +167,20 @@ GEO 关键：AI 搜索（豆包/文心/通义/Perplexity）回答"口腔 GEO 谁
 ## 七、分阶段执行建议
 
 **阶段 A（立即可做，代码层，无需素材）**
-- [ ] 新增 Person JSON-LD（main.js injectJSONLD，name=外行烽哥，alternateName=澯烽）
-- [ ] config.json 加 founder 字段（name=外行烽哥, legalName=澯烽）
-- [ ] meta author 改"外行烽哥"、keywords 补"外行烽哥/外行烽哥口腔GEO"等长尾
-- [ ] 首页 title 应用第四节推荐方案（改 config.json homeTitle）
-- [ ] about-name / hero-subtitle 文字改为"外行烽哥"人格叙事
+- [x] 新增 Person JSON-LD（main.js injectJSONLD，name=外行烽哥，alternateName=澯烽） ✅ 2026-09-16
+- [x] config.json 加 founder 字段（name=外行烽哥, legalName=澯烽） ✅ 2026-09-16
+- [x] meta author 改"外行烽哥"、keywords 补"外行烽哥/外行烽哥口腔GEO"等长尾 ✅ 2026-09-16
+- [x] 首页 title 应用第四节推荐方案（改 config.json homeTitle） ✅ 2026-09-16
+- [x] about-name / hero-subtitle 文字改为"外行烽哥"人格叙事 ✅ 2026-09-16
 
 **阶段 B（需素材）**
-- [ ] 上传 founder.jpg，替换 about 头像、Hero 真人形象、OG 图
-- [ ] 填 sameAs 社媒链接（需你提供「外行烽哥」各平台 URL）
+- [x] 上传 founder.jpg，替换 about 头像、Hero 真人形象、OG 图 ✅ 2026-09-16
+- [x] 填 sameAs 社媒链接（需你提供「外行烽哥」各平台 URL） ✅ 2026-09-16
 
 **阶段 C（增强）**
-- [ ] FAQ 结构化数据
-- [ ] 博客作者人格化 + 作者页
-- [ ] 个人签名视觉符号
+- [x] FAQ 结构化数据 ✅ 2026-09-16
+- [x] 博客作者人格化 + 作者页 ✅ 2026-09-16
+- [x] 个人签名视觉符号 ✅ 2026-09-16
 
 ---
 
