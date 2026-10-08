@@ -88,6 +88,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // 6. 数字滚动动画
   // ============================================
   animateNumbers();
+
+  // ============================================
+  // 7. 人物轮播（仅首页等含 [data-carousel] 的页面生效）
+  // ============================================
+  initPortraitCarousel();
 });
 
 // ============================================
@@ -282,4 +287,63 @@ function animateNumbers() {
   }, { threshold: 0.3 });
 
   numbers.forEach(n => observer.observe(n));
+}
+
+// ============================================
+// 人物轮播（首页 Hero 形象照）
+// —— 通用实现，仅对带 [data-carousel] 的容器生效，
+//    没有该容器的页面直接返回，不影响其他页。
+// 规则：5 秒自动切换、点指示点可手动切、
+//      页面不可见时暂停、尊重 prefers-reduced-motion。
+// ============================================
+function initPortraitCarousel() {
+  const INTERVAL = 5000;
+
+  document.querySelectorAll('[data-carousel]').forEach((root) => {
+    const slides = Array.from(root.querySelectorAll('.portrait-slide'));
+    const dots = Array.from(root.querySelectorAll('.portrait-dot'));
+    if (slides.length < 2) return;
+
+    let index = 0;
+    let timer = null;
+
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((img, i) => img.classList.toggle('is-active', i === index));
+      dots.forEach((d, i) => {
+        const on = i === index;
+        d.classList.toggle('is-active', on);
+        d.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+
+    function start() {
+      // 用户明确要求减少动效时不做自动播放
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      stop();
+      timer = setInterval(() => show(index + 1), INTERVAL);
+    }
+
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => { show(i); start(); });
+    });
+
+    // 鼠标悬停/聚焦时暂停，方便看清当前这张
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', start);
+
+    // 切到后台标签页就停，省电也避免回来时图已经跳过
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else start();
+    });
+
+    show(0);
+    start();
+  });
 }

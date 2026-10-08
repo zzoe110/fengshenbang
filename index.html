@@ -128,8 +128,18 @@ s.parentNode.insertBefore(el, s);
             </a>
           </div>
         </div>
+        <!-- 人物轮播：两张现场/写真照自动切换 -->
         <div class="hero-portrait fade-in fade-in-delay-2">
-          <img src="assets/images/canfeng.png" alt="外行澯烽哥" class="hero-portrait-img">
+          <div class="portrait-carousel" data-carousel="heroPortrait" aria-roledescription="轮播" aria-label="外行澯烽哥形象展示">
+            <div class="portrait-track">
+              <img src="assets/images/canfeng.png" alt="外行澯烽哥" class="portrait-slide is-active" width="900" height="1200" loading="eager">
+              <img src="assets/images/canfeng-stage.png" alt="外行澯烽哥在演讲现场" class="portrait-slide" width="757" height="1009" loading="lazy">
+            </div>
+            <div class="portrait-dots" role="tablist" aria-label="形象切换">
+              <button type="button" class="portrait-dot is-active" role="tab" aria-selected="true" aria-label="第 1 张：形象照"></button>
+              <button type="button" class="portrait-dot" role="tab" aria-selected="false" aria-label="第 2 张：演讲现场"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
