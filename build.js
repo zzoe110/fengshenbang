@@ -214,6 +214,9 @@ function stripHtml(html, max) {
 function stripSeoMeta(html) {
   if (!html) return '';
   let h = String(html).replace(/^\s*<p>[^<]*SEO标题[\s\S]*?<hr\s*\/?>\s*/i, '');
+  // 再剥掉正文首个 <h1>：页面模板已在 article-header 渲染了标题，
+  // 正文再带一个会造成标题重复（2026-10-24 全站统一修复）
+  h = h.replace(/^\s*<h1(?:\s[^>]*)?>[\s\S]*?<\/h1>\s*/i, '');
   return h.trim();
 }
 
