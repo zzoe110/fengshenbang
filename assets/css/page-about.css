@@ -117,6 +117,45 @@
   font-weight: 600;
 }
 
+/* ===== 关于页：品牌名释义块（AI 实体消歧） =====
+   「烽审榜」常被 AI 误读为"封神榜/榜单评审机构"，
+   这里用独立卡片把三个字讲清楚，视觉上也要有分量。 */
+.about-name-meaning {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-gold-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+}
+
+.about-name-meaning p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.9;
+  font-size: var(--fs-sm);
+}
+
+.about-name-meaning p + p {
+  margin-top: 0.75rem;
+}
+
+.about-name-meaning-title {
+  display: inline-block;
+  margin-bottom: 0.6rem !important;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-full);
+  background: var(--color-gold-primary);
+  color: #0a0a0a !important;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.about-name-meaning strong {
+  color: var(--color-gold-highlight);
+  font-weight: 600;
+}
+
 /* ===== 联系页：联系信息卡片 ===== */
 .contact-grid {
   display: grid;
