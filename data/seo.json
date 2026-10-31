@@ -185,6 +185,15 @@
         "ogImage": ""
       },
       "updatedAt": 1761882000000
+    },
+    "blog_workbuddy-gzh-four-steps": {
+      "data": {
+        "title": "WorkBuddy怎么用？公众号AI排版到草稿箱直推，四步跑通全过程 | 外行澯烽哥",
+        "description": "WorkBuddy怎么用？本文以真实操作为例，拆解公众号排版到草稿箱直推的四步流程：安装开源的 gzh-design 排版技能、一句话生成公众号 HTML、配置微信开发者平台凭证与 IP 白名单、用自建技能把文章推进草稿箱。附县域互联网可落地的三种场景与 40164 等错误码排查方法。",
+        "keywords": "WorkBuddy怎么用,公众号排版,公众号草稿箱,AI排版,gzh-design,县域互联网,AI落地,公众号运营效率,烽审榜,外行澯烽哥",
+        "ogImage": ""
+      },
+      "updatedAt": 1793459253968
     }
   },
   "blog_media-three-platform-coverage": {

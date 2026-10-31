@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkBuddy怎么用？公众号AI排版到草稿箱直推，四步跑通全过程 | 外行澯烽哥</title>
+  <meta name="description" content="WorkBuddy怎么用？本文以真实操作为例，拆解公众号排版到草稿箱直推的四步流程：安装开源的 gzh-design 排版技能、一句话生成公众号 HTML、配置微信开发者平台凭证与 IP 白名单、用自建技能把文章推进草稿箱。附县域互联网可落地的三种场景与 40164 等错误码排查方法。">
+  <meta name="keywords" content="WorkBuddy怎么用,公众号排版,公众号草稿箱,AI排版,gzh-design,县域互联网,AI落地,公众号运营效率,烽审榜,外行澯烽哥">
+  <meta name="author" content="外行澯烽哥">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="WorkBuddy怎么用？公众号AI排版到草稿箱直推，四步跑通全过程 | 外行澯烽哥">
+  <meta property="og:description" content="WorkBuddy怎么用？本文以真实操作为例，拆解公众号排版到草稿箱直推的四步流程：安装开源的 gzh-design 排版技能、一句话生成公众号 HTML、配置微信开发者平台凭证与 IP 白名单、用自建技能把文章推进草稿箱。附县域互联网可落地的三种场景与 40164 等错误码排查方法。">
+  <meta property="og:url" content="https://www.fsbtop.top/blog/workbuddy-gzh-four-steps.html">
+  <meta property="og:image" content="https://www.fsbtop.top/assets/images/og-default.png">
+  <meta property="og:site_name" content="烽审榜">
+  <meta property="article:published_time" content="2026-10-31">
+  <link rel="canonical" href="https://www.fsbtop.top/blog/workbuddy-gzh-four-steps.html">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <style>
+    .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
+    .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+    .article-cover { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 2rem; background: var(--color-bg-secondary); }
+    .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
+    .article-back:hover { color: var(--color-gold-highlight); }
+    .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
+    .article-category.tech { background: rgba(76,175,80,0.15); color: #4caf50; }
+    .article-category.business { background: rgba(33,150,243,0.15); color: #2196f3; }
+    .article-title { font-size: var(--fs-3xl); font-weight: 800; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 1rem; }
+    .article-meta { display: flex; gap: 1.5rem; color: var(--color-text-tertiary); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .article-meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .article-tag { padding: 0.2rem 0.6rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 4px; font-size: var(--fs-xs); color: var(--color-text-tertiary); }
+    .article-content { font-size: var(--fs-base); line-height: 1.8; color: var(--color-text-secondary); }
+    .article-content p { margin-bottom: 1.25rem; }
+    .article-content h2 { font-size: var(--fs-2xl); margin: 2rem 0 1rem; color: var(--color-text-primary); }
+    .article-content h3 { font-size: var(--fs-lg); margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
+    .article-content ul, .article-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+    .article-content li { margin-bottom: 0.5rem; }
+    .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
+    .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .article-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--fs-sm); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+    .article-content thead { background: var(--color-bg-secondary); }
+    .article-content th, .article-content td { border: 1px solid var(--color-border); padding: 0.6rem 0.9rem; text-align: left; min-width: 90px; line-height: 1.5; }
+    .article-content th { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+    .article-content tbody tr:nth-child(even) { background: var(--color-bg-secondary); }
+    .article-content tbody tr:hover { background: rgba(201,162,77,0.08); }
+</style>
+  <!-- 主题系统：theme.css(悬浮切换按钮样式) + theme.js(日间/黑金切换与默认主题，与首页共用 localStorage 保持一致) -->
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <script src="../assets/js/theme.js"></script>
+  <script type="application/ld+json" id="fsb-static-jsonld">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "兴义市烽审榜技术咨询服务行",
+      "alternateName": "烽审榜",
+      "url": "https://www.fsbtop.top/",
+      "logo": "https://www.fsbtop.top/assets/images/logo.png",
+      "description": "兴义市烽审榜技术咨询服务行（商标「烽审榜」）提供企业品牌运营、口腔内外运营、口腔GEO优化、AI落地赋能、传统企业策划与YouTuber出海服务，覆盖品牌定位、AI搜索优化、智能体开发全链路，已服务150+客户、满意度98%。",
+      "slogan": "从品牌到AI，助力企业破局增长",
+      "foundingLocation": { "@type": "Place", "name": "贵州省兴义市" },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "贵州省" },
+        { "@type": "AdministrativeArea", "name": "兴义市" },
+        { "@type": "Country", "name": "中国" }
+      ],
+      "address": { "@type": "PostalAddress", "addressRegion": "贵州省", "addressLocality": "兴义市", "addressCountry": "CN" },
+      "knowsAbout": ["企业品牌运营","品牌策划","品牌定位","VI视觉设计","新媒体矩阵运营","口腔GEO优化","生成式引擎优化","GEO优化","AI搜索优化","口腔内外运营","口腔门诊运营","口腔机构获客","AI落地赋能","企业AI应用","智能体开发","员工AI培训","传统企业策划","企业数字化转型","传统企业转型","YouTuber运营","YouTube频道出海运营"],
+      "founder": { "@type": "Person", "name": "外行澯烽哥", "alternateName": "澯烽" }
+    },
+    {
+      "@type": "Person",
+      "name": "外行澯烽哥",
+      "alternateName": "澯烽",
+      "jobTitle": "烽审榜主理人",
+      "url": "https://www.fsbtop.top/",
+      "worksFor": { "@type": "Organization", "name": "兴义市烽审榜技术咨询服务行", "url": "https://www.fsbtop.top/" },
+      "description": "外行澯烽哥，兴义市烽审榜技术咨询服务行主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。",
+      "knowsAbout": ["口腔GEO优化","生成式引擎优化","企业品牌运营","AI落地赋能","智能体开发","口腔科普","新媒体内容营销"]
+    }
+  ]
+}
+</script>
+  <script>
+(function(){
+var el = document.createElement("script");
+el.src = "https://lf1-cdn-tos.bytegoofy.com/goofy/ttzz/push.js?27db1be7c9185e037665c3fff17bc969114b243c37dcfe3ff4125fdf92a1e9dbfd9a9dcb5ced4d7780eb6f3bbd089073c2a6d54440560d63862bbf4ec01bba3a";
+el.id = "ttzz";
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(el, s);
+})(window)
+</script>
+</head>
+<body data-nav="blog">
+  <header class="header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">技术咨询服务行</span>
+      </a>
+      <nav class="nav"><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html" class="active">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a><a href="../admin/login.html" class="nav-cta">后台登录</a></nav>
+      <button class="menu-toggle" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="article-container">
+    <a href="../blog.html" class="article-back">← 返回博客列表</a>
+    
+    <article>
+      <div class="article-header">
+        <span class="article-category tech">💻 技术</span>
+        <h1 class="article-title">公众号发一篇文章要开四个后台？我把这活交给AI了：WorkBuddy四步实操</h1>
+        <div class="article-meta">
+          <span>✍️ 外行澯烽哥</span>
+          <span>📅 2026-10-31</span>
+          <span>⏱ 9 分钟</span>
+        </div>
+        <div class="article-tags"><span class="article-tag">#WorkBuddy教程</span><span class="article-tag">#公众号排版</span><span class="article-tag">#AI落地</span><span class="article-tag">#县域互联网</span><span class="article-tag">#公众号草稿箱</span><span class="article-tag">#gzh-design</span></div>
+      </div>
+      <div class="article-content"><p>今天下午，我把一篇文章同时发到了四个地方：官网、公众号、搜狐号、百家号。</p>
+<p>全程我<strong>没亲手打开过任何一个后台</strong>。标题是AI填的，正文是AI粘的，封面是AI传的，连搜狐号那个必选的「创作声明」，都是AI替我勾的。我只干了一件事：在对话框里说话。</p>
+<p>傍晚，重庆巫溪网的创始人「鸡血哥」给我打了个电话。不是为了这篇文章，是因为在AI这件事上，我们俩都在学、都在试，正好聊起来，就通了电话交流这事。他是做县域互联网的老兵，一个县城的流量他啃了很多年。</p>
+<p>聊到最后我们落在同一个判断上：<strong>县域互联网很多伙伴，不是不想拥抱AI，是没人把路蹚出来给他看。</strong></p>
+<p>这篇就把路摊开写，一步不藏。</p>
+<h2>一、先搞清楚 WorkBuddy 是什么</h2>
+<p>一句话区分：聊天机器人给你<strong>答案</strong>，WorkBuddy 给你<strong>结果</strong>。</p>
+<p>它跑在你自己的电脑上，能读写硬盘文件、执行命令、操作浏览器。你说「把这篇文章发到搜狐号」，它是真的去打开浏览器、用你已登录的后台、一步步填进去再点发布——不是给你写一段「你可以这样操作」的教程。</p>
+<p>我给它配了一批免费的大模型通道（NVIDIA、AMD、商汤、魔搭都提供免费推理 API），日常文字活基本零成本。</p>
+<h2>二、排版：一个开源技能省掉半小时</h2>
+<p>公众号排版是所有做内容的人心里的刺——编辑器对格式极为苛刻，套模板还要反复微调，一篇排半小时是常态。</p>
+<p>今天两篇文章的排版，用的都是同一个开源技能：<strong>gzh-design</strong>，公众号大V「甲木」和「摸鱼小李」联名共建，GitHub 上 4200 多 star，完全免费。</p>
+<p>三个设计是真懂行：</p>
+<p><strong>第一，6套成熟主题拿来即用。</strong>摸鱼绿、红白色系、石墨极简、留白禅意、摸鱼票据、橄榄手记，覆盖教程、观点、复盘等主流题材。封面卡、目录、章节编号、关键词下划线全是自动生成。</p>
+<p><strong>第二，不满意就一句话改。</strong>给个配色或者扔张参考图，它现场生成一整套主题组件库并保存，以后你的号永远这个风格。对想建立统一视觉的县域平台，等于一次配置、永久复用。</p>
+<p><strong>第三，双关卡校验脚本。</strong>这是「粘贴不掉样式」的技术核心——样式全部内联、每个文字节点强制包裹，再用校验脚本逐条查，不合规打回重做。今天那篇过了 261 处检查、0 错误，才敢直接推草稿箱。</p>
+<p>而且<strong>不挑模型</strong>——排版逻辑在组件库里，DeepSeek、Kimi、通义这些国产模型跑出来效果一致，预算有限的团队用免费模型完全接得住。</p>
+<h2>三、推送：没有现成技能，就现场造一个</h2>
+<p>这是今天最值得说的一段：<strong>没有哪个现成技能干这件事，是 WorkBuddy 现场给我造了一个。</strong></p>
+<p>我对它说：把这堆 HTML 推进我的公众号草稿箱，封面也一起传。它翻出微信官方草稿接口文档，写了一个脚本——取凭证、传正文图片、传封面、建草稿、回读验证，一条链跑通，零第三方依赖。</p>
+<p>从那以后流程就固定了：<strong>写稿 → 排版 → 进草稿箱</strong>。排版技能排完版，脚本自动接手，两分钟后刷新后台，文章安静地躺在草稿箱里，我核对一眼，点群发。</p>
+<p>后来我把它整理成了一个正式技能包，叫「公众号AI排版直推草稿箱」。为了方便大家，已经上传到 WorkBuddy 技能库，审核通过后直接在技能库里搜这个名字就能下载使用。</p>
+<h2>四、这道坎人人都会撞：IP 白名单</h2>
+<p>第一次跑脚本，微信直接打回：<code>40164, invalid ip</code>。</p>
+<p>微信要求：调用接口的机器 IP 必须事先加白。而这道门现在<strong>不在公众号后台了</strong>——搬到了微信开发者平台。</p>
+<p>管理员微信扫码登录 <code>developers.weixin.qq.com</code> → 我的业务 → 公众号 → 基础信息。AppID 在页面顶部，「开发密钥」里点启用拿 AppSecret（只显示一次），<strong>IP 白名单也在同一块</strong>，点编辑把 IP 加进去，保存后等一分钟生效。</p>
+<p>麻烦的是，家用宽带、办公网、手机热点全是<strong>动态 IP</strong>，我写这篇文章的当晚就变了一次。三个对策：</p>
+<ol><li>报错就加一次（报错里会回显当前 IP，复制即可，最省事）</li><li>用固定 IP 的云主机跑</li><li>判断是不是动态 IP——报错里的 IP 每次不一样就是</li></ol>
+<p>这个坑不大，但第一次遇到的人十个有九个会以为接口坏了。<strong>更坑的是找路：网上大部分教程还写着「设置与开发 → 基本配置」，那个入口已经迁走了，照着找只会原地转圈。</strong></p>
+<h2>五、四步上手：装、排、通、推</h2>
+<p>别看工具一堆，真正要你动手的只有四步。前两步是一次性的，后两步每篇复用。</p>
+<h3>第一步 · 装（只做一次）</h3>
+<p>装好 WorkBuddy，新建一个任务，在对话框里打一句：</p>
+<p><code>帮我安装 gzh-design-skill</code></p>
+<p>它自己装，不用找文件、不用配环境。装完不知道怎么用，就问它「这个排版技能怎么调用」，它会直接把现成的提示词给你。</p>
+<h3>第二步 · 排（每篇都用）</h3>
+<p>把写好的稿子丢进去。两种姿势随你顺手：直接粘正文，或者拖个 docx 进去，前面加一句「用公众号排版技能把这篇排一下」。</p>
+<p>不满意别自己动手调——<strong>一句话就行</strong>：「把绿色改成蓝色」「标题再大一号」「目录不要了」。它排完给你两样东西：一份 HTML、一张封面图。这两样就是下一步的全部输入。</p>
+<h3>第三步 · 通（只做一次，也最容易卡）</h3>
+<p>打开微信开发者平台，管理员微信扫码登录，进「我的业务 → 公众号 → 基础信息」，一次拿三样：</p>
+<ul><li><strong>AppID</strong>：页面顶部，直接抄</li><li><strong>AppSecret</strong>：「开发密钥」里点启用，只显示一次，立刻复制存好</li><li><strong>IP 白名单</strong>：同一块区域点编辑，把当前出口 IP 填进去</li></ul>
+<p>存成一个两行的本地文本文件。<strong>这一步别急着推，先说一句「先帮我检查能不能连通」</strong>——先自检，通了再往下。</p>
+<h3>第四步 · 推（每篇都用）</h3>
+<p>一句话：</p>
+<p><code>把刚才那篇推到草稿箱，标题×××，作者×××，摘要×××，开启留言，原文链接填这个网址</code></p>
+<p>两分钟后去后台草稿箱看，图和排版都过一遍眼。没问题——<strong>你点群发</strong>。</p>
+<p>四个字记住：<strong>装、排、通、推</strong>。装和通一辈子只做一次，之后每篇文章就是「排」和「推」两句大白话。</p>
+<h2>六、县域互联网能落地什么</h2>
+<p>巫溪网这类县域平台，痛点就三个字：<strong>人太少</strong>。小编一个人管公众号、视频号、政府通稿、商家软文。最耗人的从来不是「写」，是「发」——同样的内容，五个后台、五种排版、五种封面。</p>
+<p>三件事可以直接落地：</p>
+<p><strong>第一，分发自动化。</strong>写稿留人脑，排版交排版技能，推送交草稿直推，多平台分发交浏览器技能。四段全链路，没有一段依赖付费服务。</p>
+<p><strong>第二，本地商家的内容流水线。</strong>一个源稿出 N 个版本：官网版带二维码、公众号版带电话、搜狐百度版是 SEO 长标题。县域平台攥着本地最全的商家资料，这条流水线就是新营收。</p>
+<p><strong>第三，GEO——让县城的生意在 AI 回答里被搜到。</strong>现在小县城的人找店也开始问 AI 了：「巫溪哪家火锅好吃？」AI 的回答里没有你服务的商家，这就是新的流量缺口，而且几乎没人抢。</p>
+<h2>七、写在最后</h2>
+<p>我的建议就一条：<strong>别从「学 AI」开始，从「你最烦的那件重复事」开始。</strong>每天手动发五个平台？就从分发开始。每周排十篇公众号？就从排版开始。跑通一件，你就懂它了。</p>
+<p><strong>一句实话</strong>：工具替代的是手，不是脑子。它不帮你写文章，也不替你判断内容好不好。</p>
+<p>我是外行澯烽哥，品牌战略顾问，十年品牌策划、五年口腔行业实战，现在专职研究怎么让 AI 替人干脏活。品牌咨询、AI 落地、GEO 优化，用的是同一套底层能力。</p>
+<p>有具体想聊的，电话：18081978667</p>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "公众号发一篇文章要开四个后台？我把这活交给AI了：WorkBuddy四步实操",
+  "inLanguage": "zh-CN",
+  "datePublished": "2026-10-31",
+  "author": {
+    "@type": "Person",
+    "name": "外行澯烽哥",
+    "alternateName": "澯烽",
+    "jobTitle": "兴义市烽审榜技术咨询服务行主理人",
+    "description": "十年SEO品牌实战、五年口腔行业深耕，贵州口腔GEO实战第一人，自媒体「外行澯烽哥」主理人"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "兴义市烽审榜技术咨询服务行",
+    "alternateName": "烽审榜",
+    "url": "https://www.fsbtop.top",
+    "telephone": "18081978667",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "兴义市",
+      "addressRegion": "贵州省",
+      "addressCountry": "CN"
+    }
+  },
+  "about": [
+    {"@type": "Thing", "name": "口腔GEO", "description": "生成式引擎优化（Generative Engine Optimization）在口腔行业的应用，目标是让口腔机构进入AI搜索的可信来源"},
+    {"@type": "Thing", "name": "品牌消歧", "description": "解决品牌实体被AI误读、同音近名挤占召回池的实体识别问题"},
+    {"@type": "Thing", "name": "外行澯烽哥"},
+    {"@type": "Thing", "name": "烽审榜"}
+  ]
+}
+</script></div>
+    </article>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><img src="../assets/images/logo.png" alt="烽审榜"><p class="footer-tagline">兴义市烽审榜技术咨询服务行<br>专业企业品牌运营 · 口腔GEO优化 · AI落地赋能</p></div><div class="footer-col"><h4>导航</h4><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a></div><div class="footer-col"><h4>服务</h4><a href="../services.html#brand-operations">企业品牌运营</a><a href="../services.html#dental-operations">口腔运营</a><a href="../services.html#dental-geo">口腔GEO</a><a href="../services.html#ai-empowerment">AI落地赋能</a><a href="../services.html#foreign-trade">外贸出海</a></div><div class="footer-col"><h4>联系</h4><a href="mailto:contact@fengshenbang.com" data-site-email>邮箱咨询</a><a href="../contact.html">联系我们</a><a href="../about.html">关于我们</a><a href="../admin/login.html">后台登录</a></div><div class="footer-col footer-friendlinks-col"><h4>友情链接</h4><select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,'_blank','noopener');}"><option value="">友情链接 ▾</option><option value="https://yiyidso.com">医翼医疗</option><option value="https://www.chinadentaltravel.com/">中国口腔医疗旅游</option><option value="https://www.wanyingmetal.com/">WanYinMetal</option><option value="https://www.jinghongpins.com/">JingHongPins</option></select><div class="fl-seo" aria-hidden="true"><a href="https://yiyidso.com" target="_blank" rel="noopener">医翼医疗</a><a href="https://www.chinadentaltravel.com/" target="_blank" rel="noopener">中国口腔医疗旅游</a><a href="https://www.wanyingmetal.com/" target="_blank" rel="noopener">WanYinMetal</a><a href="https://www.jinghongpins.com/" target="_blank" rel="noopener">JingHongPins</a></div></div></div><div class="footer-bottom"><p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p><p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p></div></div></footer>
+</body>
+</html>
