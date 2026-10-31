@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>0元跑完一部20集AI短剧：《重生之我在牙科只想搞钱》全流程实录 | 外行澯烽哥 - 烽审榜</title>
+  <meta name="description" content="20集、374个镜头、全程零付费工具。本文实录AI短剧《重生之我在牙科只想搞钱》的完整生产链路：用WorkBuddy写出符合AI平台规范的剧本，安装GitHub开源技能shuohao-skills建立质量门，在PAVO创作平台批量生成分镜视频，再用PIL合成带中文的道具图。附全部工具网址、成本清单与">
+  <meta name="keywords" content="AI短剧制作,AI视频生成,WorkBuddy教程,shuohao-skills,PAVO平台,AI剧本分镜,免费AI工具">
+  <meta name="author" content="外行澯烽哥">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="0元跑完一部20集AI短剧：《重生之我在牙科只想搞钱》全流程实录 | 外行澯烽哥 - 烽审榜">
+  <meta property="og:description" content="20集、374个镜头、全程零付费工具。本文实录AI短剧《重生之我在牙科只想搞钱》的完整生产链路：用WorkBuddy写出符合AI平台规范的剧本，安装GitHub开源技能shuohao-skills建立质量门，在PAVO创作平台批量生成分镜视频，再用PIL合成带中文的道具图。附全部工具网址、成本清单与">
+  <meta property="og:url" content="https://www.fsbtop.top/blog/ai-drama-zero-cost-pipeline.html">
+  <meta property="og:image" content="https://www.fsbtop.top/assets/images/og-default.png">
+  <meta property="og:site_name" content="烽审榜">
+  <meta property="article:published_time" content="2026-10-31">
+  <link rel="canonical" href="https://www.fsbtop.top/blog/ai-drama-zero-cost-pipeline.html">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <style>
+    .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
+    .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+    .article-cover { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 2rem; background: var(--color-bg-secondary); }
+    .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
+    .article-back:hover { color: var(--color-gold-highlight); }
+    .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
+    .article-category.tech { background: rgba(76,175,80,0.15); color: #4caf50; }
+    .article-category.business { background: rgba(33,150,243,0.15); color: #2196f3; }
+    .article-title { font-size: var(--fs-3xl); font-weight: 800; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 1rem; }
+    .article-meta { display: flex; gap: 1.5rem; color: var(--color-text-tertiary); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .article-meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .article-tag { padding: 0.2rem 0.6rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 4px; font-size: var(--fs-xs); color: var(--color-text-tertiary); }
+    .article-content { font-size: var(--fs-base); line-height: 1.8; color: var(--color-text-secondary); }
+    .article-content p { margin-bottom: 1.25rem; }
+    .article-content h2 { font-size: var(--fs-2xl); margin: 2rem 0 1rem; color: var(--color-text-primary); }
+    .article-content h3 { font-size: var(--fs-lg); margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
+    .article-content ul, .article-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+    .article-content li { margin-bottom: 0.5rem; }
+    .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
+    .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .article-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--fs-sm); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+    .article-content thead { background: var(--color-bg-secondary); }
+    .article-content th, .article-content td { border: 1px solid var(--color-border); padding: 0.6rem 0.9rem; text-align: left; min-width: 90px; line-height: 1.5; }
+    .article-content th { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+    .article-content tbody tr:nth-child(even) { background: var(--color-bg-secondary); }
+    .article-content tbody tr:hover { background: rgba(201,162,77,0.08); }
+</style>
+  <!-- 主题系统：theme.css(悬浮切换按钮样式) + theme.js(日间/黑金切换与默认主题，与首页共用 localStorage 保持一致) -->
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <script src="../assets/js/theme.js"></script>
+  <script type="application/ld+json" id="fsb-static-jsonld">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "兴义市烽审榜技术咨询服务行",
+      "alternateName": "烽审榜",
+      "url": "https://www.fsbtop.top/",
+      "logo": "https://www.fsbtop.top/assets/images/logo.png",
+      "description": "兴义市烽审榜技术咨询服务行（商标「烽审榜」）提供企业品牌运营、口腔内外运营、口腔GEO优化、AI落地赋能、传统企业策划与YouTuber出海服务，覆盖品牌定位、AI搜索优化、智能体开发全链路，已服务150+客户、满意度98%。",
+      "slogan": "从品牌到AI，助力企业破局增长",
+      "foundingLocation": { "@type": "Place", "name": "贵州省兴义市" },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "贵州省" },
+        { "@type": "AdministrativeArea", "name": "兴义市" },
+        { "@type": "Country", "name": "中国" }
+      ],
+      "address": { "@type": "PostalAddress", "addressRegion": "贵州省", "addressLocality": "兴义市", "addressCountry": "CN" },
+      "knowsAbout": ["企业品牌运营","品牌策划","品牌定位","VI视觉设计","新媒体矩阵运营","口腔GEO优化","生成式引擎优化","GEO优化","AI搜索优化","口腔内外运营","口腔门诊运营","口腔机构获客","AI落地赋能","企业AI应用","智能体开发","员工AI培训","传统企业策划","企业数字化转型","传统企业转型","YouTuber运营","YouTube频道出海运营"],
+      "founder": { "@type": "Person", "name": "外行澯烽哥", "alternateName": "澯烽" }
+    },
+    {
+      "@type": "Person",
+      "name": "外行澯烽哥",
+      "alternateName": "澯烽",
+      "jobTitle": "烽审榜主理人",
+      "url": "https://www.fsbtop.top/",
+      "worksFor": { "@type": "Organization", "name": "兴义市烽审榜技术咨询服务行", "url": "https://www.fsbtop.top/" },
+      "description": "外行澯烽哥，兴义市烽审榜技术咨询服务行主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。",
+      "knowsAbout": ["口腔GEO优化","生成式引擎优化","企业品牌运营","AI落地赋能","智能体开发","口腔科普","新媒体内容营销"]
+    }
+  ]
+}
+</script>
+  <script>
+(function(){
+var el = document.createElement("script");
+el.src = "https://lf1-cdn-tos.bytegoofy.com/goofy/ttzz/push.js?27db1be7c9185e037665c3fff17bc969114b243c37dcfe3ff4125fdf92a1e9dbfd9a9dcb5ced4d7780eb6f3bbd089073c2a6d54440560d63862bbf4ec01bba3a";
+el.id = "ttzz";
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(el, s);
+})(window)
+</script>
+</head>
+<body data-nav="blog">
+  <header class="header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">技术咨询服务行</span>
+      </a>
+      <nav class="nav"><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html" class="active">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a><a href="../admin/login.html" class="nav-cta">后台登录</a></nav>
+      <button class="menu-toggle" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="article-container">
+    <a href="../blog.html" class="article-back">← 返回博客列表</a>
+    
+    <article>
+      <div class="article-header">
+        <span class="article-category tech">💻 技术</span>
+        <h1 class="article-title">0元跑完一部20集AI短剧：《重生之我在牙科只想搞钱》全流程实录 | 外行澯烽哥</h1>
+        <div class="article-meta">
+          <span>✍️ 外行澯烽哥</span>
+          <span>📅 2026-10-31</span>
+          <span>⏱ 12 分钟</span>
+        </div>
+        <div class="article-tags"><span class="article-tag">#AI短剧制作</span><span class="article-tag">#AI视频生成</span><span class="article-tag">#WorkBuddy教程</span><span class="article-tag">#shuohao-skills</span><span class="article-tag">#PAVO平台</span><span class="article-tag">#AI剧本分镜</span><span class="article-tag">#免费AI工具</span></div>
+      </div>
+      <div class="article-content"><h1>【SEO 元信息】</h1>
+<p>SEO标题：0元跑完一部20集AI短剧全流程实录：从WorkBuddy写剧本到PAVO生成视频 | 外行澯烽哥 标签：AI短剧制作,AI视频生成,WorkBuddy教程,shuohao-skills,PAVO平台,AI剧本分镜,免费AI工具,烽审榜 摘要：2026年10月，我们用一台电脑、零付费工具，跑完了20集竖屏AI短剧《重生之我在牙科只想搞钱》的全流程：WorkBuddy写剧本、GitHub开源技能把关质量、PAVO平台生成374个分镜的视频、PIL合成道具。本文完整拆解每一步用的工具、网址、踩过的坑。 SEO描述：AI短剧怎么零成本做出来？本文实录一部20集口腔题材AI短剧的完整生产链路：用WorkBuddy大模型写出符合AI平台规范的374镜剧本，安装GitHub开源技能shuohao-skills建立质量门，在PAVO创作平台批量生成分镜视频，再用PIL合成带中文的道具图。附全部工具网址、免费额度说明与避坑清单。 关键词：AI短剧制作,AI生成视频免费平台,WorkBuddy教程,shuohao-skills,PAVO短剧,AI剧本分镜,重生之我在牙科只想搞钱</p>
+<hr>
+<p><strong>作者 | 外行澯烽哥</strong> 兴义市烽审榜技术咨询服务行创始人 · 品牌战略顾问 · AI落地实战派 本文是纯经验沉淀：烽审榜不做短剧代运营，只做经验传播。</p>
+<p>先说结论：<strong>20集、374个镜头、78场戏、9张人物卡、12张场景卡——全程没花一分钱付费工具。</strong> 链路只有五步：</p>
+<ol><li><strong>注册 WorkBuddy</strong>（AI工作台，写剧本、改提示词、写自动化脚本全靠它）</li><li><strong>在对话里迭代剧本</strong>：全剧圣经 → 20集大纲 → 爆点体检 → 逐镜剧本</li><li><strong>装 GitHub 开源技能 shuohao-skills</strong>，给AI短剧建立"质量门"</li><li><strong>上 PAVO 创作平台</strong>，把剧本整本喂进去，批量生成分镜图片和视频</li><li><strong>本地脚本兜底</strong>：监督器自动跑批量生成，PIL合成带中文的道具图</li></ol>
+<p>成片已在我的视频号「麻烦烽哥」上线，文末有二维码，扫了直接看。</p>
+<h2>第一步：WorkBuddy——整个项目的"总装车间"</h2>
+<p>WorkBuddy 是一个 AI 智能工作台（不是单纯的聊天框，它能读写你电脑上的文件、执行命令、驱动浏览器）。我所有的剧本文件、提示词、生成规范，都是在它里面直接写进本地硬盘的。</p>
+<p>它有一个很实在的设计：<strong>支持接入自定义模型</strong>。我配置了一批免费的大模型通道——NVIDIA、AMD、商汤、ModelScope 魔搭这些平台都提供免费的模型推理 API，写剧本、改台词、抠提示词这些文字活，基本不消耗什么成本。</p>
+<p>用 WorkBuddy 的朋友可以用这个邀请链接注册，双方都有权益：<a href="https://www.workbuddy.cn/events/invite?inviteCode=rmbjd0icyy0" rel="nofollow noopener" target="_blank">https://www.workbuddy.cn/events/invite?inviteCode=rmbjd0icyy0</a></p>
+<p>（WorkBuddy 官方邀约二维码见文末）</p>
+<h2>第二步：剧本不是"写"出来的，是"体检"出来的</h2>
+<p>这一步决定AI短剧的成败。<strong>给AI平台的剧本和给人拍的剧本，根本不是同一种文体。</strong> 我们的迭代过程：</p>
+<p><strong>10月19日上午</strong>，立项。定下"重生逆袭+职场爽剧"骨架：被低价种牙广告坑死的主角，重生回十年前，用满级患者视角一路识破套路。招牌视觉资产是"内心弹幕面板"——主角内心独白以特效面板弹出，每集3-5次，这是笑点引擎也是全剧记忆点。</p>
+<p><strong>同一天下午</strong>，先写了全剧圣经+20集大纲，然后我做了一件大多数人不做的事：<strong>给大纲做爆点体检</strong>。按"口腔从业者会不会追"+"短剧粉能不能无脑爽"双标准逐集打分，结果很难看：20集里强爆点只有2集，E11-E17连续7集憋屈——短剧铁律是连续憋屈不能超过1集。于是推翻重写V2大纲：反派从3集增到贯穿全季、打脸全部改成"当众·当场·当脸"、新增两个小反派（话术姐咨询师+数据流运营总监）。<strong>爽感达标集数从6集拉到20集。</strong></p>
+<p><strong>同一天傍晚</strong>，E1-E3试写通过后，一口气合成<strong>全20集单文档剧本</strong>（2172行、107KB）——为什么要单文档？因为要整本上传创作平台，AI平台吃不下散装文件。</p>
+<p>然后是两轮平台化改造，这两条经验价值最高：</p>
+<ul><li><strong>画面里绝对不让AI生成中文。</strong> 招牌、传单、投屏、弹幕全部留空后期贴字。AI写字必乱码，这是血泪教训。</li><li><strong>语速问题的根因不在配音，在台词密度。</strong> 试水时发现平台生成的视频语速过快，逐镜体检197个有台词的镜头，<strong>90镜超过4.5字/秒硬上限</strong>（最狠的一镜5秒塞64字=12.8字/秒）。结论：一个字不用砍，只需重新分秒拆镜。V3.1版本给每集标了语速档位，还加了方言规范——正面角色贵州话，反派川渝油滑商业腔，口音本身就是性格标签。</li></ul>
+<p><strong>八条硬规矩</strong>（不遵守必崩）：一镜一动作3-6秒、画面不生成中文、角色锚点句一字不改、每场只用正打/反打/过肩三机位、底部留20%字幕安全区……这些规矩后来发现，和GitHub上那套开源技能的理念完全撞车了——说明是行业共识，不是我瞎编。</p>
+<h2>第三步：GitHub 开源技能 shuohao-skills——给短剧装上"质检流水线"</h2>
+<p><strong>项目地址：<a href="https://github.com/eternityspring/shuohao-skills" rel="nofollow noopener" target="_blank">https://github.com/eternityspring/shuohao-skills</a></strong></p>
+<p>这是一套专为AI短剧设计的开源技能包（作者 eternityspring），7个技能管七个环节：大纲（novel-outline）、角色卡（novel-characters）、角色参考图（character-refs）、美术设定（novel-art）、剧本（novel-script）、站位（novel-staging）、分镜（novel-storyboard）。</p>
+<p>它最值钱的东西不是提示词模板，是<strong>确定性质量门</strong>：大纲14道、剧本10道、分镜18道检查全部由脚本执行，不靠AI自觉——每集时长偏差±15%、单句台词≤35字、钩子必须在前3拍内兑现、角色光照道具逐项对账上游。装好后自测1559项全过。</p>
+<p>坦白说时间线上，这套技能是在《重生之我在牙科只想搞钱》剧本定稿之后装好的，它完整跑通的是我的另一个项目《我能看见牙齿的词条》（7集，质量门全绿）。但两件事是真的：<strong>它验证了"结构化JSON+质量门"这条路在个人电脑上完全走得通</strong>，而且它的分镜投产包格式（每段不超过15秒、Picture 1到n对应切点时刻）直接反哺了我后续项目的分镜交付标准。</p>
+<p><strong>免费</strong>，开源，clone下来就能用。国内直连GitHub不通的话，走 gh-proxy.com 镜像下载压缩包即可。</p>
+<h2>第四步：PAVO——分镜、图片、视频都在这里生成</h2>
+<p>剧本写好了，画面谁来做？<strong>PAVO AI 创作平台（<a href="https://app.pavo-ai.cn" rel="nofollow noopener" target="_blank">https://app.pavo-ai.cn</a>）</strong>，短剧模式，把整本剧本喂进去，它自动拆成分镜，逐镜出首帧图片、再图生视频。</p>
+<p>但手动点374个镜头会点死人。于是WorkBuddy又干了件活：<strong>给我写了一个监督器脚本</strong>，驱动已登录的浏览器，在PAVO的分镜评审页上自动干活——</p>
+<ul><li>单发串行：同一时刻只跑1个任务，避免被服务端队列静默丢弃</li><li>先图后视频：本镜图片OK才提交该镜视频</li><li>集集推进：第N集全部完成才进第N+1集</li><li>失败无限重试：断点可续，浏览器会话失效自动重建</li></ul>
+<p>从10月25日晚到28日，第8-20集的图片+视频就这么自己跑完的。<strong>人只负责开机和验收。</strong></p>
+<h2>第五步：道具图不能靠AI硬画，要"底图+叠字"</h2>
+<p>剧里有一张贯穿全剧的999元种牙传单和三张牙片（全景片/根尖片/种植体），都是本地生成的：</p>
+<ul><li>传单：AI只出<strong>空白底图</strong>（红纸/蓝纸、折痕、铜版纸反光），中文用PIL逐字叠上去。印刷真实感的秘诀是<strong>文字颜色乘纸张亮度</strong>，让折痕穿过文字产生明暗，不然像贴纸。</li><li>牙片：AI画的"牙片"通常是一排整齐牙齿正视图，一眼假。真实全景片是马蹄形展开，必须同时有上颌窦、鼻中隔、颞下颌关节、下颌神经管、骨小梁五样东西——提示词里逐项点名，缺一样内行就出戏。</li></ul>
+<h2>成本清单：到底花了多少钱</h2>
+<div style="overflow-x:auto;margin:0 0 20px;"><table style="width:100%;border-collapse:collapse;font-size:0.95em;"><thead><tr><th>环节</th><th>工具</th><th>费用</th></tr></thead><tbody><tr><td>剧本+规范迭代</td><td>WorkBuddy + 免费模型通道</td><td>0元</td></tr><tr><td>质量门技能</td><td>shuohao-skills（GitHub开源）</td><td>0元</td></tr><tr><td>分镜图片+视频</td><td>PAVO 创作平台</td><td>免费额度内</td></tr><tr><td>批量自动化</td><td>WorkBuddy写的监督器脚本</td><td>0元</td></tr><tr><td>道具图</td><td>生图 + Python/PIL</td><td>0元</td></tr></tbody></table></div>
+<p>一分钱付费订阅没花。当然，免费额度有它的节奏——批量生成排队、限流重试是常态，这条链路真正的成本是<strong>你的方法论和耐心</strong>。</p>
+<h2>踩坑合集（每条都值回票价）</h2>
+<ol><li>AI画面写字必乱码 → 底图+后期叠字</li><li>语速快是台词密度问题，不是配音问题 → 4.5字/秒硬上限，超了拆镜不砍字</li><li>角色"锚点句"换一个字就换脸 → 原样复用</li><li>人物生图三大顽疾：脚变形、下半身失踪、患者太土 → 都有对应的提示词定式（服装边界四锁、去土味三原则）</li><li>GitHub直连不通 → gh-proxy.com 镜像</li><li>浏览器自动化会话会失效 → 脚本里写自愈逻辑</li><li>连续憋屈超过1集，观众就划走 → 爽点密度是硬指标</li></ol>
+<h2>写在最后</h2>
+<p>这篇是纯经验沉淀。<strong>烽审榜不做短剧代运营，只做经验传播</strong>——但你能从这条链路里看到我们干活的方式：方法论先行、工具全栈打通、能自动化的绝不动手、每个坑都变成写进文档的规矩。品牌咨询、AI落地、GEO优化，用的是同一套底层能力。</p>
+<p>想看这部剧成片的朋友，扫下面的码关注我的视频号「麻烦烽哥」：</p>
+<figure style="margin:28px 0;text-align:center;"><img src="../assets/images/shipinhao-qrcode.jpg" alt="麻烦烽哥视频号二维码——20集AI短剧《重生之我在牙科只想搞钱》成片发布账号" style="max-width:280px;width:100%;height:auto;border-radius:12px;"><figcaption style="margin-top:10px;font-size:0.9em;opacity:0.75;">扫码看成片：视频号「麻烦烽哥」</figcaption></figure>
+<p>想自己上手跑一遍的，用这个链接注册 WorkBuddy（新用户有权益）：<a href="https://www.workbuddy.cn/events/invite?inviteCode=rmbjd0icyy0" rel="nofollow noopener" target="_blank">https://www.workbuddy.cn/events/invite?inviteCode=rmbjd0icyy0</a></p>
+<figure style="margin:28px 0;text-align:center;"><img src="../assets/images/workbuddy-invite.png" alt="WorkBuddy 邀请二维码——中国最受欢迎的AI办公伙伴" style="max-width:480px;width:100%;height:auto;border-radius:12px;"><figcaption style="margin-top:10px;font-size:0.9em;opacity:0.75;">WorkBuddy 官方邀约二维码，新用户注册双方有权益</figcaption></figure>
+<h2>常见问题（FAQ）</h2>
+<p><strong>AI短剧可以零成本制作吗？</strong> 可以。本文实录的20集AI短剧《重生之我在牙科只想搞钱》，使用WorkBuddy（含免费模型通道）、GitHub开源技能shuohao-skills、PAVO创作平台免费额度和本地Python脚本，全程零付费工具。</p>
+<p><strong>AI生成视频用什么平台？</strong> 本项目使用PAVO AI创作平台（app.pavo-ai.cn）的短剧模式，整本剧本上传后自动拆分镜、逐镜生成图片和视频。</p>
+<p><strong>shuohao-skills是什么？</strong> GitHub上的开源AI短剧技能包（github.com/eternityspring/shuohao-skills），含大纲、角色卡、美术、剧本、站位、分镜7个技能，内置40余道由脚本执行的确定性质量门。</p>
+<p><strong>AI短剧剧本和传统剧本有什么区别？</strong> 核心区别是"为AI生成而写"：一镜一动作3-6秒、画面不生成中文、角色锚点句逐字复用、台词密度不超4.5字/秒、单文档结构化交付。</p>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "0元跑完一部20集AI短剧：《重生之我在牙科只想搞钱》全流程实录 | 外行澯烽哥",
+  "inLanguage": "zh-CN",
+  "datePublished": "2026-10-31",
+  "author": {
+    "@type": "Person",
+    "name": "外行澯烽哥",
+    "alternateName": "澯烽",
+    "jobTitle": "兴义市烽审榜技术咨询服务行主理人",
+    "description": "十年SEO品牌实战、五年口腔行业深耕，贵州口腔GEO实战第一人，自媒体「外行澯烽哥」主理人"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "兴义市烽审榜技术咨询服务行",
+    "alternateName": "烽审榜",
+    "url": "https://www.fsbtop.top",
+    "telephone": "18081978667",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "兴义市",
+      "addressRegion": "贵州省",
+      "addressCountry": "CN"
+    }
+  },
+  "about": [
+    {"@type": "Thing", "name": "口腔GEO", "description": "生成式引擎优化（Generative Engine Optimization）在口腔行业的应用，目标是让口腔机构进入AI搜索的可信来源"},
+    {"@type": "Thing", "name": "品牌消歧", "description": "解决品牌实体被AI误读、同音近名挤占召回池的实体识别问题"},
+    {"@type": "Thing", "name": "外行澯烽哥"},
+    {"@type": "Thing", "name": "烽审榜"}
+  ]
+}
+</script></div>
+    </article>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><img src="../assets/images/logo.png" alt="烽审榜"><p class="footer-tagline">兴义市烽审榜技术咨询服务行<br>专业企业品牌运营 · 口腔GEO优化 · AI落地赋能</p></div><div class="footer-col"><h4>导航</h4><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a></div><div class="footer-col"><h4>服务</h4><a href="../services.html#brand-operations">企业品牌运营</a><a href="../services.html#dental-operations">口腔运营</a><a href="../services.html#dental-geo">口腔GEO</a><a href="../services.html#ai-empowerment">AI落地赋能</a><a href="../services.html#foreign-trade">外贸出海</a></div><div class="footer-col"><h4>联系</h4><a href="mailto:contact@fengshenbang.com" data-site-email>邮箱咨询</a><a href="../contact.html">联系我们</a><a href="../about.html">关于我们</a><a href="../admin/login.html">后台登录</a></div><div class="footer-col footer-friendlinks-col"><h4>友情链接</h4><select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,'_blank','noopener');}"><option value="">友情链接 ▾</option><option value="https://yiyidso.com">医翼医疗</option><option value="https://www.chinadentaltravel.com/">中国口腔医疗旅游</option><option value="https://www.wanyingmetal.com/">WanYinMetal</option><option value="https://www.jinghongpins.com/">JingHongPins</option></select><div class="fl-seo" aria-hidden="true"><a href="https://yiyidso.com" target="_blank" rel="noopener">医翼医疗</a><a href="https://www.chinadentaltravel.com/" target="_blank" rel="noopener">中国口腔医疗旅游</a><a href="https://www.wanyingmetal.com/" target="_blank" rel="noopener">WanYinMetal</a><a href="https://www.jinghongpins.com/" target="_blank" rel="noopener">JingHongPins</a></div></div></div><div class="footer-bottom"><p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p><p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p></div></div></footer>
+</body>
+</html>
