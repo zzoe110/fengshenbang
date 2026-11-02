@@ -491,6 +491,63 @@ function buildSitemap(cases, blogs) {
     items + '\n</urlset>\n';
 }
 
+// ---------- 首页「最新文章」注入 ----------
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// 卡片标题去掉 SEO 后缀，视觉更干净
+function cardTitle(t) {
+  return String(t || '').replace(/\s*\|\s*外行澯烽哥\s*$/, '');
+}
+
+function renderLatestPosts(blogs, limit) {
+  const top = (blogs || [])
+    .filter(b => b && b.id && b.publishDate)
+    .sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate))
+    .slice(0, limit || 3);
+
+  return top.map((b, i) => {
+    const catLabel = b.category === 'tech' ? '技术' : '业务';
+    const delay = (i % 3) + 1;
+    return '        <a class="latest-card fade-in fade-in-delay-' + delay + '" href="blog/' + b.id + '.html">\n' +
+      '          <div class="latest-meta">\n' +
+      '            <span class="latest-cat">' + catLabel + '</span>\n' +
+      '            <span>' + escHtml(b.publishDate) + '</span>\n' +
+      '            <span>· ' + escHtml(b.readTime) + ' 分钟</span>\n' +
+      '          </div>\n' +
+      '          <h3 class="latest-card-title">' + escHtml(cardTitle(b.title)) + '</h3>\n' +
+      '          <p class="latest-card-summary">' + escHtml(b.summary) + '</p>\n' +
+      '          <div class="latest-card-footer">\n' +
+      '            <span>✍️ ' + escHtml(b.author) + '</span>\n' +
+      '            <span class="latest-read">阅读全文 →</span>\n' +
+      '          </div>\n' +
+      '        </a>';
+  }).join('\n');
+}
+
+// 把最新 3 篇写进 index.html 的 LATEST_POSTS 区间（幂等，内容不变则不写盘）
+function injectLatestPosts(blogs) {
+  const file = path.join(ROOT, 'index.html');
+  if (!fs.existsSync(file)) return false;
+
+  const html = fs.readFileSync(file, 'utf8');
+  const START = '<!-- LATEST_POSTS:START -->';
+  const END = '<!-- LATEST_POSTS:END -->';
+  const i = html.indexOf(START);
+  const j = html.indexOf(END);
+  if (i === -1 || j === -1 || j < i) return false;
+
+  const block = renderLatestPosts(blogs, 3);
+  const next = html.slice(0, i + START.length) + '\n' + block + '\n        ' + html.slice(j);
+  if (next !== html) fs.writeFileSync(file, next, 'utf8');
+  return true;
+}
+
 // ---------- 主流程 ----------
 function main() {
   const casesData = readJson('data/cases.json');
@@ -515,9 +572,12 @@ function main() {
     count++;
   });
 
+  const injected = injectLatestPosts(blogs);
+
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), buildSitemap(cases, blogs), 'utf8');
 
-  console.log('[SSG] 生成 ' + cases.length + ' 篇案例 + ' + blogs.length + ' 篇博客静态详情页，已更新 sitemap.xml');
+  console.log('[SSG] 生成 ' + cases.length + ' 篇案例 + ' + blogs.length + ' 篇博客静态详情页，已更新 sitemap.xml'
+    + (injected ? '，首页最新文章已同步' : '（首页未找到 LATEST_POSTS 占位，跳过最新文章注入）'));
 }
 
 main();
