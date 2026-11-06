@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI替我把文章填进三个后台，然后在「发布」按钮前停了手 | 外行澯烽哥</title>
+  <meta name="description" content="以前让 AI 干浏览器的活要装第三方技能 BrowserSkill，现在官方集成进后台，一个开关加一个扩展。拆解两次方案的真正区别：标签开在你自己的窗口、登录态不动、WorkBuddy 角标可分辨，以及「AI 干到九成九、发布按钮留给人」的边界规矩。">
+  <meta name="keywords" content="AI浏览器操控,BrowserSkill,WorkBuddy,内容分发,AI落地,自动化填稿,效率工作流">
+  <meta name="author" content="外行澯烽哥">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="AI替我把文章填进三个后台，然后在「发布」按钮前停了手 | 外行澯烽哥">
+  <meta property="og:description" content="以前让 AI 干浏览器的活要装第三方技能 BrowserSkill，现在官方集成进后台，一个开关加一个扩展。拆解两次方案的真正区别：标签开在你自己的窗口、登录态不动、WorkBuddy 角标可分辨，以及「AI 干到九成九、发布按钮留给人」的边界规矩。">
+  <meta property="og:url" content="https://www.fsbtop.top/blog/ai-browser-takeover.html">
+  <meta property="og:image" content="https://www.fsbtop.top/assets/images/og-default.png">
+  <meta property="og:site_name" content="烽审榜">
+  <meta property="article:published_time" content="2026-11-06">
+  <link rel="canonical" href="https://www.fsbtop.top/blog/ai-browser-takeover.html">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <style>
+    .article-container { max-width: 800px; margin: 6rem auto 3rem; padding: 0 1.5rem; }
+    .article-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+    .article-cover { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 2rem; background: var(--color-bg-secondary); }
+    .article-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-gold-secondary); text-decoration: none; font-size: var(--fs-sm); margin-bottom: 2rem; }
+    .article-back:hover { color: var(--color-gold-highlight); }
+    .article-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--fs-xs); font-weight: 600; margin-bottom: 1rem; }
+    .article-category.tech { background: rgba(76,175,80,0.15); color: #4caf50; }
+    .article-category.business { background: rgba(33,150,243,0.15); color: #2196f3; }
+    .article-title { font-size: var(--fs-3xl); font-weight: 800; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 1rem; }
+    .article-meta { display: flex; gap: 1.5rem; color: var(--color-text-tertiary); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .article-meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .article-tag { padding: 0.2rem 0.6rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 4px; font-size: var(--fs-xs); color: var(--color-text-tertiary); }
+    .article-content { font-size: var(--fs-base); line-height: 1.8; color: var(--color-text-secondary); }
+    .article-content p { margin-bottom: 1.25rem; }
+    .article-content h2 { font-size: var(--fs-2xl); margin: 2rem 0 1rem; color: var(--color-text-primary); }
+    .article-content h3 { font-size: var(--fs-lg); margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
+    .article-content ul, .article-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+    .article-content li { margin-bottom: 0.5rem; }
+    .article-content img { max-width: 100%; border-radius: var(--radius-md); margin: 1.5rem 0; }
+    .article-content blockquote { border-left: 3px solid var(--color-gold-primary); padding: 1rem 1.5rem; margin: 1.5rem 0; background: var(--color-bg-secondary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .article-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--fs-sm); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+    .article-content thead { background: var(--color-bg-secondary); }
+    .article-content th, .article-content td { border: 1px solid var(--color-border); padding: 0.6rem 0.9rem; text-align: left; min-width: 90px; line-height: 1.5; }
+    .article-content th { font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+    .article-content tbody tr:nth-child(even) { background: var(--color-bg-secondary); }
+    .article-content tbody tr:hover { background: rgba(201,162,77,0.08); }
+</style>
+  <!-- 主题系统：theme.css(悬浮切换按钮样式) + theme.js(日间/黑金切换与默认主题，与首页共用 localStorage 保持一致) -->
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <script src="../assets/js/theme.js"></script>
+  <script type="application/ld+json" id="fsb-static-jsonld">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "兴义市烽审榜技术咨询服务行",
+      "alternateName": "烽审榜",
+      "url": "https://www.fsbtop.top/",
+      "logo": "https://www.fsbtop.top/assets/images/logo.png",
+      "description": "兴义市烽审榜技术咨询服务行（商标「烽审榜」）提供企业品牌运营、口腔内外运营、口腔GEO优化、AI落地赋能、传统企业策划与YouTuber出海服务，覆盖品牌定位、AI搜索优化、智能体开发全链路，已服务150+客户、满意度98%。",
+      "slogan": "从品牌到AI，助力企业破局增长",
+      "foundingLocation": { "@type": "Place", "name": "贵州省兴义市" },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "贵州省" },
+        { "@type": "AdministrativeArea", "name": "兴义市" },
+        { "@type": "Country", "name": "中国" }
+      ],
+      "address": { "@type": "PostalAddress", "addressRegion": "贵州省", "addressLocality": "兴义市", "addressCountry": "CN" },
+      "knowsAbout": ["企业品牌运营","品牌策划","品牌定位","VI视觉设计","新媒体矩阵运营","口腔GEO优化","生成式引擎优化","GEO优化","AI搜索优化","口腔内外运营","口腔门诊运营","口腔机构获客","AI落地赋能","企业AI应用","智能体开发","员工AI培训","传统企业策划","企业数字化转型","传统企业转型","YouTuber运营","YouTube频道出海运营"],
+      "founder": { "@type": "Person", "name": "外行澯烽哥", "alternateName": "澯烽" }
+    },
+    {
+      "@type": "Person",
+      "name": "外行澯烽哥",
+      "alternateName": "澯烽",
+      "jobTitle": "烽审榜主理人",
+      "url": "https://www.fsbtop.top/",
+      "worksFor": { "@type": "Organization", "name": "兴义市烽审榜技术咨询服务行", "url": "https://www.fsbtop.top/" },
+      "description": "外行澯烽哥，兴义市烽审榜技术咨询服务行主理人，专注口腔GEO优化、企业品牌运营与AI落地赋能，以「外行」视角拆解专业、用营销思维做口腔科普。",
+      "knowsAbout": ["口腔GEO优化","生成式引擎优化","企业品牌运营","AI落地赋能","智能体开发","口腔科普","新媒体内容营销"]
+    }
+  ]
+}
+</script>
+  <script>
+(function(){
+var el = document.createElement("script");
+el.src = "https://lf1-cdn-tos.bytegoofy.com/goofy/ttzz/push.js?27db1be7c9185e037665c3fff17bc969114b243c37dcfe3ff4125fdf92a1e9dbfd9a9dcb5ced4d7780eb6f3bbd089073c2a6d54440560d63862bbf4ec01bba3a";
+el.id = "ttzz";
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(el, s);
+})(window)
+</script>
+</head>
+<body data-nav="blog">
+  <header class="header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../assets/images/logo.png" alt="烽审榜 Logo">
+        <span class="logo-text">技术咨询服务行</span>
+      </a>
+      <nav class="nav"><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html" class="active">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a><a href="../admin/login.html" class="nav-cta">后台登录</a></nav>
+      <button class="menu-toggle" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="article-container">
+    <a href="../blog.html" class="article-back">← 返回博客列表</a>
+    
+    <article>
+      <div class="article-header">
+        <span class="article-category ai">📈 业务</span>
+        <h1 class="article-title">AI替我把文章填进三个后台，然后在「发布」按钮前停了手 | 外行澯烽哥</h1>
+        <div class="article-meta">
+          <span>✍️ 外行澯烽哥</span>
+          <span>📅 2026-11-06</span>
+          <span>⏱ 9 分钟</span>
+        </div>
+        <div class="article-tags"><span class="article-tag">#AI浏览器操控</span><span class="article-tag">#内容分发</span><span class="article-tag">#AI落地</span><span class="article-tag">#BrowserSkill</span><span class="article-tag">#WorkBuddy</span><span class="article-tag">#效率工作流</span></div>
+      </div>
+      <div class="article-content"><p>晚上十一点，我电脑上开着三个标签页：搜狐号后台、网易号、百家号。</p>
+<p>每个页面里，标题、正文、摘要、封面、原创声明，都填好了。</p>
+<p>填这些的不是我，是我们家 AI。它填完最后一项就停了手，说：发布按钮留给你。</p>
+<p>这事本身够有意思。但我今天真正想讲的另一件事：干这个活的能力，以前得装第三方技能，现在官方直接集成在后台里了。一个开关的事。</p>
+<h2>一、以前：请了个「编外临时工」</h2>
+<p>先交代背景。我是干品牌的，现在主攻口腔机构的 AI 落地和县域企业的数字基建。听起来像创意工作，实际上大头是搬运：一篇文章写完，官网发一遍，公众号排一遍版，搜狐号、网易号、百家号各填一遍后台。</p>
+<p>三个后台三个脾气。有的编辑器是花架子，有的正文框藏在 iframe 里，有的标题框卡字数，超一个字就存不进去。这种活机械、重复，还费眼睛，干到第三个平台人就开始敷衍了。</p>
+<p>以前的办法，是给 AI 装个浏览器技能。我用的是 BrowserSkill，腾讯官方出品的浏览器操控技能，正经大厂作品，能力不弱：开页面、读内容、截图、填表单、点按钮，网页上的活它基本都能干。我前一阵往搜狐、网易、百家三个后台填稿，用的就是它。</p>
+<p>但它的形态是个独立技能，相当于请了个编外临时工：活能干，但你得管吃住。它有自己的一套会话管理，掉线了要重开会话；跟我平时干活的工作台是两套系统，标签页、登录态、上下文，很多信息得来回传话。能力在线，用起来总隔着一层。</p>
+<h2>二、现在：官方把活收编了</h2>
+<p>前两天我把这套全换了。BrowserSkill 停用，改用 AI 助手自带的浏览器操控。</p>
+<p>过程简单得不像话，三步。</p>
+<p>第一步，打开开关。设置里的智能体页面，有个「让 WorkBuddy 控制浏览器」，拨到打开。</p>
+<p>第二步，装个扩展。Chrome、Edge、QQ 浏览器都有官方扩展，装在哪个浏览器，AI 就能接管哪个。我用 Chrome，装完显示「已安装」，行了。</p>
+<p>第三步，交代活。说人话就行：「把这篇稿子填到搜狐号后台，填完停下等我确认。」</p>
+<p>没有命令行，没有配置文件，没有临时工的自带干粮。</p>
+<p>BrowserSkill 没做错什么，活一直干得不错。只是官方把同样的能力收进了后台，我就没必要同时养两套了。</p>
+<h2>三、真正的区别在这</h2>
+<p>你要是觉得这次升级就是「少装个插件」，那就看浅了。</p>
+<p>第一个区别，AI 干活的地方变了。</p>
+<p>以前用 BrowserSkill，它也能接管标签页，但标签开在一个单独的窗口里，不在我的浏览器里。它干活的时候，我得专门切到那个窗口看。有次网易号登录过期，它把登录页开好等我，我在电脑前找了半天那个窗口，干着急。</p>
+<p>现在换成后台内置的，标签直接开在我自己的浏览器窗口里。它在哪个页面、填到哪一步，我瞟一眼就知道。它开的标签带一个 WorkBuddy 角标，一看就知道是 AI 在操作的页面，跟我自己开的不会混。</p>
+<p>第二个区别，它接管的是你自己的浏览器。你的登录态、你扫码登过的后台、存在浏览器里的那些会话，一个都没动。它不是新开一个干净环境让你重新登录，它直接在你已经打开的那个 Chrome 里干活。</p>
+<p>所以账号密码不用交给它，二维码不用扫第二遍，也不用专门给它弄个账号。它就像坐你旁边，用你的屏幕。</p>
+<h2>四、它这几天干的活</h2>
+<p>随手记几件。</p>
+<p>一篇文章填三个后台。搜狐号填到只剩封面，那个按钮它碰不到，留给我手点。百家号的编辑器藏得深，它钻进去填完，还顺手存了草稿。网易号登录过期，它就停在那等我登录，我登完它接着填。</p>
+<p>税务局查申报。前阵子个体户开票被卡住，它接管浏览器进了电子税务局，帮我看那两张申报表的栏次和口径。全程没改一个数，没点一次提交。</p>
+<p>公众号后台查配置。IP 白名单、开发接口，它去翻页面，读给我听。</p>
+<p>税务局那次多说一句：它是只读的。看表、读数、给判断，凡是「提交」「更正」这种动作，全退出来让我自己点。</p>
+<p>顺便说一句，这套干法不是我发明的，<a href="/blog/workbuddy-gzh-four-steps.html">公众号四步实操</a>那篇里写过雏形，现在是升级版：从「发一篇」到了「分发一篇」。</p>
+<h2>五、AI 干到九成九，最后那个按钮是我的</h2>
+<p>不少人担心让 AI 操作浏览器不安全，怕它乱点、乱发。我用了这段时间，体会正好反过来：越用得顺手，越要把边界画清楚。</p>
+<p>我的规矩就一条：简单重复的活全给它，要拍板的事我自己来。</p>
+<p>填后台，交给它。点发布，我来。查申报，交给它。点提交，我来。它干到九成九，最后那个按钮是我的。</p>
+<p>这不叫不信任。请个靠谱的助理，你放心让她把合同打出来，把章放在手边，但盖章那一手是你自己的。</p>
+<p>还有个附带收获，我没料到。因为发布永远留给自己，我会被迫在按钮前多看一遍：这条内容，到底发不发？以前手动搬运，搬到第三个平台人已经烦了，顺手就点了发。现在一切准备好了，我站在按钮前面，反而认真看。最省事的环节留给人做决定，人做决定反而更用心了。</p>
+<h2>六、给你</h2>
+<p>如果你也是每天在各个后台之间搬内容、填表、查数据的人，开机构的也好，做县域生意的也好，这十分钟值得花。</p>
+<p>一个开关，一个扩展，把你最烦的那件重复劳动扔给它试一次。</p>
+<p>试完把发布留给自己。那一手，本来就该是你的。</p>
+<p>你机构、你企业的 AI 落地，从哪些活先交出去开始想。聊得来的。</p>
+<p>电话 / 微信：18081978667</p></div>
+    </article>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><img src="../assets/images/logo.png" alt="烽审榜"><p class="footer-tagline">兴义市烽审榜技术咨询服务行<br>专业企业品牌运营 · 口腔GEO优化 · AI落地赋能</p></div><div class="footer-col"><h4>导航</h4><a href="../index.html">首页</a><a href="../services.html">主营业务</a><a href="../blog.html">博客文章</a><a href="../cases.html">客户案例</a><a href="../about.html">关于我们</a><a href="../contact.html">联系我们</a><a href="../tool/index.html">工具</a></div><div class="footer-col"><h4>服务</h4><a href="../services.html#brand-operations">企业品牌运营</a><a href="../services.html#dental-operations">口腔运营</a><a href="../services.html#dental-geo">口腔GEO</a><a href="../services.html#ai-empowerment">AI落地赋能</a><a href="../services.html#foreign-trade">外贸出海</a></div><div class="footer-col"><h4>联系</h4><a href="mailto:contact@fengshenbang.com" data-site-email>邮箱咨询</a><a href="../contact.html">联系我们</a><a href="../about.html">关于我们</a><a href="../admin/login.html">后台登录</a></div><div class="footer-col footer-friendlinks-col"><h4>友情链接</h4><select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,'_blank','noopener');}"><option value="">友情链接 ▾</option><option value="https://yiyidso.com">医翼医疗</option><option value="https://www.chinadentaltravel.com/">中国口腔医疗旅游</option><option value="https://www.wanyingmetal.com/">WanYinMetal</option><option value="https://www.jinghongpins.com/">JingHongPins</option></select><div class="fl-seo" aria-hidden="true"><a href="https://yiyidso.com" target="_blank" rel="noopener">医翼医疗</a><a href="https://www.chinadentaltravel.com/" target="_blank" rel="noopener">中国口腔医疗旅游</a><a href="https://www.wanyingmetal.com/" target="_blank" rel="noopener">WanYinMetal</a><a href="https://www.jinghongpins.com/" target="_blank" rel="noopener">JingHongPins</a></div></div></div><div class="footer-bottom"><p>© 2026 兴义市烽审榜技术咨询服务行 · 烽审榜®注册商标 · All Rights Reserved</p><p class="footer-icp"><a class="footer-icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">黔ICP备2026013377号</a></p></div></div></footer>
+</body>
+</html>
