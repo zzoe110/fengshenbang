@@ -260,8 +260,8 @@ function renderFooter(base) {
   // 友情链接：下拉 <select>（后台 data/friendlinks.json 可图形管理增删）+ 隐藏 SEO 锚点
   const flHas = SITE.friendLinks && SITE.friendLinks.length;
   const flSelect = flHas
-    ? '<select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,\'_blank\',\'noopener\');}">' +
-        '<option value="">友情链接 ▾</option>' +
+    ? '<select class="fl-select" aria-label="友情链接" onchange="var v=this.value;if(v){window.open(v,\'_blank\',\'noopener\');}this.selectedIndex=0;">' +
+        '<option value="" disabled selected>请选择站点</option>' +
         SITE.friendLinks.map(l => '<option value="' + esc(l.url) + '">' + esc(l.name) + '</option>').join('') +
       '</select>'
     : '';

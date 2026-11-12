@@ -124,8 +124,8 @@
           return;
         }
         var select = '<select class="fl-select" aria-label="友情链接" ' +
-          'onchange="var v=this.value; if(v){ window.open(v, \'_blank\', \'noopener\'); }">' +
-          '<option value="">友情链接 ▾</option>' +
+          'onchange="var v=this.value; if(v){ window.open(v, \'_blank\', \'noopener\'); } this.selectedIndex=0;">' +
+          '<option value="" disabled selected>请选择站点</option>' +
           list.map(function (l) {
             return '<option value="' + esc(l.url) + '">' + esc(l.name) + '</option>';
           }).join('') +
