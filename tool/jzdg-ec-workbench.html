@@ -276,11 +276,18 @@ a{color:var(--brand);text-decoration:none;}
 /* 员工分组样式 */
 .employee-group{margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed var(--line);}
 .employee-group:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
-.employee-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:10px;}
+.employee-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:10px;cursor:pointer;user-select:none;transition:var(--transition);}
+.employee-header:hover{background:#E2E5EA;}
+.employee-header.open{margin-bottom:10px;}
+.employee-header:not(.open){margin-bottom:0;}
 .employee-name{font-size:14px;font-weight:700;color:var(--ink);}
 .employee-stats{font-size:12px;color:var(--ink-3);font-weight:500;}
-.admin-status{font-size:11px;color:var(--green);margin-left:auto;font-weight:600;padding:2px 8px;background:#D1FAE5;border-radius:10px;}
+.admin-status{font-size:11px;color:var(--green);font-weight:600;padding:2px 8px;background:#D1FAE5;border-radius:10px;}
 .admin-status.unchecked{color:var(--orange);background:#FEF3C7;}
+.emp-chevron{margin-left:auto;font-size:11px;color:var(--ink-3);transition:transform .2s ease;}
+.employee-header.open .emp-chevron{transform:rotate(90deg);}
+.employee-body{display:none;}
+.employee-body.open{display:block;}
 .rt-progress{margin-bottom:18px;padding:14px 16px;background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border-radius:12px;border:1px solid #A7F3D0;}
 .rt-progress .rt-label{font-size:13px;color:#065F46;margin-bottom:8px;font-weight:600;}
 .rt-progress .rt-bar{height:10px;background:#D1FAE5;border-radius:5px;overflow:hidden;}
@@ -615,7 +622,7 @@ function relTime(s){
 }
 
 // ============ 全局状态 ============
-const state={users:[],todos:[],meetings:[],commonLinks:[],userLinks:[],roleTasks:[],currentUser:null,reminderTimer:null,myChecks:{},empChecks:{},checksCloud:false};
+const state={users:[],todos:[],meetings:[],commonLinks:[],userLinks:[],roleTasks:[],currentUser:null,reminderTimer:null,myChecks:{},empChecks:{},checksCloud:false,empFold:(function(){try{return JSON.parse(localStorage.getItem('jzqg_emp_fold')||'{}');}catch(e){return {};}})()};
 
 // ============ 数据加载 ============
 async function loadAll(){
@@ -863,14 +870,17 @@ function renderRoleTasks(){
             const empDone=emp.tasks.filter(t=>empChecks[t.id]).length;
             const empTotal=emp.tasks.length;
             const canCheck=emp.id===me.id||isAdmin;
+            const open=!!(state.empFold&&state.empFold[emp.id]);
             return `
             <div class="employee-group">
-              <div class="employee-header">
+              <div class="employee-header ${open?'open':''}" onclick="toggleEmpFold('${emp.id}')" title="点击${open?'收起':'展开'}任务">
                 <span class="role-task-cat ${emp.roleClass}">${emp.roleLabel}</span>
                 <span class="employee-name">👤 ${escapeHtml(emp.display_name)}</span>
                 <span class="employee-stats">${empDone}/${empTotal} 已完成</span>
                 ${isAdmin?`<span class="admin-status ${empDone===empTotal?'':'unchecked'}">${empDone===empTotal?'✓ 全部完成':'○ 未完成'}</span>`:''}
+                <span class="emp-chevron">▶</span>
               </div>
+              <div class="employee-body ${open?'open':''}">
               <div class="role-task-list" style="padding-left:12px;">
                 ${emp.tasks.length?emp.tasks.map(t=>{
                   const isDone=empChecks[t.id];
@@ -883,6 +893,7 @@ function renderRoleTasks(){
                     ${t.assigned_to?`<span class="role-task-cat ${emp.roleClass}" style="font-size:10px">指定</span>`:''}
                   </div>`;
                 }).join(''):'<div style="font-size:12px;color:var(--ink-3);padding:8px 0">暂无任务</div>'}
+              </div>
               </div>
             </div>`;
           }).join('')}
@@ -900,6 +911,12 @@ function renderRoleTasks(){
       <div class="rt-bar"><div class="rt-fill" style="width:${pct}%"></div></div>
       <div class="rt-text">${done}/${myTotal} 已完成 (${pct}%)</div>
     </div>`;
+}
+function toggleEmpFold(empId){
+  state.empFold=state.empFold||{};
+  if(state.empFold[empId]) delete state.empFold[empId]; else state.empFold[empId]=true;
+  try{localStorage.setItem('jzqg_emp_fold',JSON.stringify(state.empFold));}catch(e){}
+  renderRoleTasks();
 }
 async function toggleRoleTask(taskId){
   const task=state.roleTasks.find(t=>t.id===taskId);
